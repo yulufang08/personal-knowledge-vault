@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault — Your Second Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & VARIABLES ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono','Fira Code',monospace;
+  --accent:#7c5cfc;--accent-hover:#6a4af0;--accent-soft:rgba(124,92,252,.1);--accent-glow:rgba(124,92,252,.25);
+  --bg-0:#09090b;--bg-1:#111113;--bg-2:#18181b;--bg-3:#27272a;--bg-4:#3f3f46;
+  --text-0:#fafafa;--text-1:#d4d4d8;--text-2:#a1a1aa;--text-3:#71717a;
+  --border:#27272a;--border-hover:#3f3f46;
+  --green:#34d399;--green-soft:rgba(52,211,153,.12);
+  --red:#f87171;--red-soft:rgba(248,113,113,.12);
+  --yellow:#fbbf24;--yellow-soft:rgba(251,191,36,.12);
+  --blue:#60a5fa;--blue-soft:rgba(96,165,250,.12);
+  --pink:#f472b6;--pink-soft:rgba(244,114,182,.12);
+  --radius:10px;--radius-lg:14px;--radius-xl:18px;
+  --shadow:0 4px 24px rgba(0,0,0,.35);
+  --transition:all .2s cubic-bezier(.4,0,.2,1);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg-0);color:var(--text-0);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
+input,textarea,button{font-family:var(--font)}
+a{color:var(--accent);text-decoration:none}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;height:100vh;position:relative}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:260px;min-width:260px;background:var(--bg-1);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:40;
+}
+.sidebar-brand{padding:20px 20px 12px;display:flex;align-items:center;gap:10px}
+.sidebar-brand .logo{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;
+}
+.sidebar-brand h1{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.sidebar-brand .badge{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--accent-soft);color:var(--accent);font-weight:600;margin-left:auto}
+
+/* Quick actions */
+.quick-actions{padding:0 12px;margin-bottom:8px;display:flex;flex-direction:column;gap:4px}
+.cmd-btn{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  border-radius:var(--radius);border:1px solid var(--border);
+  background:var(--bg-2);color:var(--text-2);cursor:pointer;
+  font-size:13px;transition:var(--transition);
+}
+.cmd-btn:hover{border-color:var(--border-hover);color:var(--text-1);background:var(--bg-3)}
+.cmd-btn .shortcut{margin-left:auto;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+.new-note-btn{
+  display:flex;align-items:center;gap:8px;padding:8px 12px;
+  border-radius:var(--radius);border:none;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  color:#fff;cursor:pointer;font-size:13px;font-weight:500;
+  transition:var(--transition);
+}
+.new-note-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
+
+/* Sidebar nav sections */
+.sidebar-section{padding:0 12px;margin-bottom:4px}
+.sidebar-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);padding:12px 12px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:7px 12px;
+  border-radius:var(--radius);cursor:pointer;color:var(--text-2);
+  font-size:13px;transition:var(--transition);position:relative;
+}
+.nav-item:hover{background:var(--bg-3);color:var(--text-1)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:500}
+.nav-item .icon{width:18px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-item .count{margin-left:auto;font-size:11px;color:var(--text-3);background:var(--bg-3);padding:1px 7px;border-radius:20px}
+
+/* Notes list in sidebar */
+.notes-sidebar{flex:1;overflow-y:auto;padding:4px 12px 12px}
+.note-card{
+  padding:10px 12px;border-radius:var(--radius);cursor:pointer;
+  margin-bottom:2px;transition:var(--transition);border-left:2px solid transparent;
+}
+.note-card:hover{background:var(--bg-3)}
+.note-card.active{background:var(--accent-soft);border-left-color:var(--accent)}
+.note-card h4{font-size:13px;font-weight:500;margin-bottom:2px;color:var(--text-0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-card .snippet{font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-card .meta{display:flex;align-items:center;gap:6px;margin-top:4px}
+.note-card time{font-size:11px;color:var(--text-3)}
+.note-card .tag-dot{width:6px;height:6px;border-radius:50%}
+
+/* Sidebar footer */
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar-footer .avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#34d399,#60a5fa);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;
+}
+.sidebar-footer .user-info{flex:1}
+.sidebar-footer .user-name{font-size:12px;font-weight:500}
+.sidebar-footer .user-plan{font-size:11px;color:var(--text-3)}
+
+/* ===== MAIN CONTENT ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-0);min-width:0}
+
+/* --- Topbar --- */
+.topbar{
+  height:48px;min-height:48px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--bg-1);
+}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-3)}
+.breadcrumb span{cursor:pointer;transition:var(--transition)}
+.breadcrumb span:hover{color:var(--text-1)}
+.breadcrumb .sep{font-size:11px}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.topbar-btn{
+  padding:5px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--text-2);cursor:pointer;font-size:12px;
+  display:flex;align-items:center;gap:5px;transition:var(--transition);
+}
+.topbar-btn:hover{background:var(--bg-3);color:var(--text-1);border-color:var(--border-hover)}
+.topbar-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.topbar-btn.primary:hover{background:var(--accent-hover)}
+.topbar-btn.danger{border-color:var(--red);color:var(--red)}
+.topbar-btn.danger:hover{background:var(--red-soft)}
+
+/* --- Editor title --- */
+.editor-header{padding:32px 48px 0}
+.editor-header input{
+  width:100%;background:transparent;border:none;outline:none;
+  font-size:32px;font-weight:700;color:var(--text-0);letter-spacing:-.5px;
+  line-height:1.2;
+}
+.editor-header input::placeholder{color:var(--text-3)}
+
+/* --- Tags bar --- */
+.tags-bar{padding:12px 48px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;
+  cursor:default;transition:var(--transition);
+}
+.tag-pill.purple{background:var(--accent-soft);color:var(--accent)}
+.tag-pill.green{background:var(--green-soft);color:var(--green)}
+.tag-pill.blue{background:var(--blue-soft);color:var(--blue)}
+.tag-pill.pink{background:var(--pink-soft);color:var(--pink)}
+.tag-pill.yellow{background:var(--yellow-soft);color:var(--yellow)}
+.tag-pill .remove{cursor:pointer;opacity:.6;transition:opacity .15s;font-size:14px;line-height:1}
+.tag-pill .remove:hover{opacity:1}
+.tag-add-input{
+  background:transparent;border:1px dashed var(--border);padding:3px 10px;
+  border-radius:20px;font-size:12px;color:var(--text-1);outline:none;width:120px;
+  transition:var(--transition);
+}
+.tag-add-input:focus{border-color:var(--accent);border-style:solid}
+.tag-add-input::placeholder{color:var(--text-3)}
+
+/* --- Editor area --- */
+.editor-body{flex:1;display:flex;overflow:hidden}
+.editor-pane{flex:1;padding:16px 48px 48px;overflow-y:auto}
+.editor-pane textarea{
+  width:100%;height:100%;background:transparent;border:none;outline:none;resize:none;
+  color:var(--text-1);font-family:var(--mono);font-size:14px;line-height:1.8;
+}
+.editor-pane textarea::placeholder{color:var(--text-3)}
+.preview-pane{
+  flex:1;padding:16px 48px 48px;overflow-y:auto;
+  border-left:1px solid var(--border);
+}
+.preview-pane h1{font-size:28px;font-weight:700;margin:20px 0 8px;color:var(--text-0);letter-spacing:-.3px}
+.preview-pane h2{font-size:22px;font-weight:600;margin:18px 0 6px;color:var(--text-0);letter-spacing:-.2px}
+.preview-pane h3{font-size:17px;font-weight:600;margin:14px 0 4px;color:var(--text-1)}
+.preview-pane p{margin:8px 0;color:var(--text-1);line-height:1.8}
+.preview-pane strong{color:var(--text-0);font-weight:600}
+.preview-pane em{color:var(--text-2)}
+.preview-pane code{background:var(--bg-3);padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:13px;color:var(--pink)}
+.preview-pane pre{background:var(--bg-2);border:1px solid var(--border);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:14px 0}
+.preview-pane pre code{background:none;padding:0;color:var(--text-1);font-size:13px}
+.preview-pane blockquote{border-left:3px solid var(--accent);padding:10px 20px;margin:14px 0;background:var(--accent-soft);border-radius:0 var(--radius) var(--radius) 0}
+.preview-pane blockquote p{color:var(--text-2)}
+.preview-pane ul,.preview-pane ol{margin:8px 0 8px 24px;color:var(--text-1)}
+.preview-pane li{margin:4px 0}
+.preview-pane a,.preview-pane .wiki-link{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.preview-pane hr{border:none;height:1px;background:var(--border);margin:20px 0}
+.preview-pane img{max-width:100%;border-radius:var(--radius)}
+.preview-pane table{width:100%;border-collapse:collapse;margin:14px 0}
+.preview-pane th,.preview-pane td{border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:13px}
+.preview-pane th{background:var(--bg-2);font-weight:600}
+
+/* --- Word count bar --- */
+.word-count-bar{
+  height:28px;min-height:28px;border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 48px;gap:16px;
+  font-size:11px;color:var(--text-3);background:var(--bg-1);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{
+  flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  padding:48px;text-align:center;
+}
+.empty-icon{
+  width:80px;height:80px;border-radius:24px;
+  background:linear-gradient(135deg,var(--accent-soft),rgba(167,139,250,.1));
+  display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;
+}
+.empty-state h2{font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px}
+.empty-state p{color:var(--text-3);max-width:360px;line-height:1.7;margin-bottom:20px;font-size:14px}
+.empty-state .hint{display:flex;align-items:center;gap:8px;color:var(--text-3);font-size:12px;margin-top:12px}
+.empty-state .hint kbd{
+  display:inline-flex;align-items:center;padding:2px 7px;
+  background:var(--bg-3);border:1px solid var(--bg-4);border-radius:5px;
+  font-family:var(--mono);font-size:11px;color:var(--text-2);
+}
+
+/* ===== GRAPH VIEW ===== */
+.graph-container{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.graph-header{padding:32px 48px 16px}
+.graph-header h2{font-size:22px;font-weight:600;letter-spacing:-.3px}
+.graph-header p{color:var(--text-3);font-size:13px;margin-top:4px}
+.graph-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:0 48px 20px}
+.stat-card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px;transition:var(--transition);
+}
+.stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-card .stat-icon{font-size:20px;margin-bottom:8px}
+.stat-card .stat-value{font-size:28px;font-weight:700;color:var(--text-0);margin-bottom:2px}
+.stat-card .stat-label{font-size:12px;color:var(--text-3)}
+.graph-canvas-wrap{flex:1;margin:0 48px 24px;border-radius:var(--radius-xl);background:var(--bg-2);border:1px solid var(--border);overflow:hidden;position:relative}
+.graph-canvas-wrap canvas{width:100%;height:100%;cursor:grab}
+.graph-canvas-wrap canvas:active{cursor:grabbing}
+.graph-legend{position:absolute;bottom:16px;left:16px;display:flex;gap:12px;font-size:11px;color:var(--text-3)}
+.graph-legend span{display:flex;align-items:center;gap:4px}
+.graph-legend .dot{width:8px;height:8px;border-radius:50%}
+
+/* ===== SEARCH VIEW ===== */
+.search-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:32px 48px}
+.search-container h2{font-size:22px;font-weight:600;letter-spacing:-.3px;margin-bottom:16px}
+.search-input-wrap{position:relative;margin-bottom:24px}
+.search-input-wrap .icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:16px}
+.search-input{
+  width:100%;padding:14px 16px 14px 44px;
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  color:var(--text-0);font-size:15px;outline:none;transition:var(--transition);
+}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.search-results{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.search-result-item{
+  padding:16px;background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius);cursor:pointer;transition:var(--transition);
+}
+.search-result-item:hover{border-color:var(--accent);background:var(--bg-3)}
+.search-result-item h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.search-result-item p{font-size:13px;color:var(--text-3);line-height:1.5}
+.search-result-item .highlight{background:var(--yellow-soft);color:var(--yellow);padding:0 2px;border-radius:3px}
+.search-result-item time{font-size:11px;color:var(--text-3);margin-top:6px;display:block}
+.search-empty{text-align:center;padding:48px;color:var(--text-3)}
+.search-empty .icon{font-size:40px;margin-bottom:12px;display:block}
+
+/* ===== NOTES GRID VIEW ===== */
+.notes-grid-container{flex:1;overflow-y:auto;padding:32px 48px}
+.notes-grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.notes-grid-header h2{font-size:22px;font-weight:600;letter-spacing:-.3px}
+.view-toggle{display:flex;gap:4px}
+.view-toggle button{
+  padding:6px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--text-3);cursor:pointer;font-size:13px;
+  transition:var(--transition);
+}
+.view-toggle button.active{background:var(--bg-3);color:var(--text-1);border-color:var(--border-hover)}
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.grid-card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden;
+}
+.grid-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),#a78bfa);opacity:0;transition:opacity .2s;
+}
+.grid-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.grid-card:hover::before{opacity:1}
+.grid-card h3{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text-0)}
+.grid-card .card-snippet{font-size:12px;color:var(--text-3);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
+.grid-card .card-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.grid-card time{font-size:11px;color:var(--text-3)}
+.mini-tag{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
+
+/* ===== COMMAND PALETTE ===== */
+.cmd-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:20vh;
+}
+.cmd-overlay.show{display:flex}
+.cmd-palette{
+  width:560px;max-width:90vw;background:var(--bg-2);
+  border:1px solid var(--border);border-radius:var(--radius-xl);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;
+  animation:cmdSlide .15s ease;
+}
+@keyframes cmdSlide{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+.cmd-input{
+  width:100%;padding:16px 20px;background:transparent;border:none;
+  border-bottom:1px solid var(--border);color:var(--text-0);font-size:16px;outline:none;
+}
+.cmd-input::placeholder{color:var(--text-3)}
+.cmd-results{max-height:320px;overflow-y:auto;padding:8px}
+.cmd-result-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:var(--radius);cursor:pointer;color:var(--text-2);
+  font-size:13px;transition:background .1s;
+}
+.cmd-result-item:hover,.cmd-result-item.selected{background:var(--bg-3);color:var(--text-0)}
+.cmd-result-item .cmd-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.cmd-result-item .cmd-shortcut{margin-left:auto;font-size:11px;color:var(--text-3);font-family:var(--mono)}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{
+  padding:12px 20px;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:8px;
+  animation:toastIn .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow);
+}
+.toast.success{background:linear-gradient(135deg,#059669,#34d399)}
+.toast.error{background:linear-gradient(135deg,#dc2626,#f87171)}
+.toast.info{background:linear-gradient(135deg,#7c5cfc,#a78bfa)}
+@keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.toast-exit{animation:toastOut .2s ease forwards}
+@keyframes toastOut{to{transform:translateX(20px);opacity:0}}
+
+/* ===== MOBILE ===== */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--bg-1);border-top:1px solid var(--border);padding:8px 0 env(safe-area-inset-bottom,8px)}
+.mobile-nav-inner{display:flex;justify-content:space-around}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;color:var(--text-3);font-size:10px;cursor:pointer;transition:var(--transition)}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item .icon{font-size:20px}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-nav{display:block}
+  .editor-header{padding:24px 20px 0}
+  .tags-bar{padding:12px 20px}
+  .editor-pane{padding:16px 20px 48px}
+  .preview-pane{padding:16px 20px 48px}
+  .word-count-bar{padding:0 20px}
+  .graph-header,.graph-stats,.graph-canvas-wrap{padding-left:20px;padding-right:20px;margin-left:0;margin-right:0}
+  .search-container,.notes-grid-container{padding:24px 20px}
+  .notes-grid{grid-template-columns:1fr}
+  .main{padding-bottom:60px}
+}
+
+/* ===== EXPORT MODAL ===== */
+.modal-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  z-index:100;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  animation:cmdSlide .15s ease;
+}
+.modal h2{font-size:18px;font-weight:600;margin-bottom:16px}
+.modal-option{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:var(--transition);margin-bottom:8px;
+}
+.modal-option:hover{border-color:var(--accent);background:var(--accent-soft)}
+.modal-option .opt-icon{font-size:20px}
+.modal-option .opt-label{font-weight:500;font-size:14px}
+.modal-option .opt-desc{font-size:12px;color:var(--text-3)}
+.modal-close{
+  margin-top:16px;width:100%;padding:10px;border:1px solid var(--border);
+  border-radius:var(--radius);background:transparent;color:var(--text-2);
+  cursor:pointer;font-size:13px;transition:var(--transition);
+}
+.modal-close:hover{background:var(--bg-3)}
+
+/* ===== DAILY NOTE BANNER ===== */
+.daily-banner{
+  margin:0 48px 0;padding:16px 20px;
+  background:linear-gradient(135deg,rgba(124,92,252,.08),rgba(96,165,250,.08));
+  border:1px solid rgba(124,92,252,.15);border-radius:var(--radius-lg);
+  display:flex;align-items:center;gap:12px;
+}
+.daily-banner .daily-icon{font-size:24px}
+.daily-banner .daily-text h3{font-size:14px;font-weight:500}
+.daily-banner .daily-text p{font-size:12px;color:var(--text-3)}
+.daily-banner button{
+  margin-left:auto;padding:6px 14px;border-radius:6px;
+  border:1px solid var(--accent);background:transparent;
+  color:var(--accent);cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition);
+}
+.daily-banner button:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- Command Palette -->
+<div class="cmd-overlay" id="cmdOverlay" onclick="if(event.target===this)closeCmdPalette()">
+  <div class="cmd-palette">
+    <input class="cmd-input" id="cmdInput" placeholder="Type a command or search..." oninput="filterCommands(this.value)" onkeydown="handleCmdKey(event)">
+    <div class="cmd-results" id="cmdResults"></div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal" onclick="if(event.target===this)closeExportModal()">
+  <div class="modal">
+    <h2>Export Notes</h2>
+    <div class="modal-option" onclick="exportNotes('markdown')">
+      <div class="opt-icon">📝</div>
+      <div><div class="opt-label">Markdown</div><div class="opt-desc">Export all notes as .md files</div></div>
+    </div>
+    <div class="modal-option" onclick="exportNotes('json')">
+      <div class="opt-icon">📦</div>
+      <div><div class="opt-label">JSON</div><div class="opt-desc">Full data export with metadata</div></div>
+    </div>
+    <div class="modal-option" onclick="exportNotes('html')">
+      <div class="opt-icon">🌐</div>
+      <div><div class="opt-label">HTML</div><div class="opt-desc">Rendered notes as web pages</div></div>
+    </div>
+    <button class="modal-close" onclick="closeExportModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- App -->
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">V</div>
+      <h1>Vault</h1>
+      <span class="badge">BETA</span>
+    </div>
+
+    <div class="quick-actions">
+      <button class="new-note-btn" onclick="createNote()">
+        <span>✦</span> New Note
+      </button>
+      <button class="cmd-btn" onclick="openCmdPalette()">
+        <span>⌘</span> Command Palette
+        <span class="shortcut">Ctrl K</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Navigate</div>
+      <div class="nav-item active" onclick="switchView('home',this)" data-view="home">
+        <span class="icon">🏠</span> Home
+      </div>
+      <div class="nav-item" onclick="switchView('notes',this)" data-view="notes">
+        <span class="icon">📄</span> All Notes <span class="count" id="navNoteCount">0</span>
+      </div>
+      <div class="nav-item" onclick="switchView('graph',this)" data-view="graph">
+        <span class="icon">🔮</span> Graph View
+      </div>
+      <div class="nav-item" onclick="switchView('search',this)" data-view="search">
+        <span class="icon">🔍</span> Search
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Recent</div>
+    </div>
+    <div class="notes-sidebar" id="notesList"></div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">U</div>
+      <div class="user-info">
+        <div class="user-name">Guest User</div>
+        <div class="user-plan">Free Plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" id="mainContent">
+    <!-- Will be rendered by JS -->
+  </main>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <div class="mobile-nav-item active" onclick="switchView('home');closeSidebar()"><span class="icon">🏠</span>Home</div>
+    <div class="mobile-nav-item" onclick="switchView('notes');closeSidebar()"><span class="icon">📄</span>Notes</div>
+    <div class="mobile-nav-item" onclick="createNote();closeSidebar()"><span class="icon">✦</span>New</div>
+    <div class="mobile-nav-item" onclick="switchView('graph');closeSidebar()"><span class="icon">🔮</span>Graph</div>
+    <div class="mobile-nav-item" onclick="toggleSidebar()"><span class="icon">☰</span>Menu</div>
+  </div>
+</nav>
+
+<script>
+// ===== STATE =====
+const API = '/api';
+let notes = [];
+let currentNote = null;
+let currentView = 'home';
+let selectedCmdIndex = 0;
+const tagColors = ['purple','green','blue','pink','yellow'];
+
+// ===== INIT =====
+async function init() {
+  await fetchNotes();
+  renderHome();
+  bindKeyboard();
+}
+
+function bindKeyboard() {
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
+    if (e.key === 'Escape') { closeCmdPalette(); closeExportModal(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); createNote(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && currentNote) { e.preventDefault(); saveNote(); }
+  });
+}
+
+// ===== DATA =====
+async function fetchNotes() {
+  try {
+    const r = await fetch(API + '/notes');
+    const d = await r.json();
+    notes = d.data || [];
+    renderNotesList();
+    document.getElementById('navNoteCount').textContent = notes.length;
+  } catch(e) { console.error('Failed to fetch notes:', e); }
+}
+
+async function createNote() {
+  try {
+    const r = await fetch(API + '/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Untitled', content: '', markdown: '' })
+    });
+    const d = await r.json();
+    if (d.data) {
+      await fetchNotes();
+      openNote(d.data.id);
+      toast('Note created', 'success');
+    }
+  } catch(e) { toast('Failed to create note', 'error'); }
+}
+
+async function openNote(id) {
+  try {
+    const r = await fetch(API + '/notes/' + id);
+    const d = await r.json();
+    if (d.data) {
+      currentNote = d.data;
+      currentView = 'editor';
+      renderNotesList();
+      renderEditor();
+    }
+  } catch(e) { toast('Failed to open note', 'error'); }
+}
+
+async function saveNote() {
+  if (!currentNote) return;
+  const title = document.getElementById('noteTitle')?.value || currentNote.title;
+  const content = document.getElementById('noteContent')?.value || '';
+  try {
+    await fetch(API + '/notes/' + currentNote.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content, markdown: content })
+    });
+    currentNote.title = title;
+    currentNote.content = content;
+    currentNote.markdown = content;
+    await fetchNotes();
+    toast('Saved', 'success');
+  } catch(e) { toast('Save failed', 'error'); }
+}
+
+async function deleteNote() {
+  if (!currentNote) return;
+  try {
+    await fetch(API + '/notes/' + currentNote.id, { method: 'DELETE' });
+    currentNote = null;
+    await fetchNotes();
+    switchView('home');
+    toast('Note deleted', 'info');
+  } catch(e) { toast('Delete failed', 'error'); }
+}
+
+async function searchNotes(q) {
+  if (!q) return notes;
+  try {
+    const r = await fetch(API + '/search?q=' + encodeURIComponent(q));
+    const d = await r.json();
+    return d.data || [];
+  } catch(e) { return []; }
+}
+
+// ===== RENDER SIDEBAR =====
+function renderNotesList() {
+  const el = document.getElementById('notesList');
+  if (!notes.length) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:12px">No notes yet</div>';
+    return;
+  }
+  el.innerHTML = notes.slice(0, 20).map(n => `
+    <div class="note-card${currentNote && currentNote.id === n.id ? ' active' : ''}" onclick="openNote('${n.id}')">
+      <h4>${esc(n.title || 'Untitled')}</h4>
+      <div class="snippet">${esc(n.description || n.content || 'Empty note')}</div>
+      <div class="meta">
+        <time>${formatDate(n.updated_at || n.created_at)}</time>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== VIEW SWITCHING =====
+function switchView(view, navEl) {
+  currentView = view;
+  currentNote = null;
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  else document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+  // Mobile nav
+  document.querySelectorAll('.mobile-nav-item').forEach((n,i) => n.classList.remove('active'));
+  renderNotesList();
+
+  const m = document.getElementById('mainContent');
+  switch(view) {
+    case 'home': renderHome(); break;
+    case 'notes': renderNotesGrid(); break;
+    case 'graph': renderGraph(); break;
+    case 'search': renderSearchView(); break;
+    default: renderHome();
+  }
+}
+
+// ===== HOME VIEW =====
+function renderHome() {
+  const m = document.getElementById('mainContent');
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  m.innerHTML = `
+    <div style="flex:1;overflow-y:auto;padding:32px 48px">
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:26px;font-weight:700;letter-spacing:-.5px">Good ${getGreeting()}</h2>
+        <p style="color:var(--text-3);font-size:14px;margin-top:4px">${dateStr}</p>
+      </div>
+      <div class="daily-banner">
+        <div class="daily-icon">✨</div>
+        <div class="daily-text">
+          <h3>Start your daily note</h3>
+          <p>Capture thoughts, ideas, and learnings for today</p>
+        </div>
+        <button onclick="createDailyNote()">Open</button>
+      </div>
+      <div style="margin-top:32px">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text-2)">Recent Notes</h3>
+        ${notes.length ? `<div class="notes-grid">${notes.slice(0, 6).map(n => renderGridCard(n)).join('')}</div>`
+        : `<div class="empty-state" style="padding:48px 0">
+            <div class="empty-icon">📝</div>
+            <h2>Your vault is empty</h2>
+            <p>Start building your second brain by creating your first note</p>
+            <button class="new-note-btn" style="margin-top:8px" onclick="createNote()">✦ Create First Note</button>
+            <div class="hint"><kbd>Ctrl</kbd> + <kbd>N</kbd> to quickly create</div>
+          </div>`}
+      </div>
+    </div>
+  `;
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Morning 🌅';
+  if (h < 17) return 'Afternoon ☀️';
+  return 'Evening 🌙';
+}
+
+async function createDailyNote() {
+  const today = new Date().toISOString().split('T')[0];
+  const existing = notes.find(n => n.title === `Daily: ${today}`);
+  if (existing) { openNote(existing.id); return; }
+  try {
+    const r = await fetch(API + '/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: `Daily: ${today}`,
+        content: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n\n## 🔗 Links\n`,
+        markdown: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n\n## 🔗 Links\n`
+      })
+    });
+    const d = await r.json();
+    if (d.data) { await fetchNotes(); openNote(d.data.id); toast('Daily note created', 'success'); }
+  } catch(e) { toast('Failed to create daily note', 'error'); }
+}
+
+// ===== NOTES GRID VIEW =====
+function renderNotesGrid() {
+  const m = document.getElementById('mainContent');
+  m.innerHTML = `
+    <div class="notes-grid-container">
+      <div class="notes-grid-header">
+        <h2>All Notes</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:13px;color:var(--text-3)">${notes.length} notes</span>
+        </div>
+      </div>
+      ${notes.length ? `<div class="notes-grid">${notes.map(n => renderGridCard(n)).join('')}</div>`
+      : `<div class="empty-state"><div class="empty-icon">📄</div><h2>No notes yet</h2><p>Create your first note to get started</p>
+          <button class="new-note-btn" onclick="createNote()">✦ New Note</button></div>`}
+    </div>
+  `;
+}
+
+function renderGridCard(n) {
+  const snippet = (n.description || n.content || n.markdown || 'Empty note').substring(0, 120);
+  return `
+    <div class="grid-card" onclick="openNote('${n.id}')">
+      <h3>${esc(n.title || 'Untitled')}</h3>
+      <div class="card-snippet">${esc(snippet)}</div>
+      <div class="card-footer">
+        <time>${formatDate(n.updated_at || n.created_at)}</time>
+      </div>
+    </div>
+  `;
+}
+
+// ===== EDITOR VIEW =====
+function renderEditor() {
+  if (!currentNote) return;
+  const m = document.getElementById('mainContent');
+  const tags = currentNote.tags || [];
+  m.innerHTML = `
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span onclick="switchView('home')">Vault</span>
+        <span class="sep">›</span>
+        <span onclick="switchView('notes')">Notes</span>
+        <span class="sep">›</span>
+        <span style="color:var(--text-1)">${esc(currentNote.title || 'Untitled')}</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="openExportModal()" title="Export">📤 Export</button>
+        <button class="topbar-btn primary" onclick="saveNote()">💾 Save</button>
+        <button class="topbar-btn danger" onclick="if(confirm('Delete this note?'))deleteNote()">🗑</button>
+      </div>
+    </div>
+    <div class="editor-header">
+      <input id="noteTitle" value="${esc(currentNote.title || '')}" placeholder="Note title..." onchange="autoSaveTitle()">
+    </div>
+    <div class="tags-bar" id="tagsBar">
+      ${tags.map((t, i) => `<span class="tag-pill ${tagColors[i % tagColors.length]}">${esc(t.name)}<span class="remove" onclick="removeTag('${t.name}')">×</span></span>`).join('')}
+      <input class="tag-add-input" placeholder="Add tag..." onkeydown="if(event.key==='Enter'){addTag(this.value);this.value=''}">
+    </div>
+    <div class="editor-body">
+      <div class="editor-pane">
+        <textarea id="noteContent" placeholder="Start writing in Markdown..." oninput="updatePreview();updateWordCount()">${esc(currentNote.markdown || currentNote.content || '')}</textarea>
+      </div>
+      <div class="preview-pane" id="preview"></div>
+    </div>
+    <div class="word-count-bar">
+      <span id="wordCount">0 words</span>
+      <span id="charCount">0 characters</span>
+      <span id="readTime">~0 min read</span>
+      <span style="margin-left:auto">Markdown</span>
+    </div>
+  `;
+  updatePreview();
+  updateWordCount();
+}
+
+function autoSaveTitle() {
+  // Auto-save debounce could be added here
+}
+
+function updatePreview() {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const md = ta.value;
+  document.getElementById('preview').innerHTML = renderMarkdown(md);
+}
+
+function updateWordCount() {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const text = ta.value;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  const mins = Math.max(1, Math.ceil(words / 200));
+  document.getElementById('wordCount').textContent = words + ' words';
+  document.getElementById('charCount').textContent = chars + ' characters';
+  document.getElementById('readTime').textContent = '~' + mins + ' min read';
+}
+
+function renderMarkdown(md) {
+  return md
+    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/~~(.+?)~~/g, '<del>$1</del>')
+    .replace(/^> (.+)$/gm, '<blockquote><p>$1</p></blockquote>')
+    .replace(/^- \[x\] (.+)$/gm, '<div style="display:flex;gap:8px;align-items:center"><span style="color:var(--green)">☑</span><del style="color:var(--text-3)">$1</del></div>')
+    .replace(/^- \[ \] (.+)$/gm, '<div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-3)">☐</span>$1</div>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+    .replace(/\[\[(.+?)\]\]/g, '<span class="wiki-link" onclick="searchAndOpen(\'$1\')">$1</span>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1">')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+async function searchAndOpen(term) {
+  const results = await searchNotes(term);
+  if (results.length) openNote(results[0].id);
+  else toast(`No note found for "${term}"`, 'info');
+}
+
+// ===== TAGS =====
+async function addTag(name) {
+  if (!name || !currentNote) return;
+  const tags = (currentNote.tags || []).map(t => t.name);
+  if (tags.includes(name)) return;
+  tags.push(name);
+  try {
+    await fetch(API + '/notes/' + currentNote.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: currentNote.title,
+        content: currentNote.content || currentNote.markdown || '',
+        markdown: currentNote.markdown || currentNote.content || '',
+        tags: tags
+      })
+    });
+    currentNote.tags = tags.map(t => ({ name: t }));
+    renderEditor();
+    toast('Tag added', 'success');
+  } catch(e) { toast('Failed to add tag', 'error'); }
+}
+
+async function removeTag(name) {
+  if (!currentNote) return;
+  const tags = (currentNote.tags || []).map(t => t.name).filter(t => t !== name);
+  try {
+    await fetch(API + '/notes/' + currentNote.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: currentNote.title,
+        content: currentNote.content || currentNote.markdown || '',
+        markdown: currentNote.markdown || currentNote.content || '',
+        tags: tags
+      })
+    });
+    currentNote.tags = tags.map(t => ({ name: t }));
+    renderEditor();
+  } catch(e) { toast('Failed to remove tag', 'error'); }
+}
+
+// ===== GRAPH VIEW =====
+async function renderGraph() {
+  const m = document.getElementById('mainContent');
+  try {
+    const r = await fetch(API + '/graph');
+    const d = await r.json();
+    const g = d.data || { nodes: [], edges: [] };
+
+    m.innerHTML = `
+      <div class="graph-container">
+        <div class="graph-header">
+          <h2>Knowledge Graph</h2>
+          <p>Visualize connections between your notes</p>
+        </div>
+        <div class="graph-stats">
+          <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-value">${g.nodes.length}</div>
+            <div class="stat-label">Total Notes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔗</div>
+            <div class="stat-value">${g.edges.length}</div>
+            <div class="stat-label">Connections</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">${g.nodes.length > 1 ? ((g.edges.length / (g.nodes.length * (g.nodes.length - 1))) * 100).toFixed(1) : 0}%</div>
+            <div class="stat-label">Density</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-value">${new Set(notes.flatMap(n => (n.tags || []).map(t => t.name))).size || 0}</div>
+            <div class="stat-label">Tags</div>
+          </div>
+        </div>
+        <div class="graph-canvas-wrap">
+          <canvas id="graphCanvas"></canvas>
+          <div class="graph-legend">
+            <span><span class="dot" style="background:var(--accent)"></span> Note</span>
+            <span><span class="dot" style="background:var(--green)"></span> Connected</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    drawGraph(g);
+  } catch(e) {
+    m.innerHTML = '<div class="empty-state"><div class="empty-icon">🔮</div><h2>Graph unavailable</h2><p>Failed to load the knowledge graph</p></div>';
+  }
+}
+
+function drawGraph(g) {
+  const canvas = document.getElementById('graphCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth * 2;
+  canvas.height = wrap.clientHeight * 2;
+  canvas.style.width = wrap.clientWidth + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+
+  if (!g.nodes.length) {
+    ctx.fillStyle = '#71717a';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Create notes with [[links]] to build your graph', W / 2, H / 2);
+    return;
+  }
+
+  // Force-directed layout simulation
+  const nodes = g.nodes.map((n, i) => ({
+    ...n,
+    x: W / 2 + (Math.random() - 0.5) * W * 0.6,
+    y: H / 2 + (Math.random() - 0.5) * H * 0.6,
+    vx: 0, vy: 0,
+    connections: 0
+  }));
+
+  const nodeMap = {};
+  nodes.forEach(n => nodeMap[n.id] = n);
+  g.edges.forEach(e => {
+    if (nodeMap[e.from]) nodeMap[e.from].connections++;
+    if (nodeMap[e.to]) nodeMap[e.to].connections++;
+  });
+
+  // Simple force simulation
+  for (let iter = 0; iter < 100; iter++) {
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        let dx = nodes[j].x - nodes[i].x;
+        let dy = nodes[j].y - nodes[i].y;
+        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        let force = 800 / (dist * dist);
+        nodes[i].vx -= dx / dist * force;
+        nodes[i].vy -= dy / dist * force;
+        nodes[j].vx += dx / dist * force;
+        nodes[j].vy += dy / dist * force;
+      }
+    }
+    // Attraction along edges
+    g.edges.forEach(e => {
+      const a = nodeMap[e.from];
+      const b = nodeMap[e.to];
+      if (!a || !b) return;
+      let dx = b.x - a.x;
+      let dy = b.y - a.y;
+      let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      let force = dist * 0.01;
+      a.vx += dx / dist * force;
+      a.vy += dy / dist * force;
+      b.vx -= dx / dist * force;
+      b.vy -= dy / dist * force;
+    });
+    // Center gravity
+    nodes.forEach(n => {
+      n.vx += (W / 2 - n.x) * 0.005;
+      n.vy += (H / 2 - n.y) * 0.005;
+      n.vx *= 0.85;
+      n.vy *= 0.85;
+      n.x += n.vx;
+      n.y += n.vy;
+      n.x = Math.max(40, Math.min(W - 40, n.x));
+      n.y = Math.max(40, Math.min(H - 40, n.y));
+    });
+  }
+
+  // Draw edges
+  ctx.strokeStyle = 'rgba(124,92,252,0.15)';
+  ctx.lineWidth = 1;
+  g.edges.forEach(e => {
+    const a = nodeMap[e.from];
+    const b = nodeMap[e.to];
+    if (!a || !b) return;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const r = 6 + n.connections * 2;
+    const hasConn = n.connections > 0;
+
+    // Glow
+    if (hasConn) {
+      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 3);
+      grad.addColorStop(0, 'rgba(52,211,153,0.15)');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Node circle
+    ctx.fillStyle = hasConn ? '#34d399' : '#7c5cfc';
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Label
+    ctx.fillStyle = '#d4d4d8';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    const label = n.label.length > 18 ? n.label.substring(0, 18) + '…' : n.label;
+    ctx.fillText(label, n.x, n.y + r + 14);
+  });
+
+  // Click to open note
+  canvas.onclick = function(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = evt.clientX - rect.left;
+    const my = evt.clientY - rect.top;
+    for (const n of nodes) {
+      const r = 6 + n.connections * 2 + 4;
+      if (Math.hypot(mx - n.x, my - n.y) < r) {
+        openNote(n.id);
+        break;
+      }
+    }
+  };
+}
+
+// ===== SEARCH VIEW =====
+function renderSearchView() {
+  const m = document.getElementById('mainContent');
+  m.innerHTML = `
+    <div class="search-container">
+      <h2>Search</h2>
+      <div class="search-input-wrap">
+        <span class="icon">🔍</span>
+        <input class="search-input" id="searchInput" placeholder="Search your vault..." oninput="doSearch(this.value)" autofocus>
+      </div>
+      <div class="search-results" id="searchResults">
+        <div class="search-empty">
+          <span class="icon">💡</span>
+          <p style="margin-top:8px">Type to search across all your notes</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function doSearch(q) {
+  const el = document.getElementById('searchResults');
+  if (!q) {
+    el.innerHTML = '<div class="search-empty"><span class="icon">💡</span><p style="margin-top:8px">Type to search across all your notes</p></div>';
+    return;
+  }
+  const results = await searchNotes(q);
+  if (results.length) {
+    el.innerHTML = results.map(n => `
+      <div class="search-result-item" onclick="openNote('${n.id}')">
+        <h3>${esc(n.title || 'Untitled')}</h3>
+        <p>${esc((n.description || '').substring(0, 150))}</p>
+        <time>${formatDate(n.updated_at || n.created_at)}</time>
+      </div>
+    `).join('');
+  } else {
+    el.innerHTML = `<div class="search-empty"><span class="icon">🔍</span><p style="margin-top:8px">No results for "${esc(q)}"</p></div>`;
+  }
+}
+
+// ===== COMMAND PALETTE =====
+const commands = [
+  { icon: '📝', label: 'New Note', shortcut: 'Ctrl+N', action: () => { closeCmdPalette(); createNote(); } },
+  { icon: '📅', label: 'Daily Note', shortcut: '', action: () => { closeCmdPalette(); createDailyNote(); } },
+  { icon: '🏠', label: 'Go to Home', shortcut: '', action: () => { closeCmdPalette(); switchView('home'); } },
+  { icon: '📄', label: 'All Notes', shortcut: '', action: () => { closeCmdPalette(); switchView('notes'); } },
+  { icon: '🔮', label: 'Knowledge Graph', shortcut: '', action: () => { closeCmdPalette(); switchView('graph'); } },
+  { icon: '🔍', label: 'Search Notes', shortcut: 'Ctrl+K', action: () => { closeCmdPalette(); switchView('search'); } },
+  { icon: '📤', label: 'Export Notes', shortcut: '', action: () => { closeCmdPalette(); openExportModal(); } },
+  { icon: '💾', label: 'Save Current Note', shortcut: 'Ctrl+S', action: () => { closeCmdPalette(); saveNote(); } },
+];
+
+function openCmdPalette() {
+  selectedCmdIndex = 0;
+  document.getElementById('cmdOverlay').classList.add('show');
+  document.getElementById('cmdInput').value = '';
+  document.getElementById('cmdInput').focus();
+  filterCommands('');
+}
+
+function closeCmdPalette() {
+  document.getElementById('cmdOverlay').classList.remove('show');
+}
+
+function filterCommands(q) {
+  const filtered = q
+    ? [...commands.filter(c => c.label.toLowerCase().includes(q.toLowerCase())),
+       ...notes.filter(n => (n.title || '').toLowerCase().includes(q.toLowerCase())).slice(0, 5).map(n => ({
+         icon: '📄', label: n.title || 'Untitled', shortcut: '', action: () => { closeCmdPalette(); openNote(n.id); }
+       }))]
+    : commands;
+  selectedCmdIndex = 0;
+  const el = document.getElementById('cmdResults');
+  el.innerHTML = filtered.map((c, i) => `
+    <div class="cmd-result-item${i === 0 ? ' selected' : ''}" onclick="cmdActions[${i}]()" data-idx="${i}">
+      <span class="cmd-icon">${c.icon}</span>
+      ${esc(c.label)}
+      ${c.shortcut ? `<span class="cmd-shortcut">${c.shortcut}</span>` : ''}
+    </div>
+  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:13px">No results</div>';
+  window.cmdActions = filtered.map(c => c.action);
+  window.cmdFiltered = filtered;
+}
+
+function handleCmdKey(e) {
+  const items = document.querySelectorAll('.cmd-result-item');
+  if (e.key === 'ArrowDown') { e.preventDefault(); selectedCmdIndex = Math.min(selectedCmdIndex + 1, items.length - 1); }
+  if (e.key === 'ArrowUp') { e.preventDefault(); selectedCmdIndex = Math.max(selectedCmdIndex - 1, 0); }
+  if (e.key === 'Enter' && window.cmdActions?.[selectedCmdIndex]) { e.preventDefault(); window.cmdActions[selectedCmdIndex](); return; }
+  if (e.key === 'Escape') { closeCmdPalette(); return; }
+  items.forEach((it, i) => it.classList.toggle('selected', i === selectedCmdIndex));
+}
+
+// ===== EXPORT =====
+function openExportModal() { document.getElementById('exportModal').classList.add('show'); }
+function closeExportModal() { document.getElementById('exportModal').classList.remove('show'); }
+
+function exportNotes(format) {
+  closeExportModal();
+  if (!notes.length) { toast('No notes to export', 'info'); return; }
+
+  let content, filename, type;
+  if (format === 'json') {
+    content = JSON.stringify(notes, null, 2);
+    filename = 'vault-export.json';
+    type = 'application/json';
+  } else if (format === 'markdown') {
+    content = notes.map(n => `# ${n.title || 'Untitled'}\n\n${n.markdown || n.content || ''}\n\n---\n`).join('\n');
+    filename = 'vault-export.md';
+    type = 'text/markdown';
+  } else {
+    content = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vault Export</title>
+      <style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>
+      ${notes.map(n => `<h1>${esc(n.title || 'Untitled')}</h1>${renderMarkdown(n.markdown || n.content || '')}<hr>`).join('')}</body></html>`;
+    filename = 'vault-export.html';
+    type = 'text/html';
+  }
+
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  toast(`Exported as ${format.toUpperCase()}`, 'success');
+}
+
+// ===== MOBILE =====
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
+
+// ===== UTILS =====
+function esc(s) { if (!s) return ''; return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+function formatDate(d) {
+  if (!d) return '';
+  const date = new Date(d);
+  const now = new Date();
+  const diff = now - date;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+  if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${esc(msg)}`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.classList.add('toast-exit'); setTimeout(() => el.remove(), 200); }, 2500);
+}
+
+// Handle window resize for graph
+window.addEventListener('resize', () => {
+  if (currentView === 'graph') renderGraph();
+});
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>

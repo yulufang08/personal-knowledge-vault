@@ -16,8 +16,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# 从builder阶段复制编译后的代码
+# 从builder阶段复制编译后的代码和静态文件
 COPY --from=builder /app/backend/dist ./dist
+COPY --from=builder /app/backend/public ./public
 COPY --from=builder /app/backend/package.json ./package.json
 
 # 仅安装生产依赖
