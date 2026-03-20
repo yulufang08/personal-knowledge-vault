@@ -1,8 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import * as path from 'path';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
@@ -146,8 +145,13 @@ const authenticateToken = (req: Request, res: Response, next: any) => {
 };
 
 // Serve static frontend (before auth middleware so it's publicly accessible)
-const publicPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
+const publicPath = path.resolve(process.cwd(), 'public');
 app.use(express.static(publicPath));
+
+// Fallback: serve index.html for SPA routing
+app.get('/', (_req: Request, res: Response) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 app.use(authenticateToken);
 
