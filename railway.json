@@ -1,0 +1,35 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "dockerfile",
+    "context": ".",
+    "dockerfile": "deployment/Dockerfile.backend"
+  },
+  "deploy": {
+    "restartPolicyType": "always",
+    "restartPolicyMaxRetries": 5,
+    "startCommand": "npm start",
+    "numReplicas": 1,
+    "healthchecks": {
+      "cpu": 500,
+      "memory": 512,
+      "disk": 1024
+    }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": 3001,
+    "JWT_SECRET": "${{ secrets.JWT_SECRET }}",
+    "DB_USER": "${{ services.postgres.user }}",
+    "DB_PASSWORD": "${{ services.postgres.password }}",
+    "DB_HOST": "${{ services.postgres.host }}",
+    "DB_PORT": "${{ services.postgres.port }}",
+    "DB_NAME": "${{ services.postgres.database }}"
+  },
+  "services": {
+    "postgres": {
+      "type": "postgres",
+      "version": "15"
+    }
+  }
+}
