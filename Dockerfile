@@ -6,10 +6,10 @@ WORKDIR /app
 COPY . .
 
 # 安装所有依赖（包括dev）用于构建
-RUN cd backend && npm install --legacy-peer-deps
+RUN cd backend && npm install --legacy-peer-deps 2>&1
 
-# 构建后端
-RUN cd backend && npm run build
+# 验证TypeScript编译
+RUN cd backend && npm run build 2>&1 || (echo "Build failed, showing error details:" && cat /root/.npm/_logs/*.log || true && exit 1)
 
 # 生产阶段
 FROM node:20-alpine
@@ -21,7 +21,7 @@ COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/package.json ./package.json
 
 # 仅安装生产依赖
-RUN npm install --legacy-peer-deps --omit=dev
+RUN npm install --legacy-peer-deps --omit=dev 2>&1
 
 # 暴露端口
 EXPOSE 3001
