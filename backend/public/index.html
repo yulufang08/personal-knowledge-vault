@@ -21,6 +21,7 @@
   --yellow:#fbbf24;--yellow-soft:rgba(251,191,36,.12);
   --blue:#60a5fa;--blue-soft:rgba(96,165,250,.12);
   --pink:#f472b6;--pink-soft:rgba(244,114,182,.12);
+  --gold:#f59e0b;--gold-soft:rgba(245,158,11,.12);
   --radius:10px;--radius-lg:14px;--radius-xl:18px;
   --shadow:0 4px 24px rgba(0,0,0,.35);
   --transition:all .2s cubic-bezier(.4,0,.2,1);
@@ -52,6 +53,7 @@ a{color:var(--accent);text-decoration:none}
 }
 .sidebar-brand h1{font-size:15px;font-weight:600;letter-spacing:-.3px}
 .sidebar-brand .badge{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--accent-soft);color:var(--accent);font-weight:600;margin-left:auto}
+.badge-pro{background:linear-gradient(135deg,#f59e0b,#f97316)!important;color:#fff!important;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.5px}
 
 /* Quick actions */
 .quick-actions{padding:0 12px;margin-bottom:8px;display:flex;flex-direction:column;gap:4px}
@@ -72,7 +74,7 @@ a{color:var(--accent);text-decoration:none}
 }
 .new-note-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
 
-/* Sidebar nav sections */
+/* Sidebar nav */
 .sidebar-section{padding:0 12px;margin-bottom:4px}
 .sidebar-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);padding:12px 12px 6px}
 .nav-item{
@@ -84,8 +86,9 @@ a{color:var(--accent);text-decoration:none}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:500}
 .nav-item .icon{width:18px;text-align:center;font-size:15px;flex-shrink:0}
 .nav-item .count{margin-left:auto;font-size:11px;color:var(--text-3);background:var(--bg-3);padding:1px 7px;border-radius:20px}
+.nav-item .pro-lock{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:20px;background:var(--gold-soft);color:var(--gold);font-weight:600}
 
-/* Notes list in sidebar */
+/* Notes list */
 .notes-sidebar{flex:1;overflow-y:auto;padding:4px 12px 12px}
 .note-card{
   padding:10px 12px;border-radius:var(--radius);cursor:pointer;
@@ -97,10 +100,10 @@ a{color:var(--accent);text-decoration:none}
 .note-card .snippet{font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .note-card .meta{display:flex;align-items:center;gap:6px;margin-top:4px}
 .note-card time{font-size:11px;color:var(--text-3)}
-.note-card .tag-dot{width:6px;height:6px;border-radius:50%}
 
 /* Sidebar footer */
-.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;transition:var(--transition)}
+.sidebar-footer:hover{background:var(--bg-2)}
 .sidebar-footer .avatar{
   width:28px;height:28px;border-radius:50%;
   background:linear-gradient(135deg,#34d399,#60a5fa);
@@ -113,7 +116,7 @@ a{color:var(--accent);text-decoration:none}
 /* ===== MAIN CONTENT ===== */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-0);min-width:0}
 
-/* --- Topbar --- */
+/* Topbar */
 .topbar{
   height:48px;min-height:48px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--bg-1);
@@ -133,22 +136,21 @@ a{color:var(--accent);text-decoration:none}
 .topbar-btn.primary:hover{background:var(--accent-hover)}
 .topbar-btn.danger{border-color:var(--red);color:var(--red)}
 .topbar-btn.danger:hover{background:var(--red-soft)}
+.topbar-btn.pro-btn{border-color:var(--gold);color:var(--gold);position:relative}
+.topbar-btn.pro-btn:hover{background:var(--gold-soft)}
 
-/* --- Editor title --- */
+/* Editor */
 .editor-header{padding:32px 48px 0}
 .editor-header input{
   width:100%;background:transparent;border:none;outline:none;
-  font-size:32px;font-weight:700;color:var(--text-0);letter-spacing:-.5px;
-  line-height:1.2;
+  font-size:32px;font-weight:700;color:var(--text-0);letter-spacing:-.5px;line-height:1.2;
 }
 .editor-header input::placeholder{color:var(--text-3)}
 
-/* --- Tags bar --- */
 .tags-bar{padding:12px 48px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .tag-pill{
   display:inline-flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;
-  cursor:default;transition:var(--transition);
+  padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;cursor:default;transition:var(--transition);
 }
 .tag-pill.purple{background:var(--accent-soft);color:var(--accent)}
 .tag-pill.green{background:var(--green-soft);color:var(--green)}
@@ -159,45 +161,32 @@ a{color:var(--accent);text-decoration:none}
 .tag-pill .remove:hover{opacity:1}
 .tag-add-input{
   background:transparent;border:1px dashed var(--border);padding:3px 10px;
-  border-radius:20px;font-size:12px;color:var(--text-1);outline:none;width:120px;
-  transition:var(--transition);
+  border-radius:20px;font-size:12px;color:var(--text-1);outline:none;width:120px;transition:var(--transition);
 }
 .tag-add-input:focus{border-color:var(--accent);border-style:solid}
-.tag-add-input::placeholder{color:var(--text-3)}
 
-/* --- Editor area --- */
 .editor-body{flex:1;display:flex;overflow:hidden}
 .editor-pane{flex:1;padding:16px 48px 48px;overflow-y:auto}
 .editor-pane textarea{
   width:100%;height:100%;background:transparent;border:none;outline:none;resize:none;
   color:var(--text-1);font-family:var(--mono);font-size:14px;line-height:1.8;
 }
-.editor-pane textarea::placeholder{color:var(--text-3)}
 .preview-pane{
-  flex:1;padding:16px 48px 48px;overflow-y:auto;
-  border-left:1px solid var(--border);
+  flex:1;padding:16px 48px 48px;overflow-y:auto;border-left:1px solid var(--border);
 }
 .preview-pane h1{font-size:28px;font-weight:700;margin:20px 0 8px;color:var(--text-0);letter-spacing:-.3px}
-.preview-pane h2{font-size:22px;font-weight:600;margin:18px 0 6px;color:var(--text-0);letter-spacing:-.2px}
+.preview-pane h2{font-size:22px;font-weight:600;margin:18px 0 6px;color:var(--text-0)}
 .preview-pane h3{font-size:17px;font-weight:600;margin:14px 0 4px;color:var(--text-1)}
 .preview-pane p{margin:8px 0;color:var(--text-1);line-height:1.8}
 .preview-pane strong{color:var(--text-0);font-weight:600}
-.preview-pane em{color:var(--text-2)}
 .preview-pane code{background:var(--bg-3);padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:13px;color:var(--pink)}
 .preview-pane pre{background:var(--bg-2);border:1px solid var(--border);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:14px 0}
-.preview-pane pre code{background:none;padding:0;color:var(--text-1);font-size:13px}
+.preview-pane pre code{background:none;padding:0;color:var(--text-1)}
 .preview-pane blockquote{border-left:3px solid var(--accent);padding:10px 20px;margin:14px 0;background:var(--accent-soft);border-radius:0 var(--radius) var(--radius) 0}
-.preview-pane blockquote p{color:var(--text-2)}
 .preview-pane ul,.preview-pane ol{margin:8px 0 8px 24px;color:var(--text-1)}
 .preview-pane li{margin:4px 0}
-.preview-pane a,.preview-pane .wiki-link{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .preview-pane hr{border:none;height:1px;background:var(--border);margin:20px 0}
-.preview-pane img{max-width:100%;border-radius:var(--radius)}
-.preview-pane table{width:100%;border-collapse:collapse;margin:14px 0}
-.preview-pane th,.preview-pane td{border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:13px}
-.preview-pane th{background:var(--bg-2);font-weight:600}
 
-/* --- Word count bar --- */
 .word-count-bar{
   height:28px;min-height:28px;border-top:1px solid var(--border);
   display:flex;align-items:center;padding:0 48px;gap:16px;
@@ -205,16 +194,13 @@ a{color:var(--accent);text-decoration:none}
 }
 
 /* ===== EMPTY STATE ===== */
-.empty-state{
-  flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;
-  padding:48px;text-align:center;
-}
+.empty-state{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:48px;text-align:center}
 .empty-icon{
   width:80px;height:80px;border-radius:24px;
   background:linear-gradient(135deg,var(--accent-soft),rgba(167,139,250,.1));
   display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;
 }
-.empty-state h2{font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:-.3px}
+.empty-state h2{font-size:22px;font-weight:600;margin-bottom:8px}
 .empty-state p{color:var(--text-3);max-width:360px;line-height:1.7;margin-bottom:20px;font-size:14px}
 .empty-state .hint{display:flex;align-items:center;gap:8px;color:var(--text-3);font-size:12px;margin-top:12px}
 .empty-state .hint kbd{
@@ -226,27 +212,23 @@ a{color:var(--accent);text-decoration:none}
 /* ===== GRAPH VIEW ===== */
 .graph-container{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .graph-header{padding:32px 48px 16px}
-.graph-header h2{font-size:22px;font-weight:600;letter-spacing:-.3px}
+.graph-header h2{font-size:22px;font-weight:600}
 .graph-header p{color:var(--text-3);font-size:13px;margin-top:4px}
 .graph-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:0 48px 20px}
-.stat-card{
-  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:20px;transition:var(--transition);
-}
+.stat-card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:var(--transition)}
 .stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
 .stat-card .stat-icon{font-size:20px;margin-bottom:8px}
 .stat-card .stat-value{font-size:28px;font-weight:700;color:var(--text-0);margin-bottom:2px}
 .stat-card .stat-label{font-size:12px;color:var(--text-3)}
 .graph-canvas-wrap{flex:1;margin:0 48px 24px;border-radius:var(--radius-xl);background:var(--bg-2);border:1px solid var(--border);overflow:hidden;position:relative}
 .graph-canvas-wrap canvas{width:100%;height:100%;cursor:grab}
-.graph-canvas-wrap canvas:active{cursor:grabbing}
 .graph-legend{position:absolute;bottom:16px;left:16px;display:flex;gap:12px;font-size:11px;color:var(--text-3)}
 .graph-legend span{display:flex;align-items:center;gap:4px}
 .graph-legend .dot{width:8px;height:8px;border-radius:50%}
 
 /* ===== SEARCH VIEW ===== */
 .search-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:32px 48px}
-.search-container h2{font-size:22px;font-weight:600;letter-spacing:-.3px;margin-bottom:16px}
+.search-container h2{font-size:22px;font-weight:600;margin-bottom:16px}
 .search-input-wrap{position:relative;margin-bottom:24px}
 .search-input-wrap .icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:16px}
 .search-input{
@@ -262,23 +244,15 @@ a{color:var(--accent);text-decoration:none}
 }
 .search-result-item:hover{border-color:var(--accent);background:var(--bg-3)}
 .search-result-item h3{font-size:15px;font-weight:500;margin-bottom:4px}
-.search-result-item p{font-size:13px;color:var(--text-3);line-height:1.5}
-.search-result-item .highlight{background:var(--yellow-soft);color:var(--yellow);padding:0 2px;border-radius:3px}
+.search-result-item p{font-size:13px;color:var(--text-3)}
 .search-result-item time{font-size:11px;color:var(--text-3);margin-top:6px;display:block}
 .search-empty{text-align:center;padding:48px;color:var(--text-3)}
 .search-empty .icon{font-size:40px;margin-bottom:12px;display:block}
 
-/* ===== NOTES GRID VIEW ===== */
+/* ===== NOTES GRID ===== */
 .notes-grid-container{flex:1;overflow-y:auto;padding:32px 48px}
 .notes-grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.notes-grid-header h2{font-size:22px;font-weight:600;letter-spacing:-.3px}
-.view-toggle{display:flex;gap:4px}
-.view-toggle button{
-  padding:6px 10px;border-radius:6px;border:1px solid var(--border);
-  background:transparent;color:var(--text-3);cursor:pointer;font-size:13px;
-  transition:var(--transition);
-}
-.view-toggle button.active{background:var(--bg-3);color:var(--text-1);border-color:var(--border-hover)}
+.notes-grid-header h2{font-size:22px;font-weight:600}
 .notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .grid-card{
   background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
@@ -292,9 +266,8 @@ a{color:var(--accent);text-decoration:none}
 .grid-card:hover::before{opacity:1}
 .grid-card h3{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text-0)}
 .grid-card .card-snippet{font-size:12px;color:var(--text-3);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
-.grid-card .card-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.grid-card .card-footer{display:flex;align-items:center;gap:6px}
 .grid-card time{font-size:11px;color:var(--text-3)}
-.mini-tag{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
 
 /* ===== COMMAND PALETTE ===== */
 .cmd-overlay{
@@ -306,20 +279,17 @@ a{color:var(--accent);text-decoration:none}
 .cmd-palette{
   width:560px;max-width:90vw;background:var(--bg-2);
   border:1px solid var(--border);border-radius:var(--radius-xl);
-  box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;
-  animation:cmdSlide .15s ease;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;animation:cmdSlide .15s ease;
 }
 @keyframes cmdSlide{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
 .cmd-input{
   width:100%;padding:16px 20px;background:transparent;border:none;
   border-bottom:1px solid var(--border);color:var(--text-0);font-size:16px;outline:none;
 }
-.cmd-input::placeholder{color:var(--text-3)}
 .cmd-results{max-height:320px;overflow-y:auto;padding:8px}
 .cmd-result-item{
   display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:var(--radius);cursor:pointer;color:var(--text-2);
-  font-size:13px;transition:background .1s;
+  border-radius:var(--radius);cursor:pointer;color:var(--text-2);font-size:13px;transition:background .1s;
 }
 .cmd-result-item:hover,.cmd-result-item.selected{background:var(--bg-3);color:var(--text-0)}
 .cmd-result-item .cmd-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
@@ -329,8 +299,7 @@ a{color:var(--accent);text-decoration:none}
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
 .toast{
   padding:12px 20px;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:500;
-  display:flex;align-items:center;gap:8px;
-  animation:toastIn .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:8px;animation:toastIn .3s;box-shadow:var(--shadow);
 }
 .toast.success{background:linear-gradient(135deg,#059669,#34d399)}
 .toast.error{background:linear-gradient(135deg,#dc2626,#f87171)}
@@ -339,29 +308,7 @@ a{color:var(--accent);text-decoration:none}
 .toast-exit{animation:toastOut .2s ease forwards}
 @keyframes toastOut{to{transform:translateX(20px);opacity:0}}
 
-/* ===== MOBILE ===== */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--bg-1);border-top:1px solid var(--border);padding:8px 0 env(safe-area-inset-bottom,8px)}
-.mobile-nav-inner{display:flex;justify-content:space-around}
-.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;color:var(--text-3);font-size:10px;cursor:pointer;transition:var(--transition)}
-.mobile-nav-item.active{color:var(--accent)}
-.mobile-nav-item .icon{font-size:20px}
-
-@media(max-width:768px){
-  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:var(--shadow)}
-  .sidebar.open{transform:translateX(0)}
-  .mobile-nav{display:block}
-  .editor-header{padding:24px 20px 0}
-  .tags-bar{padding:12px 20px}
-  .editor-pane{padding:16px 20px 48px}
-  .preview-pane{padding:16px 20px 48px}
-  .word-count-bar{padding:0 20px}
-  .graph-header,.graph-stats,.graph-canvas-wrap{padding-left:20px;padding-right:20px;margin-left:0;margin-right:0}
-  .search-container,.notes-grid-container{padding:24px 20px}
-  .notes-grid{grid-template-columns:1fr}
-  .main{padding-bottom:60px}
-}
-
-/* ===== EXPORT MODAL ===== */
+/* ===== MODAL ===== */
 .modal-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
   background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
@@ -370,8 +317,7 @@ a{color:var(--accent);text-decoration:none}
 .modal-overlay.show{display:flex}
 .modal{
   background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.5);
-  animation:cmdSlide .15s ease;
+  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:cmdSlide .15s ease;
 }
 .modal h2{font-size:18px;font-weight:600;margin-bottom:16px}
 .modal-option{
@@ -390,9 +336,113 @@ a{color:var(--accent);text-decoration:none}
 }
 .modal-close:hover{background:var(--bg-3)}
 
-/* ===== DAILY NOTE BANNER ===== */
+/* ===== PRICING ===== */
+.pricing-container{flex:1;overflow-y:auto;padding:48px}
+.pricing-header{text-align:center;margin-bottom:40px}
+.pricing-header h2{font-size:32px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.pricing-header p{color:var(--text-3);font-size:16px;max-width:480px;margin:0 auto}
+.pricing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:720px;margin:0 auto}
+.pricing-card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:32px;position:relative;transition:var(--transition);
+}
+.pricing-card.featured{border-color:var(--accent);box-shadow:0 0 40px var(--accent-glow)}
+.pricing-card.featured::before{
+  content:'MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--accent),#a78bfa);color:#fff;
+  padding:4px 16px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;
+}
+.pricing-card .plan-name{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:12px}
+.pricing-card .plan-price{font-size:40px;font-weight:700;margin-bottom:4px}
+.pricing-card .plan-price span{font-size:16px;font-weight:400;color:var(--text-3)}
+.pricing-card .plan-desc{font-size:13px;color:var(--text-3);margin-bottom:24px}
+.pricing-card .plan-features{list-style:none;margin-bottom:28px}
+.pricing-card .plan-features li{
+  padding:8px 0;font-size:13px;color:var(--text-1);display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.pricing-card .plan-features li:last-child{border:none}
+.pricing-card .plan-features .check{color:var(--green);font-size:16px}
+.pricing-card .plan-features .lock{color:var(--text-3);font-size:14px}
+.plan-btn{
+  width:100%;padding:12px;border-radius:var(--radius);border:none;
+  font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);
+}
+.plan-btn.free{background:var(--bg-3);color:var(--text-2)}
+.plan-btn.free:hover{background:var(--bg-4)}
+.plan-btn.pro{background:linear-gradient(135deg,var(--accent),#a78bfa);color:#fff}
+.plan-btn.pro:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
+
+/* ===== AI PANEL ===== */
+.ai-panel{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  margin:16px 48px;padding:20px;
+}
+.ai-panel-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.ai-panel-header h3{font-size:14px;font-weight:600}
+.ai-result{padding:12px;background:var(--bg-1);border-radius:var(--radius);margin-bottom:8px}
+.ai-result .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:6px}
+.ai-result .value{font-size:13px;color:var(--text-1);line-height:1.6}
+.ai-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ai-tag{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--accent-soft);color:var(--accent);cursor:pointer;transition:var(--transition)}
+.ai-tag:hover{background:var(--accent);color:#fff}
+
+/* ===== VERSION HISTORY ===== */
+.version-panel{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  margin:0 48px 16px;padding:20px;max-height:300px;overflow-y:auto;
+}
+.version-item{
+  display:flex;align-items:center;gap:12px;padding:10px;
+  border-radius:var(--radius);transition:var(--transition);cursor:pointer;
+}
+.version-item:hover{background:var(--bg-3)}
+.version-item .v-num{
+  width:32px;height:32px;border-radius:8px;background:var(--bg-3);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-2);flex-shrink:0;
+}
+.version-item .v-info{flex:1}
+.version-item .v-title{font-size:13px;font-weight:500}
+.version-item .v-time{font-size:11px;color:var(--text-3)}
+.version-item .v-restore{
+  padding:4px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--text-2);font-size:11px;cursor:pointer;transition:var(--transition);
+}
+.version-item .v-restore:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ===== ANALYTICS ===== */
+.analytics-container{flex:1;overflow-y:auto;padding:32px 48px}
+.analytics-header{margin-bottom:24px}
+.analytics-header h2{font-size:22px;font-weight:600}
+.analytics-header p{color:var(--text-3);font-size:13px;margin-top:4px}
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.analytics-card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;
+}
+.analytics-card h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.analytics-list{list-style:none}
+.analytics-list li{
+  padding:8px 12px;border-radius:var(--radius);display:flex;align-items:center;gap:10px;
+  font-size:13px;color:var(--text-1);cursor:pointer;transition:var(--transition);
+}
+.analytics-list li:hover{background:var(--bg-3)}
+.analytics-list .a-icon{font-size:16px;flex-shrink:0}
+.analytics-list .a-meta{margin-left:auto;font-size:11px;color:var(--text-3)}
+.activity-bar{display:flex;align-items:flex-end;gap:3px;height:80px;margin-top:8px}
+.activity-bar .bar{
+  flex:1;border-radius:3px 3px 0 0;background:var(--accent);min-height:4px;
+  transition:var(--transition);position:relative;
+}
+.activity-bar .bar:hover{opacity:.8}
+.tag-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
+.tag-bar .tag-name{font-size:13px;width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag-bar .bar-track{flex:1;height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden}
+.tag-bar .bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#a78bfa);transition:width .5s}
+.tag-bar .tag-count{font-size:11px;color:var(--text-3);width:24px;text-align:right}
+
+/* ===== DAILY BANNER ===== */
 .daily-banner{
-  margin:0 48px 0;padding:16px 20px;
+  margin:0 0 24px;padding:16px 20px;
   background:linear-gradient(135deg,rgba(124,92,252,.08),rgba(96,165,250,.08));
   border:1px solid rgba(124,92,252,.15);border-radius:var(--radius-lg);
   display:flex;align-items:center;gap:12px;
@@ -406,6 +456,50 @@ a{color:var(--accent);text-decoration:none}
   color:var(--accent);cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition);
 }
 .daily-banner button:hover{background:var(--accent);color:#fff}
+
+/* ===== UPGRADE BANNER ===== */
+.upgrade-banner{
+  margin:0 12px 8px;padding:14px 16px;
+  background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(249,115,22,.08));
+  border:1px solid rgba(245,158,11,.15);border-radius:var(--radius-lg);
+}
+.upgrade-banner h4{font-size:13px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.upgrade-banner p{font-size:11px;color:var(--text-3);margin-bottom:8px}
+.upgrade-banner button{
+  width:100%;padding:6px;border-radius:6px;border:none;
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  color:#fff;cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition);
+}
+.upgrade-banner button:hover{opacity:.9}
+
+/* Note limit bar */
+.note-limit-bar{margin:0 12px 8px;padding:8px 12px;background:var(--bg-2);border-radius:var(--radius);font-size:11px;color:var(--text-3)}
+.limit-track{height:4px;background:var(--bg-4);border-radius:2px;margin-top:6px;overflow:hidden}
+.limit-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s}
+.limit-fill.warn{background:var(--yellow)}
+.limit-fill.full{background:var(--red)}
+
+/* ===== MOBILE ===== */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--bg-1);border-top:1px solid var(--border);padding:8px 0 env(safe-area-inset-bottom,8px)}
+.mobile-nav-inner{display:flex;justify-content:space-around}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;color:var(--text-3);font-size:10px;cursor:pointer;transition:var(--transition)}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item .icon{font-size:20px}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-nav{display:block}
+  .editor-header{padding:24px 20px 0}
+  .tags-bar{padding:12px 20px}
+  .editor-pane,.preview-pane{padding:16px 20px 48px}
+  .word-count-bar{padding:0 20px}
+  .search-container,.notes-grid-container,.pricing-container,.analytics-container{padding:24px 20px}
+  .notes-grid{grid-template-columns:1fr}
+  .pricing-cards{grid-template-columns:1fr}
+  .main{padding-bottom:60px}
+  .ai-panel,.version-panel{margin:16px 20px}
+}
 </style>
 </head>
 <body>
@@ -438,43 +532,63 @@ a{color:var(--accent);text-decoration:none}
   </div>
 </div>
 
-<!-- Toast container -->
+<!-- Upgrade Modal -->
+<div class="modal-overlay" id="upgradeModal" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="modal" style="max-width:400px">
+    <h2>⚡ Upgrade to Pro</h2>
+    <p style="color:var(--text-3);font-size:13px;margin-bottom:20px">Unlock AI assistant, version history, advanced analytics, and unlimited notes.</p>
+    <div class="modal-option" onclick="upgradePlan('monthly')" style="border-color:var(--accent)">
+      <div class="opt-icon">📅</div>
+      <div><div class="opt-label">Monthly — $9.99/mo</div><div class="opt-desc">Cancel anytime</div></div>
+    </div>
+    <div class="modal-option" onclick="upgradePlan('yearly')" style="border-color:var(--gold)">
+      <div class="opt-icon">🎉</div>
+      <div><div class="opt-label">Yearly — $79.99/yr</div><div class="opt-desc">Save 33% — best value</div></div>
+    </div>
+    <button class="modal-close" onclick="closeUpgradeModal()">Maybe later</button>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- App -->
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="logo">V</div>
       <h1>Vault</h1>
-      <span class="badge">BETA</span>
+      <span class="badge" id="planBadge">FREE</span>
     </div>
 
     <div class="quick-actions">
-      <button class="new-note-btn" onclick="createNote()">
-        <span>✦</span> New Note
-      </button>
+      <button class="new-note-btn" onclick="createNote()"><span>✦</span> New Note</button>
       <button class="cmd-btn" onclick="openCmdPalette()">
-        <span>⌘</span> Command Palette
-        <span class="shortcut">Ctrl K</span>
+        <span>⌘</span> Command Palette <span class="shortcut">Ctrl K</span>
       </button>
+    </div>
+
+    <!-- Note limit bar (free users only) -->
+    <div class="note-limit-bar" id="noteLimitBar" style="display:none">
+      <div style="display:flex;justify-content:space-between"><span>Notes used</span><span id="limitText">0 / 50</span></div>
+      <div class="limit-track"><div class="limit-fill" id="limitFill" style="width:0%"></div></div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-title">Navigate</div>
-      <div class="nav-item active" onclick="switchView('home',this)" data-view="home">
-        <span class="icon">🏠</span> Home
+      <div class="nav-item active" onclick="switchView('home',this)" data-view="home"><span class="icon">🏠</span> Home</div>
+      <div class="nav-item" onclick="switchView('notes',this)" data-view="notes"><span class="icon">📄</span> All Notes <span class="count" id="navNoteCount">0</span></div>
+      <div class="nav-item" onclick="switchView('graph',this)" data-view="graph"><span class="icon">🔮</span> Graph View</div>
+      <div class="nav-item" onclick="switchView('search',this)" data-view="search"><span class="icon">🔍</span> Search</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Pro Features</div>
+      <div class="nav-item" onclick="switchView('analytics',this)" data-view="analytics">
+        <span class="icon">📊</span> Analytics
+        <span class="pro-lock" id="analyticsLock">PRO</span>
       </div>
-      <div class="nav-item" onclick="switchView('notes',this)" data-view="notes">
-        <span class="icon">📄</span> All Notes <span class="count" id="navNoteCount">0</span>
-      </div>
-      <div class="nav-item" onclick="switchView('graph',this)" data-view="graph">
-        <span class="icon">🔮</span> Graph View
-      </div>
-      <div class="nav-item" onclick="switchView('search',this)" data-view="search">
-        <span class="icon">🔍</span> Search
-      </div>
+      <div class="nav-item" onclick="switchView('pricing',this)" data-view="pricing"><span class="icon">⚡</span> Plans & Pricing</div>
     </div>
 
     <div class="sidebar-section">
@@ -482,22 +596,26 @@ a{color:var(--accent);text-decoration:none}
     </div>
     <div class="notes-sidebar" id="notesList"></div>
 
-    <div class="sidebar-footer">
-      <div class="avatar">U</div>
+    <!-- Upgrade banner (free users) -->
+    <div class="upgrade-banner" id="upgradeBanner">
+      <h4>⚡ Unlock Pro</h4>
+      <p>AI assistant, version history, analytics & unlimited notes</p>
+      <button onclick="openUpgradeModal()">Upgrade Now</button>
+    </div>
+
+    <div class="sidebar-footer" onclick="switchView('pricing')">
+      <div class="avatar" id="userAvatar">U</div>
       <div class="user-info">
-        <div class="user-name">Guest User</div>
-        <div class="user-plan">Free Plan</div>
+        <div class="user-name" id="userName">Guest User</div>
+        <div class="user-plan" id="userPlanLabel">Free Plan</div>
       </div>
     </div>
   </aside>
 
-  <!-- Main -->
-  <main class="main" id="mainContent">
-    <!-- Will be rendered by JS -->
-  </main>
+  <main class="main" id="mainContent"></main>
 </div>
 
-<!-- Mobile bottom nav -->
+<!-- Mobile nav -->
 <nav class="mobile-nav">
   <div class="mobile-nav-inner">
     <div class="mobile-nav-item active" onclick="switchView('home');closeSidebar()"><span class="icon">🏠</span>Home</div>
@@ -515,11 +633,12 @@ let notes = [];
 let currentNote = null;
 let currentView = 'home';
 let selectedCmdIndex = 0;
+let userProfile = { isPro: false, noteCount: 0, noteLimit: 50, subscription: 'free' };
 const tagColors = ['purple','green','blue','pink','yellow'];
 
 // ===== INIT =====
 async function init() {
-  await fetchNotes();
+  await Promise.all([fetchNotes(), fetchProfile()]);
   renderHome();
   bindKeyboard();
 }
@@ -527,10 +646,72 @@ async function init() {
 function bindKeyboard() {
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
-    if (e.key === 'Escape') { closeCmdPalette(); closeExportModal(); }
+    if (e.key === 'Escape') { closeCmdPalette(); closeExportModal(); closeUpgradeModal(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); createNote(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 's' && currentNote) { e.preventDefault(); saveNote(); }
   });
+}
+
+// ===== USER PROFILE =====
+async function fetchProfile() {
+  try {
+    const r = await fetch(API + '/user/profile');
+    const d = await r.json();
+    if (d.data) {
+      userProfile = d.data;
+      updateUIForPlan();
+    }
+  } catch(e) { console.error('Failed to fetch profile:', e); }
+}
+
+function updateUIForPlan() {
+  const isPro = userProfile.isPro;
+  // Badge
+  const badge = document.getElementById('planBadge');
+  if (isPro) {
+    badge.className = 'badge-pro';
+    badge.textContent = 'PRO';
+  } else {
+    badge.className = 'badge';
+    badge.textContent = 'FREE';
+  }
+  // Upgrade banner
+  document.getElementById('upgradeBanner').style.display = isPro ? 'none' : 'block';
+  // Note limit bar
+  const limitBar = document.getElementById('noteLimitBar');
+  if (!isPro && userProfile.noteLimit) {
+    limitBar.style.display = 'block';
+    const pct = Math.min(100, (userProfile.noteCount / userProfile.noteLimit) * 100);
+    document.getElementById('limitText').textContent = `${userProfile.noteCount} / ${userProfile.noteLimit}`;
+    const fill = document.getElementById('limitFill');
+    fill.style.width = pct + '%';
+    fill.className = 'limit-fill' + (pct >= 100 ? ' full' : pct >= 80 ? ' warn' : '');
+  } else {
+    limitBar.style.display = 'none';
+  }
+  // Analytics lock
+  document.getElementById('analyticsLock').style.display = isPro ? 'none' : 'inline';
+  // Footer
+  document.getElementById('userPlanLabel').textContent = isPro ? 'Pro Plan ⚡' : 'Free Plan';
+}
+
+// ===== UPGRADE =====
+function openUpgradeModal() { document.getElementById('upgradeModal').classList.add('show'); }
+function closeUpgradeModal() { document.getElementById('upgradeModal').classList.remove('show'); }
+
+async function upgradePlan(plan) {
+  try {
+    const r = await fetch(API + '/user/upgrade', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan })
+    });
+    const d = await r.json();
+    if (d.data) {
+      closeUpgradeModal();
+      await fetchProfile();
+      toast('Welcome to Pro! All features unlocked 🎉', 'success');
+    }
+  } catch(e) { toast('Upgrade failed', 'error'); }
 }
 
 // ===== DATA =====
@@ -547,13 +728,18 @@ async function fetchNotes() {
 async function createNote() {
   try {
     const r = await fetch(API + '/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Untitled', content: '', markdown: '' })
     });
     const d = await r.json();
+    if (d.error && d.upgrade) {
+      toast(d.error, 'error');
+      openUpgradeModal();
+      return;
+    }
     if (d.data) {
       await fetchNotes();
+      await fetchProfile();
       openNote(d.data.id);
       toast('Note created', 'success');
     }
@@ -579,8 +765,7 @@ async function saveNote() {
   const content = document.getElementById('noteContent')?.value || '';
   try {
     await fetch(API + '/notes/' + currentNote.id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, content, markdown: content })
     });
     currentNote.title = title;
@@ -597,6 +782,7 @@ async function deleteNote() {
     await fetch(API + '/notes/' + currentNote.id, { method: 'DELETE' });
     currentNote = null;
     await fetchNotes();
+    await fetchProfile();
     switchView('home');
     toast('Note deleted', 'info');
   } catch(e) { toast('Delete failed', 'error'); }
@@ -620,11 +806,9 @@ function renderNotesList() {
   }
   el.innerHTML = notes.slice(0, 20).map(n => `
     <div class="note-card${currentNote && currentNote.id === n.id ? ' active' : ''}" onclick="openNote('${n.id}')">
-      <h4>${esc(n.title || 'Untitled')}</h4>
+      <h4>${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h4>
       <div class="snippet">${esc(n.description || n.content || 'Empty note')}</div>
-      <div class="meta">
-        <time>${formatDate(n.updated_at || n.created_at)}</time>
-      </div>
+      <div class="meta"><time>${formatDate(n.updated_at || n.created_at)}</time></div>
     </div>
   `).join('');
 }
@@ -632,13 +816,11 @@ function renderNotesList() {
 // ===== VIEW SWITCHING =====
 function switchView(view, navEl) {
   currentView = view;
-  currentNote = null;
-  // Update nav
+  if (view !== 'editor') currentNote = null;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
   else document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
-  // Mobile nav
-  document.querySelectorAll('.mobile-nav-item').forEach((n,i) => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
   renderNotesList();
 
   const m = document.getElementById('mainContent');
@@ -647,6 +829,8 @@ function switchView(view, navEl) {
     case 'notes': renderNotesGrid(); break;
     case 'graph': renderGraph(); break;
     case 'search': renderSearchView(); break;
+    case 'pricing': renderPricing(); break;
+    case 'analytics': renderAnalytics(); break;
     default: renderHome();
   }
 }
@@ -665,12 +849,18 @@ function renderHome() {
       </div>
       <div class="daily-banner">
         <div class="daily-icon">✨</div>
-        <div class="daily-text">
-          <h3>Start your daily note</h3>
-          <p>Capture thoughts, ideas, and learnings for today</p>
-        </div>
+        <div class="daily-text"><h3>Start your daily note</h3><p>Capture thoughts, ideas, and learnings for today</p></div>
         <button onclick="createDailyNote()">Open</button>
       </div>
+      ${!userProfile.isPro ? `
+      <div style="margin-top:16px;padding:20px;background:linear-gradient(135deg,rgba(124,92,252,.06),rgba(249,115,22,.06));border:1px solid rgba(124,92,252,.12);border-radius:var(--radius-lg);display:flex;align-items:center;gap:16px">
+        <div style="font-size:32px">⚡</div>
+        <div style="flex:1">
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of Vault</h3>
+          <p style="font-size:13px;color:var(--text-3)">AI assistant, version history, analytics & unlimited notes</p>
+        </div>
+        <button onclick="switchView('pricing')" style="padding:8px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--accent),#a78bfa);color:#fff;cursor:pointer;font-size:13px;font-weight:600">See Plans</button>
+      </div>` : ''}
       <div style="margin-top:32px">
         <h3 style="font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text-2)">Recent Notes</h3>
         ${notes.length ? `<div class="notes-grid">${notes.slice(0, 6).map(n => renderGridCard(n)).join('')}</div>`
@@ -699,29 +889,27 @@ async function createDailyNote() {
   if (existing) { openNote(existing.id); return; }
   try {
     const r = await fetch(API + '/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: `Daily: ${today}`,
-        content: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n\n## 🔗 Links\n`,
-        markdown: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n\n## 🔗 Links\n`
+        content: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n`,
+        markdown: `# Daily Note — ${today}\n\n## 📋 Tasks\n- [ ] \n\n## 💡 Ideas\n\n\n## 📖 Learnings\n\n`
       })
     });
     const d = await r.json();
+    if (d.error && d.upgrade) { toast(d.error, 'error'); openUpgradeModal(); return; }
     if (d.data) { await fetchNotes(); openNote(d.data.id); toast('Daily note created', 'success'); }
   } catch(e) { toast('Failed to create daily note', 'error'); }
 }
 
-// ===== NOTES GRID VIEW =====
+// ===== NOTES GRID =====
 function renderNotesGrid() {
   const m = document.getElementById('mainContent');
   m.innerHTML = `
     <div class="notes-grid-container">
       <div class="notes-grid-header">
         <h2>All Notes</h2>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-size:13px;color:var(--text-3)">${notes.length} notes</span>
-        </div>
+        <span style="font-size:13px;color:var(--text-3)">${notes.length}${!userProfile.isPro ? ' / ' + userProfile.noteLimit : ''} notes</span>
       </div>
       ${notes.length ? `<div class="notes-grid">${notes.map(n => renderGridCard(n)).join('')}</div>`
       : `<div class="empty-state"><div class="empty-icon">📄</div><h2>No notes yet</h2><p>Create your first note to get started</p>
@@ -734,16 +922,14 @@ function renderGridCard(n) {
   const snippet = (n.description || n.content || n.markdown || 'Empty note').substring(0, 120);
   return `
     <div class="grid-card" onclick="openNote('${n.id}')">
-      <h3>${esc(n.title || 'Untitled')}</h3>
+      <h3>${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h3>
       <div class="card-snippet">${esc(snippet)}</div>
-      <div class="card-footer">
-        <time>${formatDate(n.updated_at || n.created_at)}</time>
-      </div>
+      <div class="card-footer"><time>${formatDate(n.updated_at || n.created_at)}</time></div>
     </div>
   `;
 }
 
-// ===== EDITOR VIEW =====
+// ===== EDITOR =====
 function renderEditor() {
   if (!currentNote) return;
   const m = document.getElementById('mainContent');
@@ -751,25 +937,32 @@ function renderEditor() {
   m.innerHTML = `
     <div class="topbar">
       <div class="breadcrumb">
-        <span onclick="switchView('home')">Vault</span>
-        <span class="sep">›</span>
-        <span onclick="switchView('notes')">Notes</span>
-        <span class="sep">›</span>
+        <span onclick="switchView('home')">Vault</span><span class="sep">›</span>
+        <span onclick="switchView('notes')">Notes</span><span class="sep">›</span>
         <span style="color:var(--text-1)">${esc(currentNote.title || 'Untitled')}</span>
       </div>
       <div class="topbar-actions">
-        <button class="topbar-btn" onclick="openExportModal()" title="Export">📤 Export</button>
+        ${userProfile.isPro ? `
+          <button class="topbar-btn pro-btn" onclick="runAISummary()">🤖 AI Summary</button>
+          <button class="topbar-btn pro-btn" onclick="toggleVersionHistory()">🕐 History</button>
+        ` : `
+          <button class="topbar-btn pro-btn" onclick="openUpgradeModal()" title="Pro feature">🤖 AI <span class="badge-pro" style="font-size:9px;padding:1px 5px;margin-left:2px">PRO</span></button>
+          <button class="topbar-btn pro-btn" onclick="openUpgradeModal()" title="Pro feature">🕐 History <span class="badge-pro" style="font-size:9px;padding:1px 5px;margin-left:2px">PRO</span></button>
+        `}
+        <button class="topbar-btn" onclick="openExportModal()">📤 Export</button>
         <button class="topbar-btn primary" onclick="saveNote()">💾 Save</button>
         <button class="topbar-btn danger" onclick="if(confirm('Delete this note?'))deleteNote()">🗑</button>
       </div>
     </div>
     <div class="editor-header">
-      <input id="noteTitle" value="${esc(currentNote.title || '')}" placeholder="Note title..." onchange="autoSaveTitle()">
+      <input id="noteTitle" value="${esc(currentNote.title || '')}" placeholder="Note title...">
     </div>
     <div class="tags-bar" id="tagsBar">
-      ${tags.map((t, i) => `<span class="tag-pill ${tagColors[i % tagColors.length]}">${esc(t.name)}<span class="remove" onclick="removeTag('${t.name}')">×</span></span>`).join('')}
+      ${tags.map((t, i) => `<span class="tag-pill ${tagColors[i % tagColors.length]}">${esc(t.name)}<span class="remove" onclick="removeTag('${esc(t.name)}')">×</span></span>`).join('')}
       <input class="tag-add-input" placeholder="Add tag..." onkeydown="if(event.key==='Enter'){addTag(this.value);this.value=''}">
     </div>
+    <div id="aiPanelSlot"></div>
+    <div id="versionPanelSlot"></div>
     <div class="editor-body">
       <div class="editor-pane">
         <textarea id="noteContent" placeholder="Start writing in Markdown..." oninput="updatePreview();updateWordCount()">${esc(currentNote.markdown || currentNote.content || '')}</textarea>
@@ -787,15 +980,253 @@ function renderEditor() {
   updateWordCount();
 }
 
-function autoSaveTitle() {
-  // Auto-save debounce could be added here
+// ===== AI FEATURES (PRO) =====
+async function runAISummary() {
+  if (!currentNote) return;
+  const content = document.getElementById('noteContent')?.value || currentNote.markdown || '';
+  if (!content.trim()) { toast('Write some content first', 'info'); return; }
+
+  const slot = document.getElementById('aiPanelSlot');
+  slot.innerHTML = '<div class="ai-panel"><div class="ai-panel-header"><span>🤖</span><h3>AI Assistant</h3></div><div style="color:var(--text-3);font-size:13px">Analyzing...</div></div>';
+
+  try {
+    const r = await fetch(API + '/pro/ai/summarize', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const d = await r.json();
+    if (d.error && d.upgrade) { openUpgradeModal(); slot.innerHTML = ''; return; }
+    if (d.data) {
+      const tagR = await fetch(API + '/pro/ai/suggest-tags', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, title: currentNote.title })
+      });
+      const tagD = await tagR.json();
+      const suggestedTags = tagD.data?.tags || d.data.suggestedTags || [];
+
+      slot.innerHTML = `
+        <div class="ai-panel">
+          <div class="ai-panel-header"><span>🤖</span><h3>AI Assistant</h3>
+            <button onclick="document.getElementById('aiPanelSlot').innerHTML=''" style="margin-left:auto;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px">✕</button>
+          </div>
+          <div class="ai-result"><div class="label">Summary</div><div class="value">${esc(d.data.summary)}</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="ai-result"><div class="label">Words</div><div class="value">${d.data.wordCount}</div></div>
+            <div class="ai-result"><div class="label">Read Time</div><div class="value">~${d.data.readingTime} min</div></div>
+            <div class="ai-result"><div class="label">Key Phrases</div><div class="value">${d.data.keyPhrases.length}</div></div>
+          </div>
+          ${suggestedTags.length ? `
+            <div class="ai-result"><div class="label">Suggested Tags</div>
+              <div class="ai-tags">${suggestedTags.map(t => `<span class="ai-tag" onclick="addTag('${esc(t)}')">${esc(t)} +</span>`).join('')}</div>
+            </div>` : ''}
+        </div>
+      `;
+    }
+  } catch(e) { slot.innerHTML = ''; toast('AI analysis failed', 'error'); }
 }
 
+// ===== VERSION HISTORY (PRO) =====
+async function toggleVersionHistory() {
+  const slot = document.getElementById('versionPanelSlot');
+  if (slot.innerHTML) { slot.innerHTML = ''; return; }
+  if (!currentNote) return;
+
+  slot.innerHTML = '<div class="version-panel"><div style="color:var(--text-3);font-size:13px">Loading versions...</div></div>';
+
+  try {
+    const r = await fetch(API + '/notes/' + currentNote.id + '/versions');
+    const d = await r.json();
+    if (d.error && d.upgrade) { openUpgradeModal(); slot.innerHTML = ''; return; }
+    const versions = d.data || [];
+    if (!versions.length) {
+      slot.innerHTML = '<div class="version-panel"><div style="color:var(--text-3);font-size:13px;text-align:center;padding:16px">No version history yet. Versions are saved each time you edit.</div></div>';
+      return;
+    }
+    slot.innerHTML = `
+      <div class="version-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3 style="font-size:14px;font-weight:600">🕐 Version History</h3>
+          <button onclick="document.getElementById('versionPanelSlot').innerHTML=''" style="background:none;border:none;color:var(--text-3);cursor:pointer">✕</button>
+        </div>
+        ${versions.map(v => `
+          <div class="version-item">
+            <div class="v-num">v${v.version_number}</div>
+            <div class="v-info">
+              <div class="v-title">${esc(v.title || 'Untitled')}</div>
+              <div class="v-time">${formatDate(v.created_at)}</div>
+            </div>
+            <button class="v-restore" onclick="restoreVersion('${currentNote.id}','${v.id}')">Restore</button>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch(e) { slot.innerHTML = ''; toast('Failed to load versions', 'error'); }
+}
+
+async function restoreVersion(noteId, versionId) {
+  if (!confirm('Restore this version? Current content will be saved as a new version first.')) return;
+  try {
+    await fetch(API + '/notes/' + noteId + '/versions/' + versionId + '/restore', { method: 'POST' });
+    toast('Version restored', 'success');
+    await openNote(noteId);
+  } catch(e) { toast('Restore failed', 'error'); }
+}
+
+// ===== PRICING VIEW =====
+function renderPricing() {
+  const m = document.getElementById('mainContent');
+  const isPro = userProfile.isPro;
+  m.innerHTML = `
+    <div class="pricing-container">
+      <div class="pricing-header">
+        <h2>${isPro ? 'Your Pro Plan' : 'Choose Your Plan'}</h2>
+        <p>${isPro ? 'You have access to all Pro features' : 'Start free, upgrade when you need more power'}</p>
+      </div>
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <div class="plan-name">Free</div>
+          <div class="plan-price">$0 <span>/forever</span></div>
+          <div class="plan-desc">Perfect for getting started</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Up to 50 notes</li>
+            <li><span class="check">✓</span> Markdown editor with preview</li>
+            <li><span class="check">✓</span> Knowledge graph visualization</li>
+            <li><span class="check">✓</span> Tags & full-text search</li>
+            <li><span class="check">✓</span> Daily notes & command palette</li>
+            <li><span class="check">✓</span> Export (JSON, Markdown, HTML)</li>
+            <li><span class="lock">✗</span> <span style="color:var(--text-3)">AI assistant</span></li>
+            <li><span class="lock">✗</span> <span style="color:var(--text-3)">Version history</span></li>
+            <li><span class="lock">✗</span> <span style="color:var(--text-3)">Advanced analytics</span></li>
+          </ul>
+          <button class="plan-btn free" ${isPro ? 'onclick="downgradePlan()"' : 'disabled'}>
+            ${isPro ? 'Downgrade to Free' : 'Current Plan'}
+          </button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$9.99 <span>/month</span></div>
+          <div class="plan-desc">For power users & knowledge builders</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> <strong>Unlimited</strong> notes</li>
+            <li><span class="check">✓</span> Everything in Free</li>
+            <li><span class="check">✓</span> 🤖 AI summary & smart tags</li>
+            <li><span class="check">✓</span> 🕐 Version history & restore</li>
+            <li><span class="check">✓</span> 📊 Advanced graph analytics</li>
+            <li><span class="check">✓</span> 🔍 Orphan & stale note detection</li>
+            <li><span class="check">✓</span> 📈 Writing activity tracking</li>
+            <li><span class="check">✓</span> 🏷️ AI tag suggestions</li>
+            <li><span class="check">✓</span> Priority support</li>
+          </ul>
+          <button class="plan-btn pro" ${isPro ? 'disabled' : 'onclick="openUpgradeModal()"'}>
+            ${isPro ? 'Current Plan ⚡' : 'Upgrade to Pro'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function downgradePlan() {
+  if (!confirm('Are you sure you want to downgrade? You will lose access to Pro features.')) return;
+  try {
+    await fetch(API + '/user/downgrade', { method: 'POST' });
+    await fetchProfile();
+    renderPricing();
+    toast('Downgraded to Free plan', 'info');
+  } catch(e) { toast('Failed to downgrade', 'error'); }
+}
+
+// ===== ANALYTICS VIEW (PRO) =====
+async function renderAnalytics() {
+  const m = document.getElementById('mainContent');
+  if (!userProfile.isPro) {
+    m.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2>Advanced Analytics</h2>
+        <p>Discover insights about your knowledge base — orphan notes, writing patterns, tag distribution, and more.</p>
+        <button class="plan-btn pro" style="width:auto;padding:12px 32px" onclick="openUpgradeModal()">⚡ Upgrade to Pro</button>
+      </div>
+    `;
+    return;
+  }
+
+  m.innerHTML = '<div class="analytics-container"><div class="analytics-header"><h2>📊 Analytics</h2><p>Loading insights...</p></div></div>';
+
+  try {
+    const r = await fetch(API + '/pro/graph/analytics');
+    const d = await r.json();
+    if (d.error && d.upgrade) { openUpgradeModal(); return; }
+    const a = d.data;
+
+    const maxEdits = Math.max(...(a.writingActivity || []).map(d => parseInt(d.edits)), 1);
+    const maxTagCount = Math.max(...(a.tagDistribution || []).map(t => parseInt(t.count)), 1);
+
+    m.innerHTML = `
+      <div class="analytics-container">
+        <div class="analytics-header">
+          <h2>📊 Analytics</h2>
+          <p>Insights into your knowledge vault</p>
+        </div>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h3>📈 Writing Activity <span style="font-size:11px;color:var(--text-3);font-weight:400">(last 30 days)</span></h3>
+            <div class="activity-bar">
+              ${(a.writingActivity || []).slice(0, 30).reverse().map(d => `<div class="bar" style="height:${Math.max(8, (parseInt(d.edits)/maxEdits)*100)}%" title="${d.day}: ${d.edits} edits"></div>`).join('')}
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:8px">
+              <span>30 days ago</span><span>Today</span>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <h3>🏷️ Tag Distribution</h3>
+            ${(a.tagDistribution || []).slice(0, 8).map(t => `
+              <div class="tag-bar">
+                <span class="tag-name">${esc(t.name)}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${(parseInt(t.count)/maxTagCount)*100}%"></div></div>
+                <span class="tag-count">${t.count}</span>
+              </div>
+            `).join('') || '<div style="color:var(--text-3);font-size:13px;padding:16px 0">No tags yet</div>'}
+          </div>
+
+          <div class="analytics-card">
+            <h3>🏝️ Orphan Notes <span style="font-size:11px;color:var(--text-3);font-weight:400">(no links)</span></h3>
+            <ul class="analytics-list">
+              ${(a.orphanNotes || []).slice(0, 8).map(n => `
+                <li onclick="openNote('${n.id}')"><span class="a-icon">📄</span>${esc(n.title || 'Untitled')}</li>
+              `).join('') || '<li style="color:var(--text-3)">All notes are connected! 🎉</li>'}
+            </ul>
+          </div>
+
+          <div class="analytics-card">
+            <h3>🔗 Hub Notes <span style="font-size:11px;color:var(--text-3);font-weight:400">(most connected)</span></h3>
+            <ul class="analytics-list">
+              ${(a.hubNotes || []).filter(n => parseInt(n.connections) > 0).slice(0, 8).map(n => `
+                <li onclick="openNote('${n.id}')"><span class="a-icon">🔗</span>${esc(n.title || 'Untitled')}<span class="a-meta">${n.connections} links</span></li>
+              `).join('') || '<li style="color:var(--text-3)">Use [[links]] to connect notes</li>'}
+            </ul>
+          </div>
+
+          <div class="analytics-card">
+            <h3>💤 Stale Notes <span style="font-size:11px;color:var(--text-3);font-weight:400">(30+ days old)</span></h3>
+            <ul class="analytics-list">
+              ${(a.staleNotes || []).slice(0, 8).map(n => `
+                <li onclick="openNote('${n.id}')"><span class="a-icon">💤</span>${esc(n.title || 'Untitled')}<span class="a-meta">${formatDate(n.updated_at)}</span></li>
+              `).join('') || '<li style="color:var(--text-3)">No stale notes — keep it up! 💪</li>'}
+            </ul>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch(e) { toast('Failed to load analytics', 'error'); }
+}
+
+// ===== EDITOR HELPERS =====
 function updatePreview() {
   const ta = document.getElementById('noteContent');
   if (!ta) return;
-  const md = ta.value;
-  document.getElementById('preview').innerHTML = renderMarkdown(md);
+  document.getElementById('preview').innerHTML = renderMarkdown(ta.value);
 }
 
 function updateWordCount() {
@@ -803,11 +1234,9 @@ function updateWordCount() {
   if (!ta) return;
   const text = ta.value;
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const chars = text.length;
-  const mins = Math.max(1, Math.ceil(words / 200));
   document.getElementById('wordCount').textContent = words + ' words';
-  document.getElementById('charCount').textContent = chars + ' characters';
-  document.getElementById('readTime').textContent = '~' + mins + ' min read';
+  document.getElementById('charCount').textContent = text.length + ' characters';
+  document.getElementById('readTime').textContent = '~' + Math.max(1, Math.ceil(words / 200)) + ' min read';
 }
 
 function renderMarkdown(md) {
@@ -828,8 +1257,7 @@ function renderMarkdown(md) {
     .replace(/^- (.+)$/gm, '<li>$1</li>')
     .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
     .replace(/\[\[(.+?)\]\]/g, '<span class="wiki-link" onclick="searchAndOpen(\'$1\')">$1</span>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
-    .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1">')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
 }
@@ -848,14 +1276,8 @@ async function addTag(name) {
   tags.push(name);
   try {
     await fetch(API + '/notes/' + currentNote.id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: currentNote.title,
-        content: currentNote.content || currentNote.markdown || '',
-        markdown: currentNote.markdown || currentNote.content || '',
-        tags: tags
-      })
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: currentNote.title, content: currentNote.content || '', markdown: currentNote.markdown || '', tags })
     });
     currentNote.tags = tags.map(t => ({ name: t }));
     renderEditor();
@@ -868,14 +1290,8 @@ async function removeTag(name) {
   const tags = (currentNote.tags || []).map(t => t.name).filter(t => t !== name);
   try {
     await fetch(API + '/notes/' + currentNote.id, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: currentNote.title,
-        content: currentNote.content || currentNote.markdown || '',
-        markdown: currentNote.markdown || currentNote.content || '',
-        tags: tags
-      })
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: currentNote.title, content: currentNote.content || '', markdown: currentNote.markdown || '', tags })
     });
     currentNote.tags = tags.map(t => ({ name: t }));
     renderEditor();
@@ -889,34 +1305,13 @@ async function renderGraph() {
     const r = await fetch(API + '/graph');
     const d = await r.json();
     const g = d.data || { nodes: [], edges: [] };
-
     m.innerHTML = `
       <div class="graph-container">
-        <div class="graph-header">
-          <h2>Knowledge Graph</h2>
-          <p>Visualize connections between your notes</p>
-        </div>
+        <div class="graph-header"><h2>Knowledge Graph</h2><p>Visualize connections between your notes</p></div>
         <div class="graph-stats">
-          <div class="stat-card">
-            <div class="stat-icon">📄</div>
-            <div class="stat-value">${g.nodes.length}</div>
-            <div class="stat-label">Total Notes</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🔗</div>
-            <div class="stat-value">${g.edges.length}</div>
-            <div class="stat-label">Connections</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-value">${g.nodes.length > 1 ? ((g.edges.length / (g.nodes.length * (g.nodes.length - 1))) * 100).toFixed(1) : 0}%</div>
-            <div class="stat-label">Density</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🏷️</div>
-            <div class="stat-value">${new Set(notes.flatMap(n => (n.tags || []).map(t => t.name))).size || 0}</div>
-            <div class="stat-label">Tags</div>
-          </div>
+          <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value">${g.nodes.length}</div><div class="stat-label">Notes</div></div>
+          <div class="stat-card"><div class="stat-icon">🔗</div><div class="stat-value">${g.edges.length}</div><div class="stat-label">Connections</div></div>
+          <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value">${g.nodes.length>1?((g.edges.length/(g.nodes.length*(g.nodes.length-1)))*100).toFixed(1):0}%</div><div class="stat-label">Density</div></div>
         </div>
         <div class="graph-canvas-wrap">
           <canvas id="graphCanvas"></canvas>
@@ -927,10 +1322,9 @@ async function renderGraph() {
         </div>
       </div>
     `;
-
     drawGraph(g);
   } catch(e) {
-    m.innerHTML = '<div class="empty-state"><div class="empty-icon">🔮</div><h2>Graph unavailable</h2><p>Failed to load the knowledge graph</p></div>';
+    m.innerHTML = '<div class="empty-state"><div class="empty-icon">🔮</div><h2>Graph unavailable</h2></div>';
   }
 }
 
@@ -944,130 +1338,54 @@ function drawGraph(g) {
   canvas.style.height = wrap.clientHeight + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(2, 2);
-  const W = wrap.clientWidth;
-  const H = wrap.clientHeight;
+  const W = wrap.clientWidth, H = wrap.clientHeight;
 
   if (!g.nodes.length) {
-    ctx.fillStyle = '#71717a';
-    ctx.font = '14px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Create notes with [[links]] to build your graph', W / 2, H / 2);
+    ctx.fillStyle = '#71717a'; ctx.font = '14px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Create notes with [[links]] to build your graph', W/2, H/2);
     return;
   }
 
-  // Force-directed layout simulation
-  const nodes = g.nodes.map((n, i) => ({
-    ...n,
-    x: W / 2 + (Math.random() - 0.5) * W * 0.6,
-    y: H / 2 + (Math.random() - 0.5) * H * 0.6,
-    vx: 0, vy: 0,
-    connections: 0
-  }));
-
+  const nodes = g.nodes.map(n => ({ ...n, x: W/2+(Math.random()-.5)*W*.6, y: H/2+(Math.random()-.5)*H*.6, vx:0, vy:0, connections:0 }));
   const nodeMap = {};
   nodes.forEach(n => nodeMap[n.id] = n);
-  g.edges.forEach(e => {
-    if (nodeMap[e.from]) nodeMap[e.from].connections++;
-    if (nodeMap[e.to]) nodeMap[e.to].connections++;
-  });
+  g.edges.forEach(e => { if(nodeMap[e.from]) nodeMap[e.from].connections++; if(nodeMap[e.to]) nodeMap[e.to].connections++; });
 
-  // Simple force simulation
   for (let iter = 0; iter < 100; iter++) {
-    // Repulsion
     for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        let dx = nodes[j].x - nodes[i].x;
-        let dy = nodes[j].y - nodes[i].y;
-        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        let force = 800 / (dist * dist);
-        nodes[i].vx -= dx / dist * force;
-        nodes[i].vy -= dy / dist * force;
-        nodes[j].vx += dx / dist * force;
-        nodes[j].vy += dy / dist * force;
+      for (let j = i+1; j < nodes.length; j++) {
+        let dx=nodes[j].x-nodes[i].x, dy=nodes[j].y-nodes[i].y;
+        let dist=Math.sqrt(dx*dx+dy*dy)||1, force=800/(dist*dist);
+        nodes[i].vx-=dx/dist*force; nodes[i].vy-=dy/dist*force;
+        nodes[j].vx+=dx/dist*force; nodes[j].vy+=dy/dist*force;
       }
     }
-    // Attraction along edges
     g.edges.forEach(e => {
-      const a = nodeMap[e.from];
-      const b = nodeMap[e.to];
-      if (!a || !b) return;
-      let dx = b.x - a.x;
-      let dy = b.y - a.y;
-      let dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      let force = dist * 0.01;
-      a.vx += dx / dist * force;
-      a.vy += dy / dist * force;
-      b.vx -= dx / dist * force;
-      b.vy -= dy / dist * force;
+      const a=nodeMap[e.from], b=nodeMap[e.to]; if(!a||!b) return;
+      let dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1, force=dist*0.01;
+      a.vx+=dx/dist*force; a.vy+=dy/dist*force; b.vx-=dx/dist*force; b.vy-=dy/dist*force;
     });
-    // Center gravity
     nodes.forEach(n => {
-      n.vx += (W / 2 - n.x) * 0.005;
-      n.vy += (H / 2 - n.y) * 0.005;
-      n.vx *= 0.85;
-      n.vy *= 0.85;
-      n.x += n.vx;
-      n.y += n.vy;
-      n.x = Math.max(40, Math.min(W - 40, n.x));
-      n.y = Math.max(40, Math.min(H - 40, n.y));
+      n.vx+=(W/2-n.x)*.005; n.vy+=(H/2-n.y)*.005;
+      n.vx*=.85; n.vy*=.85; n.x+=n.vx; n.y+=n.vy;
+      n.x=Math.max(40,Math.min(W-40,n.x)); n.y=Math.max(40,Math.min(H-40,n.y));
     });
   }
 
-  // Draw edges
-  ctx.strokeStyle = 'rgba(124,92,252,0.15)';
-  ctx.lineWidth = 1;
-  g.edges.forEach(e => {
-    const a = nodeMap[e.from];
-    const b = nodeMap[e.to];
-    if (!a || !b) return;
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.stroke();
-  });
+  ctx.strokeStyle='rgba(124,92,252,0.15)'; ctx.lineWidth=1;
+  g.edges.forEach(e => { const a=nodeMap[e.from],b=nodeMap[e.to]; if(!a||!b)return; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); });
 
-  // Draw nodes
   nodes.forEach(n => {
-    const r = 6 + n.connections * 2;
-    const hasConn = n.connections > 0;
-
-    // Glow
-    if (hasConn) {
-      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 3);
-      grad.addColorStop(0, 'rgba(52,211,153,0.15)');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, r * 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Node circle
-    ctx.fillStyle = hasConn ? '#34d399' : '#7c5cfc';
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Label
-    ctx.fillStyle = '#d4d4d8';
-    ctx.font = '11px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    const label = n.label.length > 18 ? n.label.substring(0, 18) + '…' : n.label;
-    ctx.fillText(label, n.x, n.y + r + 14);
+    const r=6+n.connections*2;
+    if(n.connections>0){ const grad=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*3); grad.addColorStop(0,'rgba(52,211,153,0.15)'); grad.addColorStop(1,'transparent'); ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(n.x,n.y,r*3,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle=n.connections>0?'#34d399':'#7c5cfc'; ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#d4d4d8'; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(n.label.length>18?n.label.substring(0,18)+'…':n.label, n.x, n.y+r+14);
   });
 
-  // Click to open note
   canvas.onclick = function(evt) {
-    const rect = canvas.getBoundingClientRect();
-    const mx = evt.clientX - rect.left;
-    const my = evt.clientY - rect.top;
-    for (const n of nodes) {
-      const r = 6 + n.connections * 2 + 4;
-      if (Math.hypot(mx - n.x, my - n.y) < r) {
-        openNote(n.id);
-        break;
-      }
-    }
+    const rect=canvas.getBoundingClientRect(), mx=evt.clientX-rect.left, my=evt.clientY-rect.top;
+    for(const n of nodes){ if(Math.hypot(mx-n.x,my-n.y)<6+n.connections*2+4){ openNote(n.id); break; } }
   };
 }
 
@@ -1077,15 +1395,11 @@ function renderSearchView() {
   m.innerHTML = `
     <div class="search-container">
       <h2>Search</h2>
-      <div class="search-input-wrap">
-        <span class="icon">🔍</span>
+      <div class="search-input-wrap"><span class="icon">🔍</span>
         <input class="search-input" id="searchInput" placeholder="Search your vault..." oninput="doSearch(this.value)" autofocus>
       </div>
       <div class="search-results" id="searchResults">
-        <div class="search-empty">
-          <span class="icon">💡</span>
-          <p style="margin-top:8px">Type to search across all your notes</p>
-        </div>
+        <div class="search-empty"><span class="icon">💡</span><p style="margin-top:8px">Type to search across all your notes</p></div>
       </div>
     </div>
   `;
@@ -1093,75 +1407,55 @@ function renderSearchView() {
 
 async function doSearch(q) {
   const el = document.getElementById('searchResults');
-  if (!q) {
-    el.innerHTML = '<div class="search-empty"><span class="icon">💡</span><p style="margin-top:8px">Type to search across all your notes</p></div>';
-    return;
-  }
+  if (!q) { el.innerHTML = '<div class="search-empty"><span class="icon">💡</span><p style="margin-top:8px">Type to search</p></div>'; return; }
   const results = await searchNotes(q);
-  if (results.length) {
-    el.innerHTML = results.map(n => `
-      <div class="search-result-item" onclick="openNote('${n.id}')">
-        <h3>${esc(n.title || 'Untitled')}</h3>
-        <p>${esc((n.description || '').substring(0, 150))}</p>
-        <time>${formatDate(n.updated_at || n.created_at)}</time>
-      </div>
-    `).join('');
-  } else {
-    el.innerHTML = `<div class="search-empty"><span class="icon">🔍</span><p style="margin-top:8px">No results for "${esc(q)}"</p></div>`;
-  }
+  el.innerHTML = results.length
+    ? results.map(n => `<div class="search-result-item" onclick="openNote('${n.id}')"><h3>${esc(n.title||'Untitled')}</h3><p>${esc((n.description||'').substring(0,150))}</p><time>${formatDate(n.updated_at||n.created_at)}</time></div>`).join('')
+    : `<div class="search-empty"><span class="icon">🔍</span><p>No results for "${esc(q)}"</p></div>`;
 }
 
 // ===== COMMAND PALETTE =====
 const commands = [
-  { icon: '📝', label: 'New Note', shortcut: 'Ctrl+N', action: () => { closeCmdPalette(); createNote(); } },
-  { icon: '📅', label: 'Daily Note', shortcut: '', action: () => { closeCmdPalette(); createDailyNote(); } },
-  { icon: '🏠', label: 'Go to Home', shortcut: '', action: () => { closeCmdPalette(); switchView('home'); } },
-  { icon: '📄', label: 'All Notes', shortcut: '', action: () => { closeCmdPalette(); switchView('notes'); } },
-  { icon: '🔮', label: 'Knowledge Graph', shortcut: '', action: () => { closeCmdPalette(); switchView('graph'); } },
-  { icon: '🔍', label: 'Search Notes', shortcut: 'Ctrl+K', action: () => { closeCmdPalette(); switchView('search'); } },
-  { icon: '📤', label: 'Export Notes', shortcut: '', action: () => { closeCmdPalette(); openExportModal(); } },
-  { icon: '💾', label: 'Save Current Note', shortcut: 'Ctrl+S', action: () => { closeCmdPalette(); saveNote(); } },
+  { icon:'📝', label:'New Note', shortcut:'Ctrl+N', action:()=>{closeCmdPalette();createNote()}},
+  { icon:'📅', label:'Daily Note', shortcut:'', action:()=>{closeCmdPalette();createDailyNote()}},
+  { icon:'🏠', label:'Go to Home', shortcut:'', action:()=>{closeCmdPalette();switchView('home')}},
+  { icon:'📄', label:'All Notes', shortcut:'', action:()=>{closeCmdPalette();switchView('notes')}},
+  { icon:'🔮', label:'Knowledge Graph', shortcut:'', action:()=>{closeCmdPalette();switchView('graph')}},
+  { icon:'🔍', label:'Search Notes', shortcut:'Ctrl+K', action:()=>{closeCmdPalette();switchView('search')}},
+  { icon:'📊', label:'Analytics', shortcut:'', action:()=>{closeCmdPalette();switchView('analytics')}},
+  { icon:'⚡', label:'Plans & Pricing', shortcut:'', action:()=>{closeCmdPalette();switchView('pricing')}},
+  { icon:'📤', label:'Export Notes', shortcut:'', action:()=>{closeCmdPalette();openExportModal()}},
+  { icon:'💾', label:'Save Current Note', shortcut:'Ctrl+S', action:()=>{closeCmdPalette();saveNote()}},
 ];
 
-function openCmdPalette() {
-  selectedCmdIndex = 0;
-  document.getElementById('cmdOverlay').classList.add('show');
-  document.getElementById('cmdInput').value = '';
-  document.getElementById('cmdInput').focus();
-  filterCommands('');
-}
-
-function closeCmdPalette() {
-  document.getElementById('cmdOverlay').classList.remove('show');
-}
+function openCmdPalette() { selectedCmdIndex=0; document.getElementById('cmdOverlay').classList.add('show'); document.getElementById('cmdInput').value=''; document.getElementById('cmdInput').focus(); filterCommands(''); }
+function closeCmdPalette() { document.getElementById('cmdOverlay').classList.remove('show'); }
 
 function filterCommands(q) {
   const filtered = q
     ? [...commands.filter(c => c.label.toLowerCase().includes(q.toLowerCase())),
-       ...notes.filter(n => (n.title || '').toLowerCase().includes(q.toLowerCase())).slice(0, 5).map(n => ({
-         icon: '📄', label: n.title || 'Untitled', shortcut: '', action: () => { closeCmdPalette(); openNote(n.id); }
+       ...notes.filter(n => (n.title||'').toLowerCase().includes(q.toLowerCase())).slice(0,5).map(n => ({
+         icon:'📄', label:n.title||'Untitled', shortcut:'', action:()=>{closeCmdPalette();openNote(n.id)}
        }))]
     : commands;
   selectedCmdIndex = 0;
   const el = document.getElementById('cmdResults');
-  el.innerHTML = filtered.map((c, i) => `
-    <div class="cmd-result-item${i === 0 ? ' selected' : ''}" onclick="cmdActions[${i}]()" data-idx="${i}">
-      <span class="cmd-icon">${c.icon}</span>
-      ${esc(c.label)}
-      ${c.shortcut ? `<span class="cmd-shortcut">${c.shortcut}</span>` : ''}
+  el.innerHTML = filtered.map((c,i) => `
+    <div class="cmd-result-item${i===0?' selected':''}" onclick="cmdActions[${i}]()" data-idx="${i}">
+      <span class="cmd-icon">${c.icon}</span>${esc(c.label)}
+      ${c.shortcut?`<span class="cmd-shortcut">${c.shortcut}</span>`:''}
     </div>
-  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:13px">No results</div>';
+  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-3)">No results</div>';
   window.cmdActions = filtered.map(c => c.action);
-  window.cmdFiltered = filtered;
 }
 
 function handleCmdKey(e) {
   const items = document.querySelectorAll('.cmd-result-item');
-  if (e.key === 'ArrowDown') { e.preventDefault(); selectedCmdIndex = Math.min(selectedCmdIndex + 1, items.length - 1); }
-  if (e.key === 'ArrowUp') { e.preventDefault(); selectedCmdIndex = Math.max(selectedCmdIndex - 1, 0); }
-  if (e.key === 'Enter' && window.cmdActions?.[selectedCmdIndex]) { e.preventDefault(); window.cmdActions[selectedCmdIndex](); return; }
-  if (e.key === 'Escape') { closeCmdPalette(); return; }
-  items.forEach((it, i) => it.classList.toggle('selected', i === selectedCmdIndex));
+  if(e.key==='ArrowDown'){e.preventDefault();selectedCmdIndex=Math.min(selectedCmdIndex+1,items.length-1)}
+  if(e.key==='ArrowUp'){e.preventDefault();selectedCmdIndex=Math.max(selectedCmdIndex-1,0)}
+  if(e.key==='Enter'&&window.cmdActions?.[selectedCmdIndex]){e.preventDefault();window.cmdActions[selectedCmdIndex]();return}
+  if(e.key==='Escape'){closeCmdPalette();return}
+  items.forEach((it,i)=>it.classList.toggle('selected',i===selectedCmdIndex));
 }
 
 // ===== EXPORT =====
@@ -1171,29 +1465,12 @@ function closeExportModal() { document.getElementById('exportModal').classList.r
 function exportNotes(format) {
   closeExportModal();
   if (!notes.length) { toast('No notes to export', 'info'); return; }
-
   let content, filename, type;
-  if (format === 'json') {
-    content = JSON.stringify(notes, null, 2);
-    filename = 'vault-export.json';
-    type = 'application/json';
-  } else if (format === 'markdown') {
-    content = notes.map(n => `# ${n.title || 'Untitled'}\n\n${n.markdown || n.content || ''}\n\n---\n`).join('\n');
-    filename = 'vault-export.md';
-    type = 'text/markdown';
-  } else {
-    content = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vault Export</title>
-      <style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>
-      ${notes.map(n => `<h1>${esc(n.title || 'Untitled')}</h1>${renderMarkdown(n.markdown || n.content || '')}<hr>`).join('')}</body></html>`;
-    filename = 'vault-export.html';
-    type = 'text/html';
-  }
-
+  if (format==='json') { content=JSON.stringify(notes,null,2); filename='vault-export.json'; type='application/json'; }
+  else if (format==='markdown') { content=notes.map(n=>`# ${n.title||'Untitled'}\n\n${n.markdown||n.content||''}\n\n---\n`).join('\n'); filename='vault-export.md'; type='text/markdown'; }
+  else { content=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vault Export</title><style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>${notes.map(n=>`<h1>${esc(n.title||'Untitled')}</h1>${renderMarkdown(n.markdown||n.content||'')}<hr>`).join('')}</body></html>`; filename='vault-export.html'; type='text/html'; }
   const blob = new Blob([content], { type });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
   toast(`Exported as ${format.toUpperCase()}`, 'success');
 }
 
@@ -1202,32 +1479,26 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
 
 // ===== UTILS =====
-function esc(s) { if (!s) return ''; return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-
+function esc(s) { if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function formatDate(d) {
-  if (!d) return '';
-  const date = new Date(d);
-  const now = new Date();
-  const diff = now - date;
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-  if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if(!d) return '';
+  const date=new Date(d), now=new Date(), diff=now-date;
+  if(diff<60000) return 'Just now';
+  if(diff<3600000) return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000) return Math.floor(diff/3600000)+'h ago';
+  if(diff<604800000) return Math.floor(diff/86400000)+'d ago';
+  return date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
-function toast(msg, type = 'info') {
-  const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  el.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${esc(msg)}`;
+function toast(msg, type='info') {
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span> ${esc(msg)}`;
   document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => { el.classList.add('toast-exit'); setTimeout(() => el.remove(), 200); }, 2500);
+  setTimeout(()=>{el.classList.add('toast-exit');setTimeout(()=>el.remove(),200)},2500);
 }
 
-// Handle window resize for graph
-window.addEventListener('resize', () => {
-  if (currentView === 'graph') renderGraph();
-});
+window.addEventListener('resize', () => { if(currentView==='graph') renderGraph(); });
 
 // ===== START =====
 init();
