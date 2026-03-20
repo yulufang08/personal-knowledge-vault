@@ -2,23 +2,22 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy backend package files
-COPY backend/package*.json ./
-RUN npm install --omit=dev
+# 复制所有文件
+COPY . .
 
-# Copy backend source code
-COPY backend/src ./src
-COPY backend/tsconfig.json ./
+# 安装后端依赖 (使用--legacy-peer-deps处理版本问题)
+RUN cd backend && npm install --legacy-peer-deps --omit=dev
 
-# Build TypeScript
-RUN npm run build
+# 构建后端
+RUN cd backend && npm run build
 
-# Expose port
+# 暴露端口
 EXPOSE 3001
 
-# Health check
+# 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+  CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
 
-# Start application
+# 启动应用
+WORKDIR /app/backend
 CMD ["npm", "start"]
