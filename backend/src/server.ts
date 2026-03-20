@@ -115,6 +115,13 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_note_links_target ON note_links(target_note_id);
     `);
 
+    // Create a default guest user for demo purposes
+    await client.query(`
+      INSERT INTO users (id, email, username, password_hash)
+      VALUES ('00000000-0000-0000-0000-000000000001', 'guest@example.com', 'guest', 'no-password')
+      ON CONFLICT (id) DO NOTHING
+    `);
+
     client.release();
     console.log('✅ Database schema initialized successfully');
   } catch (error) {
@@ -123,20 +130,22 @@ async function initializeDatabase() {
   }
 }
 
+// Fixed guest user ID (must match the one seeded in initializeDatabase)
+const GUEST_USER_ID = '00000000-0000-0000-0000-000000000001';
+
 // Authentication middleware
 const authenticateToken = (req: Request, res: Response, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    // For demo purposes, create a guest user
-    req.user = { id: 'guest-' + uuidv4(), email: 'guest@example.com' };
+    req.user = { id: GUEST_USER_ID, email: 'guest@example.com' };
     return next();
   }
 
   jwt.verify(token, process.env.JWT_SECRET || 'secret-key', (err: any, user: any) => {
     if (err) {
-      req.user = { id: 'guest-' + uuidv4(), email: 'guest@example.com' };
+      req.user = { id: GUEST_USER_ID, email: 'guest@example.com' };
       return next();
     }
     req.user = user;
