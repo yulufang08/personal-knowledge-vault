@@ -1,0 +1,73 @@
+.graph-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.graph-header {
+  margin-bottom: 2rem;
+}
+
+.graph-header h2 {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.graph-header p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.graph-info {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.graph-info p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.graph-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.graph-view.loading,
+.graph-view.empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .graph-stats {
+    grid-template-columns: 1fr;
+  }
+}
