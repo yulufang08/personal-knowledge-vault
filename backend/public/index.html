@@ -2371,11 +2371,13 @@ function drawGraph(g) {
     });
   }
 
-  const edgeColors = { wiki: 'var(--accent-glow)', tag: 'rgba(245,158,11,0.35)', parent: 'rgba(96,165,250,0.4)' };
+  const computedAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c5cfc';
+  const [_ar,_ag,_ab] = hexToRgb(computedAccent);
+  const edgeColors = { wiki: `rgba(${_ar},${_ag},${_ab},0.4)`, tag: 'rgba(245,158,11,0.35)', parent: 'rgba(96,165,250,0.4)' };
   const edgeWidths = { wiki: 2, tag: 1.2, parent: 1.5 };
   g.edges.forEach(e => {
     const a=nodeMap[e.from],b=nodeMap[e.to]; if(!a||!b)return;
-    ctx.strokeStyle = edgeColors[e.type] || 'var(--accent-glow)';
+    ctx.strokeStyle = edgeColors[e.type] || `rgba(${_ar},${_ag},${_ab},0.25)`;
     ctx.lineWidth = edgeWidths[e.type] || 1.5;
     if (e.type === 'tag') { ctx.setLineDash([4,4]); } else { ctx.setLineDash([]); }
     ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
@@ -3138,7 +3140,7 @@ async function renderSettings() {
         <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">Give your AI assistant a name and personality. It will greet you and respond with this identity.</p>
         <div style="display:flex;gap:16px;flex-wrap:wrap">
           <div style="flex:1;min-width:200px">
-            <div class="settings-field"><label>Agent Name</label><input class="settings-input" id="profAgentName" value="${esc(up.ai_agent_name||'Fang's AI')}" placeholder="e.g. Jarvis, Friday, Atlas"></div>
+            <div class="settings-field"><label>Agent Name</label><input class="settings-input" id="profAgentName" value="${esc(up.ai_agent_name||"Fang's AI")}" placeholder="e.g. Jarvis, Friday, Atlas"></div>
             <div class="settings-field"><label>Agent Calls Me</label><input class="settings-input" id="profAgentCallsMe" value="${esc(up.ai_calls_me||'')}" placeholder="e.g. Boss, Captain, your name"></div>
           </div>
           <div style="text-align:center">
@@ -3152,7 +3154,7 @@ async function renderSettings() {
         </div>
         <button class="settings-btn primary" onclick="saveProfile()" style="margin-top:12px">💾 Save Agent Settings</button>
         <div style="margin-top:12px;padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px;color:var(--text-2)">
-          <strong>Preview:</strong> "${up.ai_agent_emoji||'🧠'} ${up.ai_agent_name||'Fang's AI'}: Hey ${up.ai_calls_me||'there'}, what can I help you with today?"
+          <strong>Preview:</strong> "${up.ai_agent_emoji||'🧠'} ${up.ai_agent_name||"Fang's AI"}: Hey ${up.ai_calls_me||'there'}, what can I help you with today?"
         </div>
       </div>
     `;
