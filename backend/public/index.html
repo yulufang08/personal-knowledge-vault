@@ -4064,8 +4064,14 @@ async function renderCommunity() {
   m.innerHTML = `
     <div class="community-container">
       <div style="margin-bottom:20px">
-        <h2 style="font-size:22px;font-weight:700;margin-bottom:4px">🌐 Community</h2>
-        <p style="color:var(--text-3);font-size:13px">Share your learning journey, discover what others are studying</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <h2 style="font-size:22px;font-weight:700;margin-bottom:4px">🌐 Community</h2>
+            <p style="color:var(--text-3);font-size:13px">Share your learning journey, discover what others are studying</p>
+          </div>
+          <button class="settings-btn" onclick="openFriendsModal()" style="font-size:12px;padding:6px 12px">👥 Friends</button>
+        </div>
+        <input id="communitySearchInput" placeholder="Search posts..." oninput="filterCommunityPosts(this.value)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-2);color:var(--text-1);font-size:14px;outline:none;transition:var(--transition-fast)" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
       </div>
 
       <!-- New post composer -->
@@ -4119,6 +4125,20 @@ function renderCommunityFeed() {
       <div class="post-comments-section" id="comments-${p.id}" style="display:none"></div>
     </div>`;
   }).join('');
+}
+
+let communitySearchQuery = '';
+function filterCommunityPosts(q) {
+  communitySearchQuery = q.toLowerCase().trim();
+  const feed = document.getElementById('communityFeed');
+  if (!feed) return;
+  if (!communitySearchQuery) { feed.innerHTML = renderCommunityFeed(); return; }
+  const filtered = communityPosts.filter(p => (p.content||'').toLowerCase().includes(communitySearchQuery) || (p.display_name||p.username||'').toLowerCase().includes(communitySearchQuery));
+  if (!filtered.length) { feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3)"><div style="font-size:32px;margin-bottom:8px">🔍</div><p>No posts matching "'+esc(communitySearchQuery)+'"</p></div>'; return; }
+  const origPosts = communityPosts;
+  communityPosts = filtered;
+  feed.innerHTML = renderCommunityFeed();
+  communityPosts = origPosts;
 }
 
 let postAttachedNoteId = null;
