@@ -688,107 +688,152 @@ a{color:var(--accent);text-decoration:none}
 
 /* ===== CALENDAR VIEW ===== */
 .calendar-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:24px 32px}
-.calendar-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.calendar-toolbar h2{font-size:22px;font-weight:700;min-width:220px}
-.cal-nav-btn{
-  width:36px;height:36px;border-radius:var(--radius);border:1px solid var(--border);
-  background:var(--bg-1);color:var(--text-1);cursor:pointer;font-size:16px;
-  display:flex;align-items:center;justify-content:center;transition:var(--transition);
-}
+.calendar-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.calendar-toolbar h2{font-size:20px;font-weight:700;min-width:200px}
+.cal-nav-btn{width:34px;height:34px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-1);color:var(--text-1);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
 .cal-nav-btn:hover{background:var(--bg-3);border-color:var(--accent)}
-.cal-today-btn{
-  padding:6px 16px;border-radius:var(--radius);border:1px solid var(--accent);
-  background:transparent;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition);
-}
+.cal-today-btn{padding:5px 14px;border-radius:var(--radius);border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition)}
 .cal-today-btn:hover{background:var(--accent);color:#fff}
-.cal-view-toggle{margin-left:auto;display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.cal-view-btn{
-  padding:6px 14px;border:none;background:var(--bg-1);color:var(--text-2);
-  cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition);
-}
+.cal-view-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.cal-view-btn{padding:5px 12px;border:none;background:var(--bg-1);color:var(--text-2);cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition)}
 .cal-view-btn.active{background:var(--accent);color:#fff}
 .cal-view-btn:not(:last-child){border-right:1px solid var(--border)}
+.cal-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.cal-add-event-btn,.cal-add-task-btn{padding:5px 12px;border-radius:var(--radius);border:none;cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition);display:flex;align-items:center;gap:5px}
+.cal-add-event-btn{background:var(--gradient-fun);color:#fff}
+.cal-add-event-btn:hover{opacity:.9}
+.cal-add-task-btn{background:var(--bg-2);border:1px solid var(--border);color:var(--text-1)}
+.cal-add-task-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cal-stats-btn{padding:5px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-1);color:var(--text-2);cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition)}
+.cal-stats-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cal-stats-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 
+/* Category pills filter */
+.cal-cat-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.cal-cat-pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid transparent;display:flex;align-items:center;gap:4px}
+.cal-cat-pill:hover{opacity:.85}
+.cal-cat-pill.muted{opacity:.35}
+.cal-cat-pill .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cal-manage-cats{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px dashed var(--border);color:var(--text-3);transition:var(--transition);background:transparent}
+.cal-manage-cats:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Calendar grid */
+.cal-body-wrap{flex:1;display:flex;gap:16px;overflow:hidden}
+.cal-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .calendar-grid{flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg-1)}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border);background:var(--bg-2)}
-.cal-weekday{padding:10px 8px;text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.cal-weekday{padding:8px;text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
 .cal-weekday:nth-child(1),.cal-weekday:nth-child(7){color:var(--pink)}
 .cal-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;overflow-y:auto}
-.cal-day{
-  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
-  padding:4px 6px;min-height:90px;cursor:pointer;transition:background .15s;position:relative;
-}
+.cal-day{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px 5px;min-height:85px;cursor:pointer;transition:background .15s;position:relative}
 .cal-day:nth-child(7n){border-right:none}
 .cal-day:hover{background:rgba(124,92,252,.03)}
 .cal-day.other-month{background:var(--bg-2)}
 .cal-day.other-month .cal-day-num{color:var(--text-3);opacity:.5}
 .cal-day.today{background:rgba(124,92,252,.05)}
-.cal-day.today .cal-day-num{
-  background:var(--accent);color:#fff;border-radius:50%;
-  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
-}
-.cal-day.selected{box-shadow:inset 0 0 0 2px var(--accent)}
-.cal-day-num{font-size:12px;font-weight:500;color:var(--text-1);margin-bottom:2px;line-height:26px}
+.cal-day.today .cal-day-num{background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-day-num{font-size:12px;font-weight:500;color:var(--text-1);margin-bottom:2px;line-height:24px}
 .cal-day.weekend .cal-day-num{color:var(--pink)}
-.cal-events{display:flex;flex-direction:column;gap:2px;overflow:hidden}
-.cal-event{
-  padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
-  transition:var(--transition);line-height:1.4;
-}
-.cal-event:hover{opacity:.85;transform:translateX(1px)}
-.cal-event.purple{background:rgba(124,92,252,.12);color:#7c5cfc}
-.cal-event.green{background:rgba(16,185,129,.12);color:#059669}
-.cal-event.blue{background:rgba(99,102,241,.12);color:#4f46e5}
-.cal-event.pink{background:rgba(236,72,153,.12);color:#db2777}
-.cal-event.yellow{background:rgba(245,158,11,.12);color:#d97706}
-.cal-more{font-size:10px;color:var(--text-3);padding:1px 6px;cursor:pointer}
+.cal-items{display:flex;flex-direction:column;gap:1px;overflow:hidden}
+.cal-item{padding:1px 5px;border-radius:3px;font-size:10px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:var(--transition);line-height:1.5;border-left:2px solid}
+.cal-item:hover{opacity:.8}
+.cal-item.task-done{opacity:.45;text-decoration:line-through}
+.cal-item .task-check{font-size:9px;margin-right:2px}
+.cal-more{font-size:10px;color:var(--text-3);padding:1px 5px;cursor:pointer}
 .cal-more:hover{color:var(--accent)}
 
 /* Calendar day detail popover */
-.cal-popover{
-  position:fixed;z-index:80;width:300px;max-height:400px;
-  background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-lg);overflow:hidden;
-}
-.cal-popover-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cal-popover{position:fixed;z-index:80;width:320px;max-height:440px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden}
+.cal-popover-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .cal-popover-header h3{font-size:14px;font-weight:600}
 .cal-popover-close{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;padding:2px}
-.cal-popover-body{padding:8px;max-height:280px;overflow-y:auto}
-.cal-popover-item{
-  display:flex;align-items:center;gap:8px;padding:8px 10px;
-  border-radius:var(--radius);cursor:pointer;transition:var(--transition);font-size:13px;
-}
-.cal-popover-item:hover{background:var(--bg-3)}
-.cal-popover-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.cal-popover-item time{margin-left:auto;font-size:11px;color:var(--text-3)}
-.cal-popover-footer{padding:8px;border-top:1px solid var(--border)}
-.cal-add-btn{
-  width:100%;padding:8px;border-radius:var(--radius);border:1px dashed var(--border);
-  background:transparent;color:var(--text-2);cursor:pointer;font-size:12px;
-  display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--transition);
-}
-.cal-add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.cal-popover-body{padding:6px;max-height:280px;overflow-y:auto}
+.cal-pop-section{padding:4px 8px}
+.cal-pop-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:4px 0}
+.cal-pop-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius);cursor:pointer;transition:var(--transition);font-size:12px}
+.cal-pop-item:hover{background:var(--bg-3)}
+.cal-pop-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cal-pop-item .time-label{margin-left:auto;font-size:10px;color:var(--text-3);white-space:nowrap}
+.cal-pop-task{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--radius);font-size:12px;transition:var(--transition)}
+.cal-pop-task:hover{background:var(--bg-3)}
+.cal-pop-task input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
+.cal-pop-task.done{text-decoration:line-through;opacity:.5}
+.cal-popover-footer{padding:6px;border-top:1px solid var(--border);display:flex;gap:6px}
+.cal-pop-add{flex:1;padding:7px;border-radius:var(--radius);border:1px dashed var(--border);background:transparent;color:var(--text-2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;gap:4px;transition:var(--transition)}
+.cal-pop-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 
 /* Week view */
 .cal-week{flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg-1)}
-.cal-week-header{display:grid;grid-template-columns:60px repeat(7,1fr);border-bottom:1px solid var(--border);background:var(--bg-2)}
-.cal-week-header-cell{padding:8px;text-align:center;font-size:11px;color:var(--text-3);border-right:1px solid var(--border)}
+.cal-week-header{display:grid;grid-template-columns:56px repeat(7,1fr);border-bottom:1px solid var(--border);background:var(--bg-2)}
+.cal-week-header-cell{padding:6px;text-align:center;font-size:10px;color:var(--text-3);border-right:1px solid var(--border)}
 .cal-week-header-cell.today-col{color:var(--accent);font-weight:600}
-.cal-week-header-cell .day-num{font-size:18px;font-weight:600;color:var(--text-0);display:block;margin-top:2px}
-.cal-week-header-cell.today-col .day-num{
-  background:var(--accent);color:#fff;border-radius:50%;width:32px;height:32px;
-  display:inline-flex;align-items:center;justify-content:center;
-}
-.cal-week-body{flex:1;display:grid;grid-template-columns:60px repeat(7,1fr);overflow-y:auto}
-.cal-hour-label{padding:4px 8px;font-size:10px;color:var(--text-3);text-align:right;border-right:1px solid var(--border);height:48px;border-bottom:1px solid rgba(228,224,246,.5)}
-.cal-week-col{border-right:1px solid var(--border)}
-.cal-week-slot{height:48px;border-bottom:1px solid rgba(228,224,246,.5);position:relative;cursor:pointer;transition:background .1s}
+.cal-week-header-cell .day-num{font-size:16px;font-weight:600;color:var(--text-0);display:block;margin-top:2px}
+.cal-week-header-cell.today-col .day-num{background:var(--accent);color:#fff;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center}
+.cal-week-body{flex:1;display:grid;grid-template-columns:56px repeat(7,1fr);overflow-y:auto;position:relative}
+.cal-hour-label{padding:2px 6px;font-size:10px;color:var(--text-3);text-align:right;border-right:1px solid var(--border);height:48px;border-bottom:1px solid rgba(228,224,246,.4)}
+.cal-week-col{border-right:1px solid var(--border);position:relative}
+.cal-week-slot{height:48px;border-bottom:1px solid rgba(228,224,246,.4);cursor:pointer;transition:background .1s}
 .cal-week-slot:hover{background:rgba(124,92,252,.03)}
-.cal-week-event{
-  position:absolute;left:2px;right:2px;padding:3px 6px;border-radius:4px;
-  font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;
-}
+.cal-week-event{position:absolute;left:2px;right:2px;padding:2px 5px;border-radius:4px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;border-left:3px solid;line-height:1.3}
+.cal-week-event:hover{opacity:.85}
+.cal-time-now{position:absolute;left:56px;right:0;height:2px;background:var(--red);z-index:3;pointer-events:none}
+.cal-time-now::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--red)}
+
+/* Stats panel */
+.cal-stats-panel{width:280px;min-width:280px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.cal-stats-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.cal-stats-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:11px}
+.cal-stats-toggle button{flex:1;padding:4px 10px;border:none;background:var(--bg-1);color:var(--text-2);cursor:pointer;font-weight:500;transition:var(--transition)}
+.cal-stats-toggle button.active{background:var(--accent);color:#fff}
+.cal-stats-total{text-align:center;padding:12px 0}
+.cal-stats-total .big-num{font-size:32px;font-weight:700;color:var(--text-0)}
+.cal-stats-total .sub{font-size:12px;color:var(--text-3)}
+.cal-donut{width:100px;height:100px;border-radius:50%;margin:0 auto;position:relative}
+.cal-donut-center{position:absolute;inset:20%;background:var(--bg-1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-1)}
+.cal-stat-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.cal-stat-row .cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cal-stat-row .cat-name{font-size:12px;font-weight:500;flex:1}
+.cal-stat-row .cat-hours{font-size:12px;color:var(--text-2);font-weight:600}
+.cal-stat-bar{height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;margin-top:2px}
+.cal-stat-bar-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.cal-task-stats{font-size:12px;color:var(--text-2)}
+.cal-task-stats .task-stat-row{display:flex;align-items:center;gap:6px;padding:3px 0}
+.cal-task-stats .check-icon{color:var(--green)}
+
+/* Event/task create modal */
+.cal-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(30,27,58,.3);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center}
+.cal-modal{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;width:90%;max-width:440px;box-shadow:var(--shadow-lg)}
+.cal-modal h2{font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.cal-modal-field{margin-bottom:12px}
+.cal-modal-field label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.cal-modal-field input,.cal-modal-field textarea,.cal-modal-field select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;background:var(--bg-0);color:var(--text-0);font-family:var(--font);transition:var(--transition)}
+.cal-modal-field input:focus,.cal-modal-field textarea:focus{border-color:var(--accent)}
+.cal-modal-field textarea{resize:none;height:64px}
+.cal-modal-cats{display:flex;flex-wrap:wrap;gap:6px}
+.cal-modal-cat{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition);border:2px solid transparent}
+.cal-modal-cat:hover{opacity:.8}
+.cal-modal-cat.selected{border-color:var(--text-0);box-shadow:0 0 0 1px var(--bg-1)}
+.cal-modal-row{display:flex;gap:10px}
+.cal-modal-row .cal-modal-field{flex:1}
+.cal-modal-actions{display:flex;gap:8px;margin-top:16px}
+.cal-modal-actions button{flex:1;padding:10px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)}
+.cal-modal-actions .save{background:var(--gradient-fun);color:#fff;border:none}
+.cal-modal-actions .save:hover{opacity:.9}
+.cal-modal-actions .cancel{background:var(--bg-2);color:var(--text-2);border:1px solid var(--border)}
+.cal-modal-actions .cancel:hover{background:var(--bg-3)}
+
+/* Category manager modal */
+.cat-manager-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.cat-manager-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-2);border-radius:var(--radius)}
+.cat-manager-item input[type=color]{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:0;background:none}
+.cat-manager-item input[type=text]{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg-0);color:var(--text-0);outline:none}
+.cat-manager-item .cat-del{padding:4px 8px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:14px;transition:var(--transition)}
+.cat-manager-item .cat-del:hover{color:var(--red)}
+.cat-add-row{display:flex;gap:6px}
+.cat-add-row input[type=color]{width:34px;height:34px;border:none;border-radius:6px;cursor:pointer;padding:0}
+.cat-add-row input[type=text]{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;background:var(--bg-0);color:var(--text-0);outline:none}
+.cat-add-row button{padding:6px 14px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:var(--transition)}
+.cat-add-row button:hover{opacity:.9}
 
 /* ===== SMOOTH ANIMATIONS ===== */
 /* View transition — no opacity to avoid flash of invisible content */
@@ -1304,6 +1349,17 @@ async function saveNote() {
   } catch(e) { toast('Save failed', 'error'); }
 }
 
+async function saveAnnotation(text) {
+  if (!currentNote) return;
+  try {
+    await fetch(API + '/notes/' + currentNote.id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: currentNote.title, content: currentNote.content, markdown: currentNote.markdown, annotation: text })
+    });
+    currentNote.annotation = text;
+  } catch(e) {}
+}
+
 async function deleteNote() {
   if (!currentNote) return;
   try {
@@ -1332,10 +1388,12 @@ function renderNotesList() {
     el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:12px">No notes yet</div>';
     return;
   }
-  el.innerHTML = notes.slice(0, 20).map(n => `
-    <div class="note-card${currentNote && currentNote.id === n.id ? ' active' : ''}" onclick="openNote('${n.id}')">
-      <h4>${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h4>
-      <div class="snippet">${esc(n.description || n.content || 'Empty note')}</div>
+  // Show root-level items first, then recent
+  const rootItems = notes.filter(n => !n.parent_id).slice(0, 20);
+  el.innerHTML = rootItems.map(n => `
+    <div class="note-card${currentNote && currentNote.id === n.id ? ' active' : ''}" onclick="${n.item_type==='folder' ? `notesViewParent='${n.id}';switchView('notes')` : `openNote('${n.id}')`}">
+      <h4>${getItemIcon(n)} ${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h4>
+      <div class="snippet">${n.item_type==='folder' ? notes.filter(x=>x.parent_id===n.id).length+' items' : esc(n.description || n.content || 'Empty')}</div>
       <div class="meta"><time>${formatDate(n.updated_at || n.created_at)}</time></div>
     </div>
   `).join('');
@@ -1391,17 +1449,75 @@ function switchView(view, navEl) {
   });
 }
 
+// ===== DAILY QUOTE =====
+const defaultQuotes = [
+  {text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
+  {text:"It is during our darkest moments that we must focus to see the light.",author:"Aristotle"},
+  {text:"Believe you can and you're halfway there.",author:"Theodore Roosevelt"},
+  {text:"The future belongs to those who believe in the beauty of their dreams.",author:"Eleanor Roosevelt"},
+  {text:"In the middle of every difficulty lies opportunity.",author:"Albert Einstein"},
+  {text:"What lies behind us and what lies before us are tiny matters compared to what lies within us.",author:"Ralph Waldo Emerson"},
+  {text:"The best time to plant a tree was 20 years ago. The second best time is now.",author:"Chinese Proverb"},
+  {text:"Your time is limited, don't waste it living someone else's life.",author:"Steve Jobs"},
+  {text:"Success is not final, failure is not fatal: it is the courage to continue that counts.",author:"Winston Churchill"},
+  {text:"The mind is everything. What you think you become.",author:"Buddha"},
+  {text:"Strive not to be a success, but rather to be of value.",author:"Albert Einstein"},
+  {text:"The only impossible journey is the one you never begin.",author:"Tony Robbins"},
+  {text:"Act as if what you do makes a difference. It does.",author:"William James"},
+  {text:"What you get by achieving your goals is not as important as what you become by achieving your goals.",author:"Zig Ziglar"},
+  {text:"You are never too old to set another goal or to dream a new dream.",author:"C.S. Lewis"},
+  {text:"Everything you've ever wanted is on the other side of fear.",author:"George Addair"},
+  {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
+  {text:"It always seems impossible until it's done.",author:"Nelson Mandela"},
+  {text:"Don't watch the clock; do what it does. Keep going.",author:"Sam Levenson"},
+  {text:"Happiness is not something ready made. It comes from your own actions.",author:"Dalai Lama"},
+  {text:"A journey of a thousand miles begins with a single step.",author:"Lao Tzu"},
+  {text:"Be the change that you wish to see in the world.",author:"Mahatma Gandhi"},
+  {text:"The beautiful thing about learning is that no one can take it away from you.",author:"B.B. King"},
+  {text:"With the new day comes new strength and new thoughts.",author:"Eleanor Roosevelt"},
+  {text:"The only limit to our realization of tomorrow will be our doubts of today.",author:"Franklin D. Roosevelt"},
+  {text:"Start where you are. Use what you have. Do what you can.",author:"Arthur Ashe"},
+  {text:"Keep your face always toward the sunshine, and shadows will fall behind you.",author:"Walt Whitman"},
+  {text:"Life is 10% what happens to us and 90% how we react to it.",author:"Charles R. Swindoll"},
+  {text:"We may encounter many defeats but we must not be defeated.",author:"Maya Angelou"},
+  {text:"It does not matter how slowly you go as long as you do not stop.",author:"Confucius"},
+  {text:"Knowing is not enough; we must apply. Willing is not enough; we must do.",author:"Johann Wolfgang von Goethe"},
+];
+
+function getDailyQuote() {
+  // User custom quote takes priority
+  const custom = localStorage.getItem('vault-custom-quote');
+  if (custom) { try { return JSON.parse(custom); } catch(e) {} }
+  // Deterministic daily pick based on date
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(),0,0)) / 86400000);
+  return defaultQuotes[dayOfYear % defaultQuotes.length];
+}
+
+function setCustomQuote(text, author) {
+  if (!text) { localStorage.removeItem('vault-custom-quote'); return; }
+  localStorage.setItem('vault-custom-quote', JSON.stringify({text, author: author||'You'}));
+}
+
 // ===== HOME VIEW =====
 function renderHome() {
   const m = document.getElementById('mainContent');
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const quote = getDailyQuote();
 
   m.innerHTML = `
     <div style="flex:1;overflow-y:auto;padding:32px 48px">
       <div style="margin-bottom:24px">
         <h2 style="font-size:26px;font-weight:700;letter-spacing:-.5px">Good ${getGreeting()}</h2>
         <p style="color:var(--text-3);font-size:14px;margin-top:4px">${dateStr}</p>
+        <div style="margin-top:10px;padding:12px 16px;background:linear-gradient(135deg,rgba(124,92,252,.04),rgba(167,139,250,.04));border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <p style="font-size:14px;color:var(--text-1);font-style:italic;line-height:1.6">"${esc(quote.text)}"</p>
+            <p style="font-size:12px;color:var(--text-3);margin-top:4px">— ${esc(quote.author)}</p>
+          </div>
+          <button onclick="editDailyQuote()" title="Customize quote" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;padding:4px;transition:color .2s">✏️</button>
+        </div>
       </div>
       <div class="daily-banner">
         <div class="daily-icon">✨</div>
@@ -1439,6 +1555,23 @@ function getGreeting() {
   return 'Evening 🌙';
 }
 
+function editDailyQuote() {
+  const current = getDailyQuote();
+  const overlay = document.createElement('div');
+  overlay.className = 'cal-modal-overlay'; overlay.id = 'calModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="cal-modal"><h2>✏️ Daily Quote</h2>
+    <div class="cal-modal-field"><label>Quote</label><textarea id="quoteText" style="height:80px" placeholder="Enter your custom quote...">${esc(localStorage.getItem('vault-custom-quote') ? current.text : '')}</textarea></div>
+    <div class="cal-modal-field"><label>Author</label><input id="quoteAuthor" placeholder="Author name" value="${esc(localStorage.getItem('vault-custom-quote') ? current.author : '')}"></div>
+    <p style="font-size:11px;color:var(--text-3);margin-bottom:12px">Leave empty to use the default rotating quotes from great thinkers.</p>
+    <div class="cal-modal-actions">
+      <button class="cancel" onclick="setCustomQuote(null);this.closest('.cal-modal-overlay').remove();renderHome()">Reset to Default</button>
+      <button class="save" onclick="setCustomQuote(document.getElementById('quoteText').value,document.getElementById('quoteAuthor').value);this.closest('.cal-modal-overlay').remove();renderHome()">Save</button>
+    </div></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('quoteText')?.focus(), 50);
+}
+
 async function createDailyNote() {
   const today = new Date().toISOString().split('T')[0];
   const existing = notes.find(n => n.title === `Daily: ${today}`);
@@ -1459,30 +1592,166 @@ async function createDailyNote() {
 }
 
 // ===== NOTES GRID =====
+let notesViewParent = null; // null = root
+let notesViewMode = 'grid'; // grid or list
+
+function getBreadcrumbs() {
+  const crumbs = [];
+  let pid = notesViewParent;
+  while (pid) {
+    const n = notes.find(x => x.id === pid);
+    if (!n) break;
+    crumbs.unshift({id: n.id, title: n.title || 'Untitled'});
+    pid = n.parent_id;
+  }
+  return crumbs;
+}
+
+function getChildren(parentId) {
+  return notes.filter(n => (n.parent_id || null) === parentId);
+}
+
+function getItemIcon(n) {
+  if (n.item_type === 'folder') return '📁';
+  if (n.item_type === 'video') return '🎬';
+  if (n.item_type === 'audio') return '🎵';
+  if (n.item_type === 'image') return '🖼️';
+  if (n.item_type === 'file') return '📎';
+  if (n.item_type === 'link') return '🔗';
+  return '📄';
+}
+
 function renderNotesGrid() {
   const m = document.getElementById('mainContent');
+  const children = getChildren(notesViewParent);
+  const crumbs = getBreadcrumbs();
+  const folders = children.filter(n => n.item_type === 'folder');
+  const items = children.filter(n => n.item_type !== 'folder');
+
+  const breadcrumbHtml = `<span style="cursor:pointer;color:var(--accent)" onclick="notesViewParent=null;renderNotesGrid()">All Notes</span>`
+    + crumbs.map(c => ` <span class="sep" style="color:var(--text-3);margin:0 4px">/</span> <span style="cursor:pointer;color:var(--accent)" onclick="notesViewParent='${c.id}';renderNotesGrid()">${esc(c.title)}</span>`).join('');
+
   m.innerHTML = `
     <div class="notes-grid-container">
       <div class="notes-grid-header">
-        <h2>All Notes</h2>
-        <span style="font-size:13px;color:var(--text-3)">${notes.length}${!userProfile.isPro ? ' / ' + userProfile.noteLimit : ''} notes</span>
+        <div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;display:flex;align-items:center;gap:4px">${breadcrumbHtml}</div>
+          <h2>${notesViewParent ? esc((notes.find(n=>n.id===notesViewParent)||{}).title||'Folder') : 'Knowledge Base'}</h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--text-3)">${children.length} items</span>
+          <button class="topbar-btn" onclick="createFolder()" title="New folder">📁 Folder</button>
+          <button class="topbar-btn" onclick="openAddMediaModal()" title="Add media">📎 Media</button>
+          <button class="topbar-btn primary" onclick="createNoteInFolder()">+ Note</button>
+        </div>
       </div>
-      ${notes.length ? `<div class="notes-grid">${notes.map(n => renderGridCard(n)).join('')}</div>`
-      : `<div class="empty-state"><div class="empty-icon">📄</div><h2>No notes yet</h2><p>Create your first note to get started</p>
-          <button class="new-note-btn" onclick="createNote()">✦ New Note</button></div>`}
+      ${folders.length ? `<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:8px">Folders</div><div class="notes-grid">${folders.map(n => renderGridCard(n)).join('')}</div></div>` : ''}
+      ${items.length ? `<div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:8px">${folders.length ? 'Items' : ''}</div><div class="notes-grid">${items.map(n => renderGridCard(n)).join('')}</div></div>` : ''}
+      ${!children.length ? `<div class="empty-state"><div class="empty-icon">${notesViewParent ? '📂' : '📄'}</div><h2>${notesViewParent ? 'Empty folder' : 'No notes yet'}</h2><p>${notesViewParent ? 'Add notes, media, or sub-folders here' : 'Create your first note to get started'}</p>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="new-note-btn" onclick="createNoteInFolder()">✦ New Note</button>
+            <button class="topbar-btn" onclick="createFolder()">📁 New Folder</button>
+            <button class="topbar-btn" onclick="openAddMediaModal()">📎 Add Media</button>
+          </div></div>` : ''}
     </div>
   `;
 }
 
 function renderGridCard(n) {
-  const snippet = (n.description || n.content || n.markdown || 'Empty note').substring(0, 120);
+  const icon = getItemIcon(n);
+  const isFolder = n.item_type === 'folder';
+  const childCount = isFolder ? notes.filter(x => x.parent_id === n.id).length : 0;
+  const snippet = isFolder ? `${childCount} item${childCount!==1?'s':''}` : (n.annotation || n.description || n.content || n.markdown || '').substring(0, 100);
+  const mediaPreview = (n.item_type === 'video' || n.item_type === 'audio' || n.item_type === 'image' || n.item_type === 'link') && n.media_url
+    ? `<div style="font-size:11px;color:var(--accent);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🔗 ${esc((n.media_url||'').substring(0,50))}</div>` : '';
+  const annotationPreview = n.annotation ? `<div style="font-size:11px;color:var(--text-2);margin-top:4px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">💭 ${esc(n.annotation.substring(0,60))}</div>` : '';
+
+  const onclick = isFolder
+    ? `notesViewParent='${n.id}';renderNotesGrid()`
+    : `openNote('${n.id}')`;
+
   return `
-    <div class="grid-card" onclick="openNote('${n.id}')">
-      <h3>${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h3>
+    <div class="grid-card" onclick="${onclick}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:18px">${icon}</span>
+        <h3 style="flex:1;margin:0">${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h3>
+        ${isFolder ? `<span style="font-size:11px;color:var(--text-3);background:var(--bg-3);padding:1px 7px;border-radius:10px">${childCount}</span>` : ''}
+      </div>
       <div class="card-snippet">${esc(snippet)}</div>
+      ${mediaPreview}${annotationPreview}
       <div class="card-footer"><time>${formatDate(n.updated_at || n.created_at)}</time></div>
     </div>
   `;
+}
+
+async function createFolder() {
+  const name = prompt('Folder name:');
+  if (!name) return;
+  try {
+    const r = await fetch(API + '/notes', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: name, content: '', item_type: 'folder', parent_id: notesViewParent })
+    });
+    const d = await r.json();
+    if (d.error && d.upgrade) { toast(d.error, 'error'); openUpgradeModal(); return; }
+    if (d.data) { await fetchNotes(); renderNotesGrid(); toast('Folder created', 'success'); }
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function createNoteInFolder() {
+  try {
+    const r = await fetch(API + '/notes', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Untitled', content: '', markdown: '', item_type: 'note', parent_id: notesViewParent })
+    });
+    const d = await r.json();
+    if (d.error && d.upgrade) { toast(d.error, 'error'); openUpgradeModal(); return; }
+    if (d.data) { await fetchNotes(); await fetchProfile(); openNote(d.data.id); toast('Note created', 'success'); }
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+function openAddMediaModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'cal-modal-overlay'; overlay.id = 'calModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="cal-modal"><h2>📎 Add to Knowledge Base</h2>
+    <div class="cal-modal-field"><label>Title</label><input id="mediaTitle" placeholder="Item name"></div>
+    <div class="cal-modal-field"><label>Type</label>
+      <select id="mediaType" class="settings-select" onchange="document.getElementById('mediaUrlLabel').textContent={'video':'Video URL (YouTube, etc.)','audio':'Audio URL','image':'Image URL','link':'Web Link','file':'File URL'}[this.value]||'URL'">
+        <option value="link">🔗 Web Link</option>
+        <option value="video">🎬 Video</option>
+        <option value="audio">🎵 Audio</option>
+        <option value="image">🖼️ Image</option>
+        <option value="file">📎 File</option>
+      </select>
+    </div>
+    <div class="cal-modal-field"><label id="mediaUrlLabel">URL</label><input id="mediaUrl" placeholder="https://..."></div>
+    <div class="cal-modal-field"><label>Your Notes / Annotation</label><textarea id="mediaAnnotation" style="height:80px" placeholder="Your thoughts, key takeaways, comments..."></textarea></div>
+    <div class="cal-modal-actions">
+      <button class="cancel" onclick="this.closest('.cal-modal-overlay').remove()">Cancel</button>
+      <button class="save" onclick="saveMediaItem()">Add Item</button>
+    </div></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('mediaTitle')?.focus(), 50);
+}
+
+async function saveMediaItem() {
+  const title = document.getElementById('mediaTitle')?.value?.trim();
+  if (!title) { toast('Enter a title', 'info'); return; }
+  const item_type = document.getElementById('mediaType')?.value || 'link';
+  const media_url = document.getElementById('mediaUrl')?.value?.trim();
+  const annotation = document.getElementById('mediaAnnotation')?.value;
+  try {
+    const r = await fetch(API + '/notes', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content: annotation||'', item_type, media_url, media_type: item_type, annotation, parent_id: notesViewParent })
+    });
+    const d = await r.json();
+    if (d.error && d.upgrade) { toast(d.error, 'error'); openUpgradeModal(); return; }
+    document.getElementById('calModalOverlay')?.remove();
+    await fetchNotes(); renderNotesGrid();
+    toast('Item added', 'success');
+  } catch(e) { toast('Failed', 'error'); }
 }
 
 // ===== EDITOR =====
@@ -1494,8 +1763,8 @@ function renderEditor() {
     <div class="topbar">
       <div class="breadcrumb">
         <span onclick="switchView('home')">Vault</span><span class="sep">›</span>
-        <span onclick="switchView('notes')">Notes</span><span class="sep">›</span>
-        <span style="color:var(--text-1)">${esc(currentNote.title || 'Untitled')}</span>
+        <span onclick="notesViewParent=null;switchView('notes')">Notes</span>${currentNote.parent_id ? `<span class="sep">›</span><span onclick="notesViewParent='${currentNote.parent_id}';switchView('notes')">${esc((notes.find(n=>n.id===currentNote.parent_id)||{}).title||'Folder')}</span>` : ''}<span class="sep">›</span>
+        <span style="color:var(--text-1)">${getItemIcon(currentNote)} ${esc(currentNote.title || 'Untitled')}</span>
       </div>
       <div class="topbar-actions">
         ${userProfile.isPro ? `
@@ -1517,6 +1786,20 @@ function renderEditor() {
       ${tags.map((t, i) => `<span class="tag-pill ${tagColors[i % tagColors.length]}">${esc(t.name)}<span class="remove" onclick="removeTag('${esc(t.name)}')">×</span></span>`).join('')}
       <input class="tag-add-input" placeholder="Add tag..." onkeydown="if(event.key==='Enter'){addTag(this.value);this.value=''}">
     </div>
+    ${currentNote.media_url ? `
+    <div style="margin:0 48px;padding:14px 16px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">${getItemIcon(currentNote)}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">${esc(currentNote.media_type||currentNote.item_type||'link')}</div>
+        <a href="${esc(currentNote.media_url)}" target="_blank" rel="noopener" style="font-size:13px;word-break:break-all">${esc(currentNote.media_url)}</a>
+      </div>
+      ${currentNote.item_type==='video' && currentNote.media_url.includes('youtu') ? `<button class="topbar-btn" onclick="window.open('${esc(currentNote.media_url)}','_blank')">▶ Play</button>` : ''}
+    </div>` : ''}
+    ${currentNote.annotation ? `
+    <div style="margin:8px 48px 0;padding:10px 14px;background:linear-gradient(135deg,rgba(124,92,252,.04),rgba(167,139,250,.03));border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0">
+      <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px">💭 Your Annotation</div>
+      <div style="font-size:13px;color:var(--text-1);line-height:1.6" contenteditable="true" onblur="saveAnnotation(this.textContent)">${esc(currentNote.annotation)}</div>
+    </div>` : ''}
     <div id="aiPanelSlot"></div>
     <div id="versionPanelSlot"></div>
     <div class="editor-body">
@@ -2754,11 +3037,69 @@ async function removeDevice(id) {
 
 // ===== CALENDAR VIEW =====
 let calYear, calMonth, calViewMode = 'month', calPopoverEl = null;
+let calEvents = [], calTasks = [], calCategories = [], calStats = null, calShowStats = false;
+let calFilterCats = new Set(); // empty = show all
 (function() { const d = new Date(); calYear = d.getFullYear(); calMonth = d.getMonth(); })();
 
-function renderCalendar() {
+async function fetchCalCategories() {
+  try { const r = await fetch(API+'/calendar/categories'); const d = await r.json(); calCategories = d.data||[]; } catch(e) {}
+}
+
+function calVisibleRange() {
+  if (calViewMode === 'month') {
+    const first = new Date(calYear, calMonth, 1);
+    const sd = first.getDay();
+    const start = new Date(calYear, calMonth, 1 - sd);
+    const end = new Date(calYear, calMonth + 1, 0);
+    end.setDate(end.getDate() + (6 - end.getDay()) + 1);
+    return { start: start.toISOString().substring(0,10), end: end.toISOString().substring(0,10) };
+  } else {
+    const ws = getWeekStart();
+    const we = new Date(ws); we.setDate(we.getDate() + 7);
+    return { start: ws.toISOString().substring(0,10), end: we.toISOString().substring(0,10) };
+  }
+}
+
+async function fetchCalData() {
+  const {start, end} = calVisibleRange();
+  try {
+    const [er, tr] = await Promise.all([
+      fetch(API+'/calendar/events?start='+start+'&end='+end).then(r=>r.json()),
+      fetch(API+'/calendar/tasks?start='+start+'&end='+end).then(r=>r.json())
+    ]);
+    calEvents = er.data||[]; calTasks = tr.data||[];
+  } catch(e) {}
+}
+
+async function fetchCalStats() {
+  const {start, end} = calVisibleRange();
+  try { const r = await fetch(API+'/calendar/stats?start='+start+'&end='+end); const d = await r.json(); calStats = d.data||null; } catch(e) {}
+}
+
+function getItemsForDate(dateStr) {
+  const evts = calEvents.filter(e => {
+    const s = (e.start_time||'').substring(0,10), en = (e.end_time||'').substring(0,10);
+    return dateStr >= s && dateStr <= en;
+  }).filter(e => calFilterCats.size === 0 || calFilterCats.has(e.category_id));
+  const tasks = calTasks.filter(t => t.due_date === dateStr || (t.due_date||'').substring(0,10) === dateStr)
+    .filter(t => calFilterCats.size === 0 || calFilterCats.has(t.category_id));
+  return { events: evts, tasks };
+}
+
+async function renderCalendar() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
+  viewLoading('📅', 'Loading calendar...');
+  if (!calCategories.length) await fetchCalCategories();
+  await fetchCalData();
+  if (calShowStats) await fetchCalStats();
+  if (viewSwitchId !== myId) return;
+
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const catPillsHtml = calCategories.map(c => {
+    const muted = calFilterCats.size > 0 && !calFilterCats.has(c.id);
+    return `<span class="cal-cat-pill${muted?' muted':''}" style="background:${c.color}18;color:${c.color}" onclick="toggleCalFilter('${c.id}')"><span class="cat-dot" style="background:${c.color}"></span>${esc(c.name)}</span>`;
+  }).join('');
 
   m.innerHTML = `
     <div class="calendar-container">
@@ -2771,13 +3112,29 @@ function renderCalendar() {
           <button class="cal-view-btn${calViewMode==='month'?' active':''}" onclick="calViewMode='month';renderCalendar()">Month</button>
           <button class="cal-view-btn${calViewMode==='week'?' active':''}" onclick="calViewMode='week';renderCalendar()">Week</button>
         </div>
+        <div class="cal-toolbar-right">
+          <button class="cal-stats-btn${calShowStats?' active':''}" onclick="calShowStats=!calShowStats;renderCalendar()">📊 Stats</button>
+          <button class="cal-add-task-btn" onclick="openCalModal('task')">☑ Task</button>
+          <button class="cal-add-event-btn" onclick="openCalModal('event')">+ Event</button>
+        </div>
       </div>
-      <div id="calBody"></div>
+      <div class="cal-cat-filter">${catPillsHtml}<span class="cal-manage-cats" onclick="openCatManager()">⚙ Manage</span></div>
+      <div class="cal-body-wrap">
+        <div class="cal-main" id="calBody"></div>
+        ${calShowStats ? `<div class="cal-stats-panel" id="calStatsPanel"></div>` : ''}
+      </div>
     </div>
   `;
 
   if (calViewMode === 'month') renderCalMonth();
   else renderCalWeek();
+  if (calShowStats) renderCalStats();
+}
+
+function toggleCalFilter(catId) {
+  if (calFilterCats.has(catId)) calFilterCats.delete(catId);
+  else calFilterCats.add(catId);
+  renderCalendar();
 }
 
 function calPrev() {
@@ -2799,17 +3156,6 @@ function getWeekStart() {
   const day = d.getDay(); d.setDate(d.getDate() - day);
   return d;
 }
-
-function getNotesForDate(dateStr) {
-  return notes.filter(n => {
-    const created = (n.created_at || '').substring(0, 10);
-    const updated = (n.updated_at || '').substring(0, 10);
-    return created === dateStr || updated === dateStr;
-  });
-}
-
-const eventColors = ['purple','green','blue','pink','yellow'];
-function noteColor(idx) { return eventColors[idx % eventColors.length]; }
 
 function renderCalMonth() {
   const body = document.getElementById('calBody');
@@ -2834,15 +3180,16 @@ function renderCalMonth() {
     } else if (i >= startDay + daysInMonth) {
       day = i - startDay - daysInMonth + 1; month = calMonth + 1; isOther = true;
       if (month > 11) { month = 0; year++; }
-    } else {
-      day = i - startDay + 1;
-    }
+    } else { day = i - startDay + 1; }
 
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isToday = dateStr === todayStr;
     const dayOfWeek = i % 7;
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const dayNotes = getNotesForDate(dateStr);
+    const {events, tasks} = getItemsForDate(dateStr);
+    const allItems = [];
+    events.forEach(e => allItems.push({type:'event', color: e.category_color||'#7c5cfc', title: e.title, id: e.id}));
+    tasks.forEach(t => allItems.push({type:'task', color: t.category_color||'#6b6494', title: t.title, id: t.id, done: t.completed}));
     const maxShow = 3;
 
     let cls = 'cal-day';
@@ -2851,17 +3198,17 @@ function renderCalMonth() {
     if (isWeekend) cls += ' weekend';
 
     html += `<div class="${cls}" onclick="showCalDayPopover(event,'${dateStr}',${day},${month},${year})">`;
-    html += `<div class="cal-day-num">${day}</div>`;
-    html += '<div class="cal-events">';
-    dayNotes.slice(0, maxShow).forEach((n, idx) => {
-      html += `<div class="cal-event ${noteColor(idx)}" onclick="event.stopPropagation();openNote('${n.id}')" title="${esc(n.title||'Untitled')}">${esc(n.title||'Untitled')}</div>`;
+    html += `<div class="cal-day-num">${day}</div><div class="cal-items">`;
+    allItems.slice(0, maxShow).forEach(it => {
+      if (it.type === 'event') {
+        html += `<div class="cal-item" style="border-left-color:${it.color};background:${it.color}12;color:${it.color}" title="${esc(it.title)}">${esc(it.title)}</div>`;
+      } else {
+        html += `<div class="cal-item${it.done?' task-done':''}" style="border-left-color:${it.color};background:${it.color}0a;color:var(--text-2)" title="${esc(it.title)}"><span class="task-check">${it.done?'✓':'○'}</span>${esc(it.title)}</div>`;
+      }
     });
-    if (dayNotes.length > maxShow) {
-      html += `<div class="cal-more">+${dayNotes.length - maxShow} more</div>`;
-    }
+    if (allItems.length > maxShow) html += `<div class="cal-more">+${allItems.length - maxShow} more</div>`;
     html += '</div></div>';
   }
-
   html += '</div></div>';
   body.innerHTML = html;
 }
@@ -2870,46 +3217,116 @@ function renderCalWeek() {
   const body = document.getElementById('calBody');
   const today = new Date();
   const todayStr = today.toISOString().substring(0, 10);
+  const nowH = today.getHours() + today.getMinutes()/60;
   const ws = getWeekStart();
   const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(ws);
-    d.setDate(ws.getDate() + i);
-    days.push(d);
-  }
+  for (let i = 0; i < 7; i++) { const d = new Date(ws); d.setDate(ws.getDate() + i); days.push(d); }
   const weekdayShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const slotH = 48;
 
   let html = '<div class="cal-week"><div class="cal-week-header">';
   html += '<div class="cal-week-header-cell" style="border-right:1px solid var(--border)"></div>';
   days.forEach(d => {
-    const ds = d.toISOString().substring(0, 10);
+    const ds = d.toISOString().substring(0,10);
     const isToday = ds === todayStr;
-    html += `<div class="cal-week-header-cell${isToday?' today-col':''}" style="border-right:1px solid var(--border)">
-      ${weekdayShort[d.getDay()]}<span class="day-num">${d.getDate()}</span></div>`;
+    html += `<div class="cal-week-header-cell${isToday?' today-col':''}" style="border-right:1px solid var(--border)">${weekdayShort[d.getDay()]}<span class="day-num">${d.getDate()}</span></div>`;
   });
-  html += '</div><div class="cal-week-body">';
+  html += '</div><div class="cal-week-body" id="calWeekBody">';
+
+  // Time now indicator
+  const nowTop = nowH * slotH;
+  html += `<div class="cal-time-now" style="top:${nowTop}px"></div>`;
 
   for (let h = 0; h < 24; h++) {
     const label = h === 0 ? '12 AM' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h-12) + ' PM';
     html += `<div class="cal-hour-label">${label}</div>`;
-    days.forEach(d => {
-      const ds = d.toISOString().substring(0, 10);
-      const dayNotes = h === 9 ? getNotesForDate(ds) : [];
-      html += '<div class="cal-week-col"><div class="cal-week-slot" onclick="createNoteForDate(\'' + ds + '\')">';
-      dayNotes.forEach((n, idx) => {
-        html += `<div class="cal-week-event" style="background:rgba(124,92,252,.12);color:#7c5cfc;top:0;height:44px" onclick="event.stopPropagation();openNote('${n.id}')">${esc(n.title||'Untitled')}</div>`;
-      });
-      html += '</div></div>';
+    days.forEach((d, di) => {
+      const ds = d.toISOString().substring(0,10);
+      html += `<div class="cal-week-col"><div class="cal-week-slot" onclick="openCalModal('event','${ds}',${h})"></div></div>`;
     });
   }
-
   html += '</div></div>';
   body.innerHTML = html;
+
+  // Overlay events as positioned blocks
+  const weekBody = document.getElementById('calWeekBody');
+  days.forEach((d, di) => {
+    const ds = d.toISOString().substring(0,10);
+    const {events} = getItemsForDate(ds);
+    events.forEach(e => {
+      const st = new Date(e.start_time), et = new Date(e.end_time);
+      const startH = st.getHours() + st.getMinutes()/60;
+      const endH = et.getHours() + et.getMinutes()/60;
+      const dur = Math.max(endH - startH, 0.5);
+      const top = startH * slotH;
+      const height = dur * slotH;
+      const col = e.category_color || '#7c5cfc';
+      const left = 56 + di * ((weekBody.offsetWidth - 56) / 7) + 2;
+      const width = (weekBody.offsetWidth - 56) / 7 - 4;
+      const el = document.createElement('div');
+      el.className = 'cal-week-event';
+      el.style.cssText = `top:${top}px;height:${height}px;left:${left}px;width:${width}px;position:absolute;background:${col}15;color:${col};border-left-color:${col}`;
+      el.textContent = e.title;
+      el.title = `${e.title}\n${st.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} - ${et.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+      el.onclick = () => openCalEditModal('event', e);
+      weekBody.appendChild(el);
+    });
+  });
+
+  // Scroll to 8am
+  const wb = document.getElementById('calWeekBody');
+  if (wb) wb.scrollTop = 8 * slotH;
 }
 
+function renderCalStats() {
+  const panel = document.getElementById('calStatsPanel');
+  if (!panel || !calStats) return;
+  const {timeByCategory, tasksByCategory, totalHours} = calStats;
+  const maxH = Math.max(...timeByCategory.map(c => parseFloat(c.total_hours)), 1);
+
+  // Donut gradient
+  let cum = 0;
+  const segments = timeByCategory.filter(c => parseFloat(c.total_hours) > 0).map(c => {
+    const pct = totalHours > 0 ? (parseFloat(c.total_hours)/totalHours)*100 : 0;
+    const seg = `${c.color} ${cum}% ${cum + pct}%`;
+    cum += pct;
+    return seg;
+  });
+  const donutBg = segments.length ? `conic-gradient(${segments.join(',')})` : 'var(--bg-3)';
+
+  let html = `<div class="cal-stats-title">📊 Time Stats</div>`;
+  html += `<div class="cal-stats-total"><div class="big-num">${totalHours}h</div><div class="sub">total this ${calViewMode === 'week' ? 'week' : 'month'}</div></div>`;
+  html += `<div class="cal-donut" style="background:${donutBg}"><div class="cal-donut-center">${totalHours}h</div></div>`;
+
+  html += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">';
+  timeByCategory.forEach(c => {
+    const h = parseFloat(c.total_hours);
+    const pct = maxH > 0 ? (h/maxH)*100 : 0;
+    html += `<div class="cal-stat-row"><span class="cat-dot" style="background:${c.color}"></span><span class="cat-name">${esc(c.name)}</span><span class="cat-hours">${h}h</span></div>`;
+    html += `<div class="cal-stat-bar"><div class="cal-stat-bar-fill" style="width:${pct}%;background:${c.color}"></div></div>`;
+  });
+  html += '</div>';
+
+  // Task completion
+  const totalTasks = tasksByCategory.reduce((s,c) => s + c.total_count, 0);
+  const doneTasks = tasksByCategory.reduce((s,c) => s + c.completed_count, 0);
+  if (totalTasks > 0) {
+    html += `<div style="margin-top:12px"><div class="cal-stats-title">☑ Tasks</div>`;
+    html += `<div style="font-size:13px;margin:6px 0;color:var(--text-1)">${doneTasks}/${totalTasks} completed (${Math.round(doneTasks/totalTasks*100)}%)</div>`;
+    html += `<div class="cal-stat-bar" style="height:6px"><div class="cal-stat-bar-fill" style="width:${(doneTasks/totalTasks)*100}%;background:var(--green)"></div></div>`;
+    html += '<div class="cal-task-stats" style="margin-top:8px">';
+    tasksByCategory.filter(c=>c.total_count>0).forEach(c => {
+      html += `<div class="task-stat-row"><span class="cat-dot" style="background:${c.color};width:8px;height:8px;border-radius:50%;display:inline-block"></span> ${esc(c.name)}: <strong>${c.completed_count}/${c.total_count}</strong></div>`;
+    });
+    html += '</div></div>';
+  }
+  panel.innerHTML = html;
+}
+
+// Day popover
 function showCalDayPopover(evt, dateStr, day, month, year) {
   closeCalPopover();
-  const dayNotes = getNotesForDate(dateStr);
+  const {events, tasks} = getItemsForDate(dateStr);
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const dateObj = new Date(year, month, day);
@@ -2917,65 +3334,239 @@ function showCalDayPopover(evt, dateStr, day, month, year) {
   const pop = document.createElement('div');
   pop.className = 'cal-popover';
 
-  let itemsHtml = dayNotes.length
-    ? dayNotes.map((n, i) => `
-      <div class="cal-popover-item" onclick="closeCalPopover();openNote('${n.id}')">
-        <span class="dot" style="background:${['#7c5cfc','#10b981','#6366f1','#ec4899','#f59e0b'][i%5]}"></span>
-        <span>${esc(n.title||'Untitled')}</span>
-        <time>${formatDate(n.updated_at||n.created_at)}</time>
-      </div>`).join('')
-    : '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:13px">No notes on this day</div>';
+  let bodyHtml = '';
+  if (events.length) {
+    bodyHtml += '<div class="cal-pop-section"><div class="cal-pop-section-title">Events</div>';
+    events.forEach(e => {
+      const st = new Date(e.start_time);
+      const timeStr = e.all_day ? 'All day' : st.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      bodyHtml += `<div class="cal-pop-item" onclick="closeCalPopover();openCalEditModal('event',calEvents.find(x=>x.id==='${e.id}'))"><span class="dot" style="background:${e.category_color||'#7c5cfc'}"></span><span>${esc(e.title)}</span><span class="time-label">${timeStr}</span></div>`;
+    });
+    bodyHtml += '</div>';
+  }
+  if (tasks.length) {
+    bodyHtml += '<div class="cal-pop-section"><div class="cal-pop-section-title">Tasks</div>';
+    tasks.forEach(t => {
+      bodyHtml += `<div class="cal-pop-task${t.completed?' done':''}" onclick="event.stopPropagation()"><input type="checkbox" ${t.completed?'checked':''} onchange="toggleCalTask('${t.id}')"><span style="flex:1;cursor:pointer" onclick="closeCalPopover();openCalEditModal('task',calTasks.find(x=>x.id==='${t.id}'))">${esc(t.title)}</span><span class="dot" style="background:${t.category_color||'#6b6494'};width:6px;height:6px;border-radius:50%;display:inline-block"></span></div>`;
+    });
+    bodyHtml += '</div>';
+  }
+  if (!events.length && !tasks.length) {
+    bodyHtml = '<div style="padding:20px;text-align:center;color:var(--text-3);font-size:13px">No events or tasks</div>';
+  }
 
   pop.innerHTML = `
     <div class="cal-popover-header">
       <h3>${weekdays[dateObj.getDay()]}, ${monthNames[month]} ${day}</h3>
       <button class="cal-popover-close" onclick="closeCalPopover()">✕</button>
     </div>
-    <div class="cal-popover-body">${itemsHtml}</div>
+    <div class="cal-popover-body">${bodyHtml}</div>
     <div class="cal-popover-footer">
-      <button class="cal-add-btn" onclick="closeCalPopover();createNoteForDate('${dateStr}')">
-        <span>+</span> New note for ${monthNames[month]} ${day}
-      </button>
+      <button class="cal-pop-add" onclick="closeCalPopover();openCalModal('event','${dateStr}')">+ Event</button>
+      <button class="cal-pop-add" onclick="closeCalPopover();openCalModal('task','${dateStr}')">☑ Task</button>
     </div>
   `;
-
   document.body.appendChild(pop);
   calPopoverEl = pop;
-
-  // Position near click
   const rect = pop.getBoundingClientRect();
   let x = evt.clientX + 8, y = evt.clientY + 8;
-  if (x + 300 > window.innerWidth) x = evt.clientX - 308;
+  if (x + 320 > window.innerWidth) x = evt.clientX - 328;
   if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 8;
-  pop.style.left = x + 'px';
-  pop.style.top = y + 'px';
-
+  pop.style.left = x + 'px'; pop.style.top = y + 'px';
   setTimeout(() => document.addEventListener('click', calPopoverOutside), 10);
 }
+function calPopoverOutside(e) { if (calPopoverEl && !calPopoverEl.contains(e.target)) closeCalPopover(); }
+function closeCalPopover() { if (calPopoverEl) { calPopoverEl.remove(); calPopoverEl = null; } document.removeEventListener('click', calPopoverOutside); }
 
-function calPopoverOutside(e) {
-  if (calPopoverEl && !calPopoverEl.contains(e.target)) closeCalPopover();
+// Toggle task
+async function toggleCalTask(id) {
+  try { await fetch(API+'/calendar/tasks/'+id+'/toggle',{method:'PATCH'}); await fetchCalData(); renderCalendar(); } catch(e) { toast('Failed','error'); }
 }
 
-function closeCalPopover() {
-  if (calPopoverEl) { calPopoverEl.remove(); calPopoverEl = null; }
-  document.removeEventListener('click', calPopoverOutside);
+// Event/Task create modal
+function openCalModal(type, dateStr, hour) {
+  const today = new Date();
+  if (!dateStr) dateStr = today.toISOString().substring(0,10);
+  if (hour === undefined) hour = today.getHours();
+  const catsHtml = calCategories.map((c,i) =>
+    `<span class="cal-modal-cat${i===0?' selected':''}" data-id="${c.id}" style="background:${c.color}20;color:${c.color}" onclick="document.querySelectorAll('.cal-modal-cat').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')">${c.icon} ${esc(c.name)}</span>`
+  ).join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'cal-modal-overlay';
+  overlay.id = 'calModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  if (type === 'event') {
+    const sh = String(hour).padStart(2,'0');
+    const eh = String(Math.min(hour+1,23)).padStart(2,'0');
+    overlay.innerHTML = `<div class="cal-modal"><h2>📅 New Event</h2>
+      <div class="cal-modal-field"><label>Title</label><input id="calEvtTitle" placeholder="Event name"></div>
+      <div class="cal-modal-field"><label>Description</label><textarea id="calEvtDesc" placeholder="Details (optional)"></textarea></div>
+      <div class="cal-modal-field"><label>Category</label><div class="cal-modal-cats">${catsHtml}</div></div>
+      <div class="cal-modal-row">
+        <div class="cal-modal-field"><label>Start</label><input type="datetime-local" id="calEvtStart" value="${dateStr}T${sh}:00"></div>
+        <div class="cal-modal-field"><label>End</label><input type="datetime-local" id="calEvtEnd" value="${dateStr}T${eh}:00"></div>
+      </div>
+      <div class="cal-modal-field"><label><input type="checkbox" id="calEvtAllDay" style="accent-color:var(--accent)"> All day</label></div>
+      <div class="cal-modal-actions"><button class="cancel" onclick="this.closest('.cal-modal-overlay').remove()">Cancel</button><button class="save" onclick="saveCalEvent()">Create Event</button></div>
+    </div>`;
+  } else {
+    overlay.innerHTML = `<div class="cal-modal"><h2>☑ New Task</h2>
+      <div class="cal-modal-field"><label>Title</label><input id="calTaskTitle" placeholder="Task name"></div>
+      <div class="cal-modal-field"><label>Category</label><div class="cal-modal-cats">${catsHtml}</div></div>
+      <div class="cal-modal-row">
+        <div class="cal-modal-field"><label>Due Date</label><input type="date" id="calTaskDate" value="${dateStr}"></div>
+        <div class="cal-modal-field"><label>Time (optional)</label><input type="time" id="calTaskTime"></div>
+      </div>
+      <div class="cal-modal-actions"><button class="cancel" onclick="this.closest('.cal-modal-overlay').remove()">Cancel</button><button class="save" onclick="saveCalTask()">Create Task</button></div>
+    </div>`;
+  }
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.querySelector('input')?.focus(), 50);
 }
 
-async function createNoteForDate(dateStr) {
+function getSelectedCatId() {
+  const sel = document.querySelector('.cal-modal-cat.selected');
+  return sel ? sel.dataset.id : null;
+}
+
+async function saveCalEvent() {
+  const title = document.getElementById('calEvtTitle')?.value?.trim();
+  if (!title) { toast('Enter a title','info'); return; }
+  const start_time = document.getElementById('calEvtStart')?.value;
+  const end_time = document.getElementById('calEvtEnd')?.value;
+  const all_day = document.getElementById('calEvtAllDay')?.checked;
+  const description = document.getElementById('calEvtDesc')?.value||'';
+  const category_id = getSelectedCatId();
   try {
-    const r = await fetch(API + '/notes', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: `Note: ${dateStr}`,
-        content: `# ${dateStr}\n\n`,
-        markdown: `# ${dateStr}\n\n`
-      })
-    });
+    const r = await fetch(API+'/calendar/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description,category_id,start_time,end_time,all_day})});
     const d = await r.json();
-    if (d.error && d.upgrade) { toast(d.error, 'error'); openUpgradeModal(); return; }
-    if (d.data) { await fetchNotes(); await fetchProfile(); openNote(d.data.id); toast('Note created', 'success'); }
-  } catch(e) { toast('Failed to create note', 'error'); }
+    if (d.error) { toast(d.error,'error'); return; }
+    document.getElementById('calModalOverlay')?.remove();
+    toast('Event created','success');
+    renderCalendar();
+  } catch(e) { toast('Failed to create event','error'); }
+}
+
+async function saveCalTask() {
+  const title = document.getElementById('calTaskTitle')?.value?.trim();
+  if (!title) { toast('Enter a title','info'); return; }
+  const due_date = document.getElementById('calTaskDate')?.value;
+  const due_time = document.getElementById('calTaskTime')?.value || null;
+  const category_id = getSelectedCatId();
+  try {
+    const r = await fetch(API+'/calendar/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,category_id,due_date,due_time})});
+    const d = await r.json();
+    if (d.error) { toast(d.error,'error'); return; }
+    document.getElementById('calModalOverlay')?.remove();
+    toast('Task created','success');
+    renderCalendar();
+  } catch(e) { toast('Failed to create task','error'); }
+}
+
+// Edit modal
+function openCalEditModal(type, item) {
+  if (!item) return;
+  const catsHtml = calCategories.map(c =>
+    `<span class="cal-modal-cat${item.category_id===c.id?' selected':''}" data-id="${c.id}" style="background:${c.color}20;color:${c.color}" onclick="document.querySelectorAll('.cal-modal-cat').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')">${c.icon} ${esc(c.name)}</span>`
+  ).join('');
+  const overlay = document.createElement('div');
+  overlay.className = 'cal-modal-overlay'; overlay.id = 'calModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  if (type === 'event') {
+    const st = item.start_time ? item.start_time.substring(0,16) : '';
+    const et = item.end_time ? item.end_time.substring(0,16) : '';
+    overlay.innerHTML = `<div class="cal-modal"><h2>📅 Edit Event</h2>
+      <div class="cal-modal-field"><label>Title</label><input id="calEvtTitle" value="${esc(item.title)}"></div>
+      <div class="cal-modal-field"><label>Description</label><textarea id="calEvtDesc">${esc(item.description||'')}</textarea></div>
+      <div class="cal-modal-field"><label>Category</label><div class="cal-modal-cats">${catsHtml}</div></div>
+      <div class="cal-modal-row">
+        <div class="cal-modal-field"><label>Start</label><input type="datetime-local" id="calEvtStart" value="${st}"></div>
+        <div class="cal-modal-field"><label>End</label><input type="datetime-local" id="calEvtEnd" value="${et}"></div>
+      </div>
+      <div class="cal-modal-actions">
+        <button class="cancel" style="color:var(--red);border-color:var(--red)" onclick="deleteCalItem('event','${item.id}')">Delete</button>
+        <button class="save" onclick="updateCalEvent('${item.id}')">Save</button>
+      </div></div>`;
+  } else {
+    overlay.innerHTML = `<div class="cal-modal"><h2>☑ Edit Task</h2>
+      <div class="cal-modal-field"><label>Title</label><input id="calTaskTitle" value="${esc(item.title)}"></div>
+      <div class="cal-modal-field"><label>Category</label><div class="cal-modal-cats">${catsHtml}</div></div>
+      <div class="cal-modal-row">
+        <div class="cal-modal-field"><label>Due Date</label><input type="date" id="calTaskDate" value="${(item.due_date||'').substring(0,10)}"></div>
+        <div class="cal-modal-field"><label>Time</label><input type="time" id="calTaskTime" value="${item.due_time||''}"></div>
+      </div>
+      <div class="cal-modal-actions">
+        <button class="cancel" style="color:var(--red);border-color:var(--red)" onclick="deleteCalItem('task','${item.id}')">Delete</button>
+        <button class="save" onclick="updateCalTask('${item.id}')">Save</button>
+      </div></div>`;
+  }
+  document.body.appendChild(overlay);
+}
+
+async function updateCalEvent(id) {
+  const title = document.getElementById('calEvtTitle')?.value?.trim();
+  if (!title) return;
+  const body = {title, description: document.getElementById('calEvtDesc')?.value||'', category_id: getSelectedCatId(), start_time: document.getElementById('calEvtStart')?.value, end_time: document.getElementById('calEvtEnd')?.value};
+  try { await fetch(API+'/calendar/events/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); document.getElementById('calModalOverlay')?.remove(); toast('Updated','success'); renderCalendar(); } catch(e) { toast('Failed','error'); }
+}
+
+async function updateCalTask(id) {
+  const title = document.getElementById('calTaskTitle')?.value?.trim();
+  if (!title) return;
+  const body = {title, category_id: getSelectedCatId(), due_date: document.getElementById('calTaskDate')?.value, due_time: document.getElementById('calTaskTime')?.value||null};
+  try { await fetch(API+'/calendar/tasks/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); document.getElementById('calModalOverlay')?.remove(); toast('Updated','success'); renderCalendar(); } catch(e) { toast('Failed','error'); }
+}
+
+async function deleteCalItem(type, id) {
+  if (!confirm('Delete this '+type+'?')) return;
+  try { await fetch(API+'/calendar/'+type+'s/'+id,{method:'DELETE'}); document.getElementById('calModalOverlay')?.remove(); toast('Deleted','info'); renderCalendar(); } catch(e) { toast('Failed','error'); }
+}
+
+// Category manager
+function openCatManager() {
+  const overlay = document.createElement('div');
+  overlay.className = 'cal-modal-overlay'; overlay.id = 'calModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  let listHtml = calCategories.map(c => `
+    <div class="cat-manager-item" data-id="${c.id}">
+      <input type="color" value="${c.color}" onchange="updateCat('${c.id}',{color:this.value})">
+      <input type="text" value="${esc(c.name)}" onchange="updateCat('${c.id}',{name:this.value})">
+      <button class="cat-del" onclick="deleteCat('${c.id}')">✕</button>
+    </div>`).join('');
+  overlay.innerHTML = `<div class="cal-modal"><h2>🎨 Manage Categories</h2>
+    <div class="cat-manager-list">${listHtml}</div>
+    <div class="cat-add-row">
+      <input type="color" id="newCatColor" value="#7c5cfc">
+      <input type="text" id="newCatName" placeholder="New category name">
+      <button onclick="addCat()">Add</button>
+    </div>
+    <div class="cal-modal-actions" style="margin-top:20px"><button class="save" style="flex:1" onclick="this.closest('.cal-modal-overlay').remove()">Done</button></div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function addCat() {
+  const name = document.getElementById('newCatName')?.value?.trim();
+  const color = document.getElementById('newCatColor')?.value;
+  if (!name) return;
+  try {
+    await fetch(API+'/calendar/categories',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,color})});
+    await fetchCalCategories();
+    document.getElementById('calModalOverlay')?.remove();
+    openCatManager();
+  } catch(e) { toast('Failed','error'); }
+}
+
+async function updateCat(id, data) {
+  try { await fetch(API+'/calendar/categories/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); await fetchCalCategories(); } catch(e) {}
+}
+
+async function deleteCat(id) {
+  if (!confirm('Delete this category?')) return;
+  try { await fetch(API+'/calendar/categories/'+id,{method:'DELETE'}); await fetchCalCategories(); document.getElementById('calModalOverlay')?.remove(); openCatManager(); } catch(e) { toast('Failed','error'); }
 }
 
 // ===== COMMAND PALETTE =====

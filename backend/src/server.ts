@@ -209,6 +209,47 @@ async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS cal_categories (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        color VARCHAR(7) NOT NULL DEFAULT '#7c5cfc',
+        icon VARCHAR(10) DEFAULT '',
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, name)
+      );
+
+      CREATE TABLE IF NOT EXISTS cal_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        category_id UUID REFERENCES cal_categories(id) ON DELETE SET NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT DEFAULT '',
+        start_time TIMESTAMPTZ NOT NULL,
+        end_time TIMESTAMPTZ NOT NULL,
+        all_day BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS cal_tasks (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        category_id UUID REFERENCES cal_categories(id) ON DELETE SET NULL,
+        title VARCHAR(255) NOT NULL,
+        due_date DATE NOT NULL,
+        due_time TIME,
+        completed BOOLEAN DEFAULT false,
+        completed_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_cal_events_user_time ON cal_events(user_id, start_time, end_time);
+      CREATE INDEX IF NOT EXISTS idx_cal_tasks_user_due ON cal_tasks(user_id, due_date);
+      CREATE INDEX IF NOT EXISTS idx_cal_categories_user ON cal_categories(user_id);
+
       CREATE INDEX IF NOT EXISTS idx_ai_analyses_user ON ai_analyses(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sync_devices_user ON sync_devices(user_id);
       CREATE INDEX IF NOT EXISTS idx_ai_config_user ON user_ai_config(user_id);
@@ -222,6 +263,11 @@ async function initializeDatabase() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMP;
       ALTER TABLE notes ADD COLUMN IF NOT EXISTS is_favorited BOOLEAN DEFAULT false;
       ALTER TABLE note_versions ADD COLUMN IF NOT EXISTS title VARCHAR(255);
+      ALTER TABLE notes ADD COLUMN IF NOT EXISTS parent_id UUID REFERENCES notes(id) ON DELETE SET NULL;
+      ALTER TABLE notes ADD COLUMN IF NOT EXISTS item_type VARCHAR(20) DEFAULT 'note';
+      ALTER TABLE notes ADD COLUMN IF NOT EXISTS media_url TEXT;
+      ALTER TABLE notes ADD COLUMN IF NOT EXISTS media_type VARCHAR(20);
+      ALTER TABLE notes ADD COLUMN IF NOT EXISTS annotation TEXT;
     `);
 
     // Create default guest user
@@ -229,6 +275,18 @@ async function initializeDatabase() {
       INSERT INTO users (id, email, username, password_hash, subscription)
       VALUES ('00000000-0000-0000-0000-000000000001', 'guest@example.com', 'guest', 'no-password', 'free')
       ON CONFLICT (id) DO NOTHING
+    `);
+
+    // Seed default calendar categories
+    await client.query(`
+      INSERT INTO cal_categories (user_id, name, color, icon, sort_order) VALUES
+        ('00000000-0000-0000-0000-000000000001', 'Work', '#6366f1', '💼', 0),
+        ('00000000-0000-0000-0000-000000000001', 'Study', '#f59e0b', '📚', 1),
+        ('00000000-0000-0000-0000-000000000001', 'Exercise', '#10b981', '🏃', 2),
+        ('00000000-0000-0000-0000-000000000001', 'Personal', '#ec4899', '🏠', 3),
+        ('00000000-0000-0000-0000-000000000001', 'Meeting', '#8b5cf6', '🤝', 4),
+        ('00000000-0000-0000-0000-000000000001', 'Health', '#ef4444', '❤️', 5)
+      ON CONFLICT (user_id, name) DO NOTHING
     `);
 
     client.release();
@@ -369,7 +427,7 @@ app.get('/api/notes', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const result = await pool.query(
-      `SELECT id, title, description, is_favorited, created_at, updated_at FROM notes
+      `SELECT id, title, description, is_favorited, parent_id, item_type, media_url, media_type, annotation, created_at, updated_at FROM notes
        WHERE user_id = $1 AND deleted_at IS NULL
        ORDER BY updated_at DESC LIMIT 200`,
       [userId]
@@ -383,7 +441,7 @@ app.get('/api/notes', async (req: Request, res: Response) => {
 
 app.post('/api/notes', async (req: Request, res: Response) => {
   try {
-    const { title, content, markdown, tags } = req.body;
+    const { title, content, markdown, tags, parent_id, item_type, media_url, media_type, annotation } = req.body;
     const userId = req.user?.id;
     const noteId = uuidv4();
 
@@ -406,10 +464,10 @@ app.post('/api/notes', async (req: Request, res: Response) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO notes (id, user_id, title, content, markdown)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, title, created_at`,
-      [noteId, userId, title || 'Untitled', content || '', markdown || '']
+      `INSERT INTO notes (id, user_id, title, content, markdown, parent_id, item_type, media_url, media_type, annotation)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id, title, item_type, parent_id, media_url, media_type, annotation, created_at`,
+      [noteId, userId, title || 'Untitled', content || '', markdown || '', parent_id||null, item_type||'note', media_url||null, media_type||null, annotation||null]
     );
 
     if (tags && Array.isArray(tags)) {
@@ -439,7 +497,7 @@ app.get('/api/notes/:id', async (req: Request, res: Response) => {
     const userId = req.user?.id;
 
     const noteResult = await pool.query(
-      `SELECT id, title, content, markdown, is_favorited, created_at, updated_at FROM notes
+      `SELECT id, title, content, markdown, is_favorited, parent_id, item_type, media_url, media_type, annotation, created_at, updated_at FROM notes
        WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`,
       [id, userId]
     );
@@ -470,7 +528,7 @@ app.get('/api/notes/:id', async (req: Request, res: Response) => {
 app.put('/api/notes/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, markdown, tags } = req.body;
+    const { title, content, markdown, tags, parent_id, item_type, media_url, media_type, annotation } = req.body;
     const userId = req.user?.id;
 
     // Save version before updating (for Pro users — always save, gate retrieval)
@@ -490,9 +548,12 @@ app.put('/api/notes/:id', async (req: Request, res: Response) => {
     }
 
     const result = await pool.query(
-      `UPDATE notes SET title = $1, content = $2, markdown = $3, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4 AND user_id = $5 RETURNING id, title, updated_at`,
-      [title, content, markdown, id, userId]
+      `UPDATE notes SET title = $1, content = $2, markdown = $3,
+       parent_id = COALESCE($6, parent_id), item_type = COALESCE($7, item_type),
+       media_url = COALESCE($8, media_url), media_type = COALESCE($9, media_type),
+       annotation = COALESCE($10, annotation), updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4 AND user_id = $5 RETURNING id, title, item_type, parent_id, updated_at`,
+      [title, content, markdown, id, userId, parent_id, item_type, media_url, media_type, annotation]
     );
 
     if (result.rows.length === 0) {
@@ -1406,6 +1467,216 @@ ${relevantNotes.length > 0 ? `\nRelevant notes found:\n${relevantNotes.map(n => 
     console.error('Agent chat error:', e);
     res.status(500).json({ error: 'Chat failed' });
   }
+});
+
+// ===== CALENDAR: CATEGORIES =====
+app.get('/api/calendar/categories', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const r = await pool.query('SELECT * FROM cal_categories WHERE user_id=$1 ORDER BY sort_order', [req.user.id]);
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch categories' }); }
+});
+
+app.post('/api/calendar/categories', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { name, color, icon } = req.body;
+    if (!name || !color) return res.status(400).json({ error: 'Name and color required' });
+    const cnt = await pool.query('SELECT COUNT(*) FROM cal_categories WHERE user_id=$1', [req.user.id]);
+    if (parseInt(cnt.rows[0].count) >= 20) return res.status(400).json({ error: 'Max 20 categories' });
+    const r = await pool.query(
+      'INSERT INTO cal_categories (user_id,name,color,icon,sort_order) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+      [req.user.id, name.trim(), color, icon || '', parseInt(cnt.rows[0].count)]
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e: any) {
+    if (e.code === '23505') return res.status(400).json({ error: 'Category name already exists' });
+    res.status(500).json({ error: 'Failed to create category' });
+  }
+});
+
+app.put('/api/calendar/categories/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { name, color, icon, sort_order } = req.body;
+    const r = await pool.query(
+      `UPDATE cal_categories SET name=COALESCE($1,name), color=COALESCE($2,color),
+       icon=COALESCE($3,icon), sort_order=COALESCE($4,sort_order)
+       WHERE id=$5 AND user_id=$6 RETURNING *`,
+      [name, color, icon, sort_order, req.params.id, req.user.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to update category' }); }
+});
+
+app.delete('/api/calendar/categories/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM cal_categories WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete category' }); }
+});
+
+// ===== CALENDAR: EVENTS =====
+app.get('/api/calendar/events', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) return res.status(400).json({ error: 'start and end params required' });
+    const r = await pool.query(
+      `SELECT e.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+       FROM cal_events e LEFT JOIN cal_categories c ON e.category_id=c.id
+       WHERE e.user_id=$1 AND e.start_time < $3::timestamptz AND e.end_time > $2::timestamptz
+       ORDER BY e.start_time`,
+      [req.user.id, start, end]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch events' }); }
+});
+
+app.post('/api/calendar/events', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { title, description, category_id, start_time, end_time, all_day } = req.body;
+    if (!title || !start_time || !end_time) return res.status(400).json({ error: 'title, start_time, end_time required' });
+    const r = await pool.query(
+      `INSERT INTO cal_events (user_id,title,description,category_id,start_time,end_time,all_day)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [req.user.id, title.trim(), description||'', category_id||null, start_time, end_time, all_day||false]
+    );
+    // Join category info
+    if (r.rows[0].category_id) {
+      const c = await pool.query('SELECT name,color,icon FROM cal_categories WHERE id=$1', [r.rows[0].category_id]);
+      if (c.rows[0]) { r.rows[0].category_name=c.rows[0].name; r.rows[0].category_color=c.rows[0].color; r.rows[0].category_icon=c.rows[0].icon; }
+    }
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to create event' }); }
+});
+
+app.put('/api/calendar/events/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { title, description, category_id, start_time, end_time, all_day } = req.body;
+    const r = await pool.query(
+      `UPDATE cal_events SET title=COALESCE($1,title), description=COALESCE($2,description),
+       category_id=$3, start_time=COALESCE($4,start_time), end_time=COALESCE($5,end_time),
+       all_day=COALESCE($6,all_day), updated_at=CURRENT_TIMESTAMP
+       WHERE id=$7 AND user_id=$8 RETURNING *`,
+      [title, description, category_id||null, start_time, end_time, all_day, req.params.id, req.user.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to update event' }); }
+});
+
+app.delete('/api/calendar/events/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM cal_events WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete event' }); }
+});
+
+// ===== CALENDAR: TASKS =====
+app.get('/api/calendar/tasks', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { start, end, completed } = req.query;
+    if (!start || !end) return res.status(400).json({ error: 'start and end params required' });
+    let q = `SELECT t.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+             FROM cal_tasks t LEFT JOIN cal_categories c ON t.category_id=c.id
+             WHERE t.user_id=$1 AND t.due_date >= $2::date AND t.due_date <= $3::date`;
+    const params: any[] = [req.user.id, start, end];
+    if (completed !== undefined) { q += ` AND t.completed=$${params.length+1}`; params.push(completed === 'true'); }
+    q += ' ORDER BY t.due_date, t.due_time NULLS LAST';
+    const r = await pool.query(q, params);
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch tasks' }); }
+});
+
+app.post('/api/calendar/tasks', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { title, category_id, due_date, due_time } = req.body;
+    if (!title || !due_date) return res.status(400).json({ error: 'title and due_date required' });
+    const r = await pool.query(
+      `INSERT INTO cal_tasks (user_id,title,category_id,due_date,due_time) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [req.user.id, title.trim(), category_id||null, due_date, due_time||null]
+    );
+    if (r.rows[0].category_id) {
+      const c = await pool.query('SELECT name,color,icon FROM cal_categories WHERE id=$1', [r.rows[0].category_id]);
+      if (c.rows[0]) { r.rows[0].category_name=c.rows[0].name; r.rows[0].category_color=c.rows[0].color; r.rows[0].category_icon=c.rows[0].icon; }
+    }
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to create task' }); }
+});
+
+app.put('/api/calendar/tasks/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { title, category_id, due_date, due_time, completed } = req.body;
+    let completedAt = undefined;
+    if (completed === true) completedAt = new Date().toISOString();
+    if (completed === false) completedAt = null;
+    const r = await pool.query(
+      `UPDATE cal_tasks SET title=COALESCE($1,title), category_id=$2,
+       due_date=COALESCE($3,due_date), due_time=$4,
+       completed=COALESCE($5,completed), completed_at=COALESCE($6,completed_at),
+       updated_at=CURRENT_TIMESTAMP
+       WHERE id=$7 AND user_id=$8 RETURNING *`,
+      [title, category_id!==undefined?category_id||null:undefined, due_date, due_time!==undefined?due_time||null:undefined, completed, completedAt, req.params.id, req.user.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to update task' }); }
+});
+
+app.patch('/api/calendar/tasks/:id/toggle', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const r = await pool.query(
+      `UPDATE cal_tasks SET completed=NOT completed,
+       completed_at=CASE WHEN completed THEN NULL ELSE CURRENT_TIMESTAMP END,
+       updated_at=CURRENT_TIMESTAMP
+       WHERE id=$1 AND user_id=$2 RETURNING *`,
+      [req.params.id, req.user.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to toggle task' }); }
+});
+
+app.delete('/api/calendar/tasks/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM cal_tasks WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete task' }); }
+});
+
+// ===== CALENDAR: STATS =====
+app.get('/api/calendar/stats', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) return res.status(400).json({ error: 'start and end params required' });
+    // Time per category from events
+    const timeR = await pool.query(`
+      SELECT c.id as category_id, c.name, c.color, c.icon,
+        COALESCE(SUM(EXTRACT(EPOCH FROM (
+          LEAST(e.end_time, $3::timestamptz) - GREATEST(e.start_time, $2::timestamptz)
+        )) / 3600.0), 0)::numeric(10,2) as total_hours,
+        COUNT(e.id)::int as event_count
+      FROM cal_categories c
+      LEFT JOIN cal_events e ON e.category_id=c.id AND e.user_id=$1
+        AND e.start_time < $3::timestamptz AND e.end_time > $2::timestamptz
+      WHERE c.user_id=$1
+      GROUP BY c.id, c.name, c.color, c.icon ORDER BY total_hours DESC
+    `, [req.user.id, start, end]);
+
+    // Task completion per category
+    const taskR = await pool.query(`
+      SELECT c.id as category_id, c.name, c.color,
+        COUNT(*) FILTER (WHERE t.completed=true)::int as completed_count,
+        COUNT(*)::int as total_count
+      FROM cal_categories c
+      LEFT JOIN cal_tasks t ON t.category_id=c.id AND t.user_id=$1
+        AND t.due_date >= $2::date AND t.due_date <= $3::date
+      WHERE c.user_id=$1
+      GROUP BY c.id, c.name, c.color
+    `, [req.user.id, start, end]);
+
+    const totalHours = timeR.rows.reduce((s: number, r: any) => s + parseFloat(r.total_hours), 0);
+    res.json({ data: { timeByCategory: timeR.rows, tasksByCategory: taskR.rows, totalHours: Math.round(totalHours * 10) / 10 } });
+  } catch(e) { console.error(e); res.status(500).json({ error: 'Failed to fetch stats' }); }
 });
 
 // ===== ERROR HANDLING =====
