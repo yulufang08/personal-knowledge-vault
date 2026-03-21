@@ -25,17 +25,21 @@
   --radius:12px;--radius-lg:16px;--radius-xl:20px;
   --shadow:0 2px 16px rgba(124,92,252,.08);
   --shadow-lg:0 8px 32px rgba(124,92,252,.12);
-  --transition:all .2s cubic-bezier(.4,0,.2,1);
+  --transition:all .28s cubic-bezier(.22,1,.36,1);
+  --transition-fast:all .18s cubic-bezier(.22,1,.36,1);
+  --transition-bounce:all .4s cubic-bezier(.34,1.56,.64,1);
   --gradient-fun:linear-gradient(135deg,#7c5cfc,#a78bfa,#c084fc,#e879f9);
   --gradient-card:linear-gradient(135deg,rgba(124,92,252,.04),rgba(236,72,153,.04));
 }
-html,body{height:100%;overflow:hidden}
+html,body{height:100%;overflow:hidden;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg-0);color:var(--text-0);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--accent);color:#fff}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:10px}
+::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:10px;transition:background .2s}
 ::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
+/* Smooth scrolling for all scrollable containers */
+*{scroll-behavior:smooth}
 input,textarea,button{font-family:var(--font)}
 a{color:var(--accent);text-decoration:none}
 
@@ -290,9 +294,8 @@ a{color:var(--accent);text-decoration:none}
 .cmd-palette{
   width:560px;max-width:90vw;background:var(--bg-2);
   border:1px solid var(--border);border-radius:var(--radius-xl);
-  box-shadow:0 20px 60px rgba(124,92,252,.15);overflow:hidden;animation:cmdSlide .15s ease;
+  box-shadow:0 20px 60px rgba(124,92,252,.15);overflow:hidden;
 }
-@keyframes cmdSlide{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
 .cmd-input{
   width:100%;padding:16px 20px;background:transparent;border:none;
   border-bottom:1px solid var(--border);color:var(--text-0);font-size:16px;outline:none;
@@ -310,14 +313,12 @@ a{color:var(--accent);text-decoration:none}
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
 .toast{
   padding:12px 20px;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:500;
-  display:flex;align-items:center;gap:8px;animation:toastIn .3s;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:8px;animation:toastSlideIn .4s cubic-bezier(.22,1,.36,1);box-shadow:var(--shadow);
 }
 .toast.success{background:linear-gradient(135deg,#059669,#34d399)}
 .toast.error{background:linear-gradient(135deg,#dc2626,#f87171)}
 .toast.info{background:var(--gradient-fun)}
-@keyframes toastIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
-.toast-exit{animation:toastOut .2s ease forwards}
-@keyframes toastOut{to{transform:translateX(20px);opacity:0}}
+.toast-exit{animation:toastSlideOut .25s cubic-bezier(.4,0,1,1) forwards}
 
 /* ===== MODAL ===== */
 .modal-overlay{
@@ -328,7 +329,7 @@ a{color:var(--accent);text-decoration:none}
 .modal-overlay.show{display:flex}
 .modal{
   background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(124,92,252,.12);animation:cmdSlide .15s ease;
+  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(124,92,252,.12);
 }
 .modal h2{font-size:18px;font-weight:600;margin-bottom:16px}
 .modal-option{
@@ -748,7 +749,7 @@ a{color:var(--accent);text-decoration:none}
 .cal-popover{
   position:fixed;z-index:80;width:300px;max-height:400px;
   background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-lg);overflow:hidden;animation:cmdSlide .15s ease;
+  box-shadow:var(--shadow-lg);overflow:hidden;
 }
 .cal-popover-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .cal-popover-header h3{font-size:14px;font-weight:600}
@@ -787,6 +788,106 @@ a{color:var(--accent);text-decoration:none}
 .cal-week-event{
   position:absolute;left:2px;right:2px;padding:3px 6px;border-radius:4px;
   font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;
+}
+
+/* ===== SMOOTH ANIMATIONS ===== */
+/* View transition */
+@keyframes viewFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes viewFadeOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-8px)}}
+.view-enter{animation:viewFadeIn .35s cubic-bezier(.22,1,.36,1) both}
+.view-exit{animation:viewFadeOut .15s ease both}
+
+/* Staggered grid entrance */
+@keyframes cardSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.stagger-in{animation:cardSlideUp .4s cubic-bezier(.22,1,.36,1) both}
+
+/* Button press feedback */
+.cmd-btn:active,.new-note-btn:active,.topbar-btn:active,.plan-btn:active,
+.cal-nav-btn:active,.cal-today-btn:active,.cal-view-btn:active,
+.settings-btn:active,.agent-send-btn:active,.agent-new-btn:active,
+.ai-analyze-btn:active,.ai-action-btn:active,.sync-now-btn:active,
+.modal-close:active,.modal-option:active,.agent-suggest-chip:active,
+.device-remove:active,.daily-banner button:active,.upgrade-banner button:active{
+  transform:scale(.96);transition:transform .1s cubic-bezier(.22,1,.36,1);
+}
+.new-note-btn:active{transform:scale(.96) translateY(0)!important}
+.plan-btn.pro:active,.ai-analyze-btn:active{transform:scale(.97) translateY(0)!important}
+
+/* Card hover improvements - smoother lift */
+.grid-card,.ai-history-card,.sync-feature,.stat-card,.pricing-card{
+  transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s cubic-bezier(.22,1,.36,1),border-color .25s ease;
+}
+.grid-card:active,.ai-history-card:active{transform:scale(.98)!important;transition:transform .1s}
+
+/* Nav item smooth transitions */
+.nav-item{transition:background .25s cubic-bezier(.22,1,.36,1),color .2s ease,transform .2s ease}
+.nav-item:active{transform:scale(.97)}
+
+/* Note card press */
+.note-card{transition:background .2s ease,border-color .25s ease,transform .15s ease}
+.note-card:active{transform:scale(.98)}
+
+/* Agent message entrance */
+@keyframes msgSlideIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.agent-msg{animation:msgSlideIn .35s cubic-bezier(.22,1,.36,1) both}
+
+/* Modal/overlay smooth entrance */
+@keyframes overlayFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalSlideUp{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
+.modal-overlay.show,.cmd-overlay.show{animation:overlayFadeIn .2s ease both}
+.modal-overlay.show .modal,.cmd-overlay.show .cmd-palette{animation:modalSlideUp .3s cubic-bezier(.22,1,.36,1) both}
+
+/* Calendar popover smooth */
+@keyframes popoverIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.cal-popover{animation:popoverIn .25s cubic-bezier(.22,1,.36,1) both}
+
+/* Toast improved animations */
+@keyframes toastSlideIn{from{transform:translateX(40px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+@keyframes toastSlideOut{to{transform:translateX(40px) scale(.9);opacity:0}}
+
+/* Search result items hover */
+.search-result-item{transition:border-color .25s ease,background .25s ease,transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s ease}
+.search-result-item:active{transform:scale(.99)}
+
+/* Sidebar smooth transitions */
+.sidebar-footer{transition:background .25s ease}
+
+/* Input focus glow animation */
+@keyframes focusGlow{from{box-shadow:0 0 0 0 var(--accent-glow)}to{box-shadow:0 0 0 3px var(--accent-glow)}}
+.search-input:focus,.ai-text-input:focus,.ai-url-input:focus,.agent-input:focus,.settings-input:focus{
+  animation:focusGlow .3s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* Tab switch smooth */
+.ai-source-tab,.cal-view-btn{transition:background .2s ease,color .2s ease}
+
+/* Provider option smooth */
+.provider-option{transition:border-color .25s ease,background .25s ease,transform .2s ease}
+.provider-option:active{transform:scale(.98)}
+
+/* Conversation item */
+.agent-conv-item{transition:background .2s ease,transform .15s ease}
+.agent-conv-item:active{transform:scale(.98)}
+
+/* Smooth hover for cal days */
+.cal-day{transition:background .2s ease,box-shadow .25s ease}
+
+/* Upgrade/daily banner button */
+.daily-banner button,.upgrade-banner button{transition:background .2s ease,color .2s ease,opacity .2s ease,box-shadow .25s ease,transform .15s ease}
+
+/* Analytics bar animation */
+@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.activity-bar .bar{transform-origin:bottom;animation:barGrow .5s cubic-bezier(.22,1,.36,1) both}
+
+/* Tag bar fill animation */
+.tag-bar .bar-fill{transition:width .6s cubic-bezier(.22,1,.36,1)}
+
+/* Smooth scrollbar for key containers */
+.notes-sidebar,.agent-messages,.search-results,.notes-grid-container,
+.pricing-container,.analytics-container,.sync-container,.settings-container,
+.ai-result-panel,.cal-days,.cal-week-body{
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
 }
 
 /* ===== MOBILE ===== */
@@ -1183,6 +1284,10 @@ async function openNote(id) {
       currentNote = d.data;
       currentView = 'editor';
       renderNotesList();
+      const m = document.getElementById('mainContent');
+      m.classList.remove('view-enter');
+      void m.offsetWidth;
+      m.classList.add('view-enter');
       renderEditor();
     }
   } catch(e) { toast('Failed to open note', 'error'); }
@@ -1251,6 +1356,11 @@ function switchView(view, navEl) {
   renderNotesList();
 
   const m = document.getElementById('mainContent');
+  // Smooth view transition
+  m.classList.remove('view-enter');
+  void m.offsetWidth; // force reflow
+  m.classList.add('view-enter');
+
   switch(view) {
     case 'home': renderHome(); break;
     case 'notes': renderNotesGrid(); break;
@@ -1265,6 +1375,15 @@ function switchView(view, navEl) {
     case 'analytics': renderAnalytics(); break;
     default: renderHome();
   }
+
+  // Stagger animate grid cards
+  requestAnimationFrame(() => {
+    const cards = m.querySelectorAll('.grid-card,.ai-history-card,.stat-card,.sync-feature,.pricing-card,.analytics-card,.device-card,.search-result-item');
+    cards.forEach((card, i) => {
+      card.classList.add('stagger-in');
+      card.style.animationDelay = `${i * 40}ms`;
+    });
+  });
 }
 
 // ===== HOME VIEW =====
