@@ -91,6 +91,13 @@ a{color:var(--accent);text-decoration:none}
 .nav-item .icon{width:18px;text-align:center;font-size:15px;flex-shrink:0}
 .nav-item .count{margin-left:auto;font-size:11px;color:var(--text-3);background:var(--bg-3);padding:1px 7px;border-radius:20px}
 .nav-item .pro-lock{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:20px;background:var(--gold-soft);color:var(--gold);font-weight:600}
+.nav-item .drag-handle{margin-left:auto;cursor:grab;color:var(--text-3);font-size:12px;opacity:0;transition:opacity .15s;padding:0 2px;letter-spacing:1px}
+.nav-item:hover .drag-handle{opacity:.6}
+.nav-item .drag-handle:hover{opacity:1}
+.nav-item.dragging{opacity:.4;background:var(--bg-3)}
+.nav-item.drag-over{box-shadow:0 -2px 0 0 var(--accent);border-radius:0}
+.nav-item.drag-over-below{box-shadow:0 2px 0 0 var(--accent);border-radius:0}
+.nav-section-draggable{position:relative}
 
 /* Notes list */
 .notes-sidebar{flex:1;overflow-y:auto;padding:4px 12px 12px}
@@ -683,21 +690,11 @@ a{color:var(--accent);text-decoration:none}
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-title">Navigate</div>
-      <div class="nav-item active" onclick="switchView('home',this)" data-view="home"><span class="icon">🏠</span> Home</div>
-      <div class="nav-item" onclick="switchView('notes',this)" data-view="notes"><span class="icon">📄</span> All Notes <span class="count" id="navNoteCount">0</span></div>
-      <div class="nav-item" onclick="switchView('graph',this)" data-view="graph"><span class="icon">🔮</span> Graph View</div>
-      <div class="nav-item" onclick="switchView('search',this)" data-view="search"><span class="icon">🔍</span> Search</div>
-      <div class="nav-item" onclick="switchView('calendar',this)" data-view="calendar"><span class="icon">📅</span> Calendar</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">Pro Features</div>
-      <div class="nav-item" onclick="switchView('analytics',this)" data-view="analytics">
-        <span class="icon">📊</span> Analytics
-        <span class="pro-lock" id="analyticsLock">PRO</span>
+      <div class="sidebar-section-title" style="display:flex;align-items:center;justify-content:space-between">
+        Navigate
+        <span id="navEditBtn" onclick="toggleNavEdit()" style="cursor:pointer;font-size:10px;text-transform:none;letter-spacing:0;color:var(--accent);font-weight:500">Edit</span>
       </div>
-      <div class="nav-item" onclick="switchView('pricing',this)" data-view="pricing"><span class="icon">⚡</span> Plans & Pricing</div>
+      <div class="nav-section-draggable" id="navSortable"></div>
     </div>
 
     <div class="sidebar-section">
@@ -744,9 +741,119 @@ let currentView = 'home';
 let selectedCmdIndex = 0;
 let userProfile = { isPro: false, noteCount: 0, noteLimit: 50, subscription: 'free' };
 const tagColors = ['purple','green','blue','pink','yellow'];
+let navEditMode = false;
+
+// ===== NAV ORDER =====
+const defaultNavItems = [
+  { id:'home', icon:'🏠', label:'Home' },
+  { id:'notes', icon:'📄', label:'All Notes', countId:'navNoteCount' },
+  { id:'graph', icon:'🔮', label:'Graph View' },
+  { id:'search', icon:'🔍', label:'Search' },
+  { id:'calendar', icon:'📅', label:'Calendar' },
+  { id:'analytics', icon:'📊', label:'Analytics', proLock:true, lockId:'analyticsLock' },
+  { id:'pricing', icon:'⚡', label:'Plans & Pricing' },
+];
+
+function getNavOrder() {
+  try {
+    const saved = localStorage.getItem('vault-nav-order');
+    if (saved) {
+      const ids = JSON.parse(saved);
+      const itemMap = {};
+      defaultNavItems.forEach(i => itemMap[i.id] = i);
+      const ordered = ids.filter(id => itemMap[id]).map(id => itemMap[id]);
+      defaultNavItems.forEach(i => { if (!ids.includes(i.id)) ordered.push(i); });
+      return ordered;
+    }
+  } catch(e) {}
+  return [...defaultNavItems];
+}
+
+function saveNavOrder(items) {
+  localStorage.setItem('vault-nav-order', JSON.stringify(items.map(i => i.id)));
+}
+
+function renderNavItems() {
+  const container = document.getElementById('navSortable');
+  const items = getNavOrder();
+  container.innerHTML = items.map(item => {
+    const isActive = currentView === item.id;
+    return `<div class="nav-item${isActive ? ' active' : ''}" data-view="${item.id}" data-nav-id="${item.id}"
+      draggable="${navEditMode}" onclick="switchView('${item.id}',this)"
+      ${navEditMode ? `ondragstart="navDragStart(event)" ondragover="navDragOver(event)" ondragleave="navDragLeave(event)" ondrop="navDrop(event)" ondragend="navDragEnd(event)"` : ''}>
+      <span class="icon">${item.icon}</span> ${item.label}
+      ${item.countId ? `<span class="count" id="${item.countId}">${notes.length}</span>` : ''}
+      ${item.proLock ? `<span class="pro-lock" id="${item.lockId || ''}">PRO</span>` : ''}
+      ${navEditMode ? '<span class="drag-handle">⋮⋮</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleNavEdit() {
+  navEditMode = !navEditMode;
+  const btn = document.getElementById('navEditBtn');
+  btn.textContent = navEditMode ? 'Done' : 'Edit';
+  btn.style.color = navEditMode ? 'var(--green)' : 'var(--accent)';
+  renderNavItems();
+}
+
+let draggedNavId = null;
+
+function navDragStart(e) {
+  draggedNavId = e.currentTarget.dataset.navId;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function navDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const el = e.currentTarget;
+  if (el.dataset.navId === draggedNavId) return;
+  el.classList.remove('drag-over','drag-over-below');
+  const rect = el.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  if (e.clientY < mid) el.classList.add('drag-over');
+  else el.classList.add('drag-over-below');
+}
+
+function navDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over','drag-over-below');
+}
+
+function navDrop(e) {
+  e.preventDefault();
+  const targetEl = e.currentTarget;
+  targetEl.classList.remove('drag-over','drag-over-below');
+  const targetId = targetEl.dataset.navId;
+  if (!draggedNavId || draggedNavId === targetId) return;
+
+  const items = getNavOrder();
+  const fromIdx = items.findIndex(i => i.id === draggedNavId);
+  const toIdx = items.findIndex(i => i.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) return;
+
+  const rect = targetEl.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  const insertBefore = e.clientY < mid;
+
+  const [moved] = items.splice(fromIdx, 1);
+  let newIdx = items.findIndex(i => i.id === targetId);
+  if (!insertBefore) newIdx++;
+  items.splice(newIdx, 0, moved);
+
+  saveNavOrder(items);
+  renderNavItems();
+}
+
+function navDragEnd(e) {
+  draggedNavId = null;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('dragging','drag-over','drag-over-below'));
+}
 
 // ===== INIT =====
 async function init() {
+  renderNavItems();
   await Promise.all([fetchNotes(), fetchProfile()]);
   renderHome();
   bindKeyboard();
@@ -799,7 +906,10 @@ function updateUIForPlan() {
     limitBar.style.display = 'none';
   }
   // Analytics lock
-  document.getElementById('analyticsLock').style.display = isPro ? 'none' : 'inline';
+  const al = document.getElementById('analyticsLock');
+  if (al) al.style.display = isPro ? 'none' : 'inline';
+  // Re-render nav to update pro locks
+  renderNavItems();
   // Footer
   document.getElementById('userPlanLabel').textContent = isPro ? 'Pro Plan ⚡' : 'Free Plan';
 }
@@ -830,7 +940,8 @@ async function fetchNotes() {
     const d = await r.json();
     notes = d.data || [];
     renderNotesList();
-    document.getElementById('navNoteCount').textContent = notes.length;
+    const nc = document.getElementById('navNoteCount');
+    if (nc) nc.textContent = notes.length;
   } catch(e) { console.error('Failed to fetch notes:', e); }
 }
 
@@ -926,9 +1037,7 @@ function renderNotesList() {
 function switchView(view, navEl) {
   currentView = view;
   if (view !== 'editor') currentNote = null;
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (navEl) navEl.classList.add('active');
-  else document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+  renderNavItems();
   document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
   renderNotesList();
 
