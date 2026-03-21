@@ -1348,6 +1348,17 @@ function renderNotesList() {
 }
 
 // ===== VIEW SWITCHING =====
+function viewLoading(icon, label) {
+  const m = document.getElementById('mainContent');
+  m.classList.remove('view-enter');
+  void m.offsetWidth;
+  m.classList.add('view-enter');
+  m.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--text-3)">
+    <div style="font-size:40px;animation:spin 1s linear infinite">${icon}</div>
+    <div style="font-size:14px;font-weight:500">${label}</div>
+  </div>`;
+}
+
 function switchView(view, navEl) {
   currentView = view;
   if (view !== 'editor') currentNote = null;
@@ -1852,6 +1863,7 @@ async function removeTag(name) {
 // ===== GRAPH VIEW =====
 async function renderGraph() {
   const m = document.getElementById('mainContent');
+  viewLoading('🔮', 'Building graph...');
   try {
     const r = await fetch(API + '/graph');
     const d = await r.json();
@@ -1970,6 +1982,7 @@ let aiSourceTab = 'text', aiAnalyzing = false, aiCurrentResult = null, aiUploade
 
 async function renderAIStudio() {
   const m = document.getElementById('mainContent');
+  viewLoading('🤖', 'Loading AI Studio...');
   // Fetch usage & history
   let history = [], usage = aiUsage, limits = aiLimits;
   try {
@@ -2247,6 +2260,7 @@ let agentConvId = null, agentConvs = [], agentMessages = [], agentSending = fals
 
 async function renderAgent() {
   const m = document.getElementById('mainContent');
+  viewLoading('🧠', 'Loading AI Agent...');
   // Load conversations
   try { const r = await fetch(API+'/agent/conversations'); const d = await r.json(); agentConvs = d.data||[]; } catch(e) {}
   // Load AI config to show provider status
@@ -2413,6 +2427,7 @@ const AI_PROVIDERS = [
 
 async function renderSettings() {
   const m = document.getElementById('mainContent');
+  viewLoading('⚙️', 'Loading settings...');
   let configs = [];
   try { const r = await fetch(API+'/ai/config'); const d = await r.json(); configs = d.data||[]; } catch(e) {}
   const activeConfig = configs.find(c => c.is_active);
@@ -2605,6 +2620,7 @@ async function registerDevice() {
 
 async function renderSync() {
   const m = document.getElementById('mainContent');
+  viewLoading('🔄', 'Loading sync status...');
   let syncStatus = {}, devices = [];
   try {
     const [sr, dr] = await Promise.all([
