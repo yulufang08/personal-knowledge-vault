@@ -620,7 +620,7 @@ a{color:var(--accent);text-decoration:none}
 .agent-empty .big-icon{font-size:56px;margin-bottom:16px}
 
 /* ===== AI SETTINGS ===== */
-.settings-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:720px}
+.settings-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:800px;margin:0 auto}
 .settings-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .settings-header p{color:var(--text-3);font-size:13px;margin-bottom:24px}
 .settings-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;margin-bottom:16px}
@@ -791,11 +791,9 @@ a{color:var(--accent);text-decoration:none}
 }
 
 /* ===== SMOOTH ANIMATIONS ===== */
-/* View transition */
-@keyframes viewFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes viewFadeOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-8px)}}
-.view-enter{animation:viewFadeIn .35s cubic-bezier(.22,1,.36,1) both}
-.view-exit{animation:viewFadeOut .15s ease both}
+/* View transition — no opacity to avoid flash of invisible content */
+@keyframes viewSlideIn{from{transform:translateY(6px)}to{transform:none}}
+.view-enter{animation:viewSlideIn .25s cubic-bezier(.22,1,.36,1) both}
 
 /* Staggered grid entrance */
 @keyframes cardSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
@@ -1284,10 +1282,6 @@ async function openNote(id) {
       currentNote = d.data;
       currentView = 'editor';
       renderNotesList();
-      const m = document.getElementById('mainContent');
-      m.classList.remove('view-enter');
-      void m.offsetWidth;
-      m.classList.add('view-enter');
       renderEditor();
     }
   } catch(e) { toast('Failed to open note', 'error'); }
@@ -1350,16 +1344,16 @@ function renderNotesList() {
 // ===== VIEW SWITCHING =====
 function viewLoading(icon, label) {
   const m = document.getElementById('mainContent');
-  m.classList.remove('view-enter');
-  void m.offsetWidth;
-  m.classList.add('view-enter');
   m.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--text-3)">
     <div style="font-size:40px;animation:spin 1s linear infinite">${icon}</div>
     <div style="font-size:14px;font-weight:500">${label}</div>
   </div>`;
 }
 
+let viewSwitchId = 0;
+
 function switchView(view, navEl) {
+  viewSwitchId++;
   currentView = view;
   if (view !== 'editor') currentNote = null;
   renderNavItems();
@@ -1863,9 +1857,11 @@ async function removeTag(name) {
 // ===== GRAPH VIEW =====
 async function renderGraph() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
   viewLoading('🔮', 'Building graph...');
   try {
     const r = await fetch(API + '/graph');
+    if (viewSwitchId !== myId) return;
     const d = await r.json();
     const g = d.data || { nodes: [], edges: [] };
     m.innerHTML = `
@@ -1982,11 +1978,13 @@ let aiSourceTab = 'text', aiAnalyzing = false, aiCurrentResult = null, aiUploade
 
 async function renderAIStudio() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
   viewLoading('🤖', 'Loading AI Studio...');
   // Fetch usage & history
   let history = [], usage = aiUsage, limits = aiLimits;
   try {
     const r = await fetch(API + '/ai/analyses');
+    if (viewSwitchId !== myId) return;
     const d = await r.json();
     history = d.data || [];
     usage = d.usage || { daily:0, limit:3 };
@@ -2260,12 +2258,13 @@ let agentConvId = null, agentConvs = [], agentMessages = [], agentSending = fals
 
 async function renderAgent() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
   viewLoading('🧠', 'Loading AI Agent...');
   // Load conversations
-  try { const r = await fetch(API+'/agent/conversations'); const d = await r.json(); agentConvs = d.data||[]; } catch(e) {}
+  try { const r = await fetch(API+'/agent/conversations'); if(viewSwitchId!==myId)return; const d = await r.json(); agentConvs = d.data||[]; } catch(e) {}
   // Load AI config to show provider status
   let aiConfig = [];
-  try { const r = await fetch(API+'/ai/config'); const d = await r.json(); aiConfig = d.data||[]; } catch(e) {}
+  try { const r = await fetch(API+'/ai/config'); if(viewSwitchId!==myId)return; const d = await r.json(); aiConfig = d.data||[]; } catch(e) {}
   const activeProvider = aiConfig.find(c => c.is_active);
 
   m.innerHTML = `
@@ -2427,9 +2426,10 @@ const AI_PROVIDERS = [
 
 async function renderSettings() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
   viewLoading('⚙️', 'Loading settings...');
   let configs = [];
-  try { const r = await fetch(API+'/ai/config'); const d = await r.json(); configs = d.data||[]; } catch(e) {}
+  try { const r = await fetch(API+'/ai/config'); if(viewSwitchId!==myId)return; const d = await r.json(); configs = d.data||[]; } catch(e) {}
   const activeConfig = configs.find(c => c.is_active);
   if (activeConfig) settingsProvider = activeConfig.provider;
   const prov = AI_PROVIDERS.find(p => p.id === settingsProvider) || AI_PROVIDERS[0];
@@ -2620,6 +2620,7 @@ async function registerDevice() {
 
 async function renderSync() {
   const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
   viewLoading('🔄', 'Loading sync status...');
   let syncStatus = {}, devices = [];
   try {
@@ -2627,6 +2628,7 @@ async function renderSync() {
       fetch(API + '/sync/status').then(r => r.json()),
       fetch(API + '/sync/devices').then(r => r.json())
     ]);
+    if (viewSwitchId !== myId) return;
     syncStatus = sr.data || {};
     devices = dr.data || [];
   } catch(e) {}
