@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vault — Your Second Brain</title>
+<title>Fang's Vault — Personal Knowledge Base · yulufang@sjtu.edu.cn</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -649,6 +649,31 @@ a{color:var(--accent);text-decoration:none}
 .saved-config{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-2);border-radius:var(--radius);margin-bottom:12px}
 .saved-config .sc-provider{font-size:13px;font-weight:500}
 .saved-config .sc-hint{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+.settings-tab-btn{padding:8px 16px;border:none;border-radius:8px;background:transparent;color:var(--text-3);font-size:13px;font-weight:500;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.settings-tab-btn:hover{color:var(--text-1);background:var(--bg-3)}
+.settings-tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(124,92,252,.25)}
+/* Community */
+.community-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:680px;margin:0 auto}
+.community-post{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:20px;margin-bottom:14px;transition:var(--transition)}
+.community-post:hover{border-color:var(--border-hover)}
+.community-post .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.community-post .post-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.community-post .post-author{font-size:13px;font-weight:600}
+.community-post .post-time{font-size:11px;color:var(--text-3)}
+.community-post .post-content{font-size:14px;line-height:1.7;color:var(--text-1);margin-bottom:12px;white-space:pre-wrap}
+.community-post .post-shared-note{padding:10px 14px;background:var(--bg-2);border-radius:var(--radius);border-left:3px solid var(--accent);font-size:13px;margin-bottom:12px;cursor:pointer}
+.community-post .post-actions{display:flex;gap:16px;align-items:center}
+.community-post .post-action{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-3);cursor:pointer;padding:4px 8px;border-radius:6px;transition:var(--transition);border:none;background:none}
+.community-post .post-action:hover{background:var(--bg-3);color:var(--text-1)}
+.community-post .post-action.liked{color:var(--red)}
+.post-comments-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.post-comment{display:flex;gap:8px;margin-bottom:8px;font-size:13px}
+.post-comment .comment-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.post-comment .comment-body{flex:1}
+.post-comment .comment-author{font-weight:600;font-size:12px}
+.post-comment .comment-text{color:var(--text-2);margin-top:2px}
+.share-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .15s ease}
+.share-modal{background:var(--bg-1);border-radius:var(--radius-xl);padding:24px;width:90%;max-width:400px;box-shadow:var(--shadow-xl)}
 
 /* ===== SYNC VIEW ===== */
 .sync-container{flex:1;overflow-y:auto;padding:32px 48px}
@@ -1019,8 +1044,8 @@ a{color:var(--accent);text-decoration:none}
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="logo">V</div>
-      <h1>Vault</h1>
+      <div class="logo">F</div>
+      <h1>Fang's Vault</h1>
       <span class="badge" id="planBadge">FREE</span>
     </div>
 
@@ -1057,7 +1082,7 @@ a{color:var(--accent);text-decoration:none}
       <button onclick="openUpgradeModal()">Upgrade Now</button>
     </div>
 
-    <div class="sidebar-footer" onclick="switchView('pricing')">
+    <div class="sidebar-footer" onclick="switchView('settings')">
       <div class="avatar" id="userAvatar">U</div>
       <div class="user-info">
         <div class="user-name" id="userName">Guest User</div>
@@ -1074,7 +1099,7 @@ a{color:var(--accent);text-decoration:none}
   <div class="mobile-nav-inner">
     <div class="mobile-nav-item active" onclick="switchView('home');closeSidebar()"><span class="icon">🏠</span>Home</div>
     <div class="mobile-nav-item" onclick="switchView('notes');closeSidebar()"><span class="icon">📄</span>Notes</div>
-    <div class="mobile-nav-item" onclick="createNote();closeSidebar()"><span class="icon">✦</span>New</div>
+    <div class="mobile-nav-item" onclick="switchView('community');closeSidebar()"><span class="icon">🌐</span>Social</div>
     <div class="mobile-nav-item" onclick="switchView('calendar');closeSidebar()"><span class="icon">📅</span>Cal</div>
     <div class="mobile-nav-item" onclick="toggleSidebar()"><span class="icon">☰</span>Menu</div>
   </div>
@@ -1100,8 +1125,9 @@ const defaultNavItems = [
   { id:'graph', icon:'🔮', label:'Graph View' },
   { id:'search', icon:'🔍', label:'Search' },
   { id:'calendar', icon:'📅', label:'Calendar' },
+  { id:'community', icon:'🌐', label:'Community' },
   { id:'sync', icon:'🔄', label:'Sync' },
-  { id:'settings', icon:'⚙️', label:'AI Settings' },
+  { id:'settings', icon:'⚙️', label:'Settings' },
   { id:'analytics', icon:'📊', label:'Analytics', proLock:true, lockId:'analyticsLock' },
   { id:'pricing', icon:'⚡', label:'Plans & Pricing' },
 ];
@@ -1263,7 +1289,15 @@ function updateUIForPlan() {
   if (al) al.style.display = isPro ? 'none' : 'inline';
   // Re-render nav to update pro locks
   renderNavItems();
-  // Footer
+  // Footer — personalized
+  const avatarEl = document.getElementById('userAvatar');
+  if (avatarEl) {
+    avatarEl.textContent = userProfile.avatar_emoji || '👤';
+    avatarEl.style.background = (userProfile.avatar_color || '#7c5cfc') + '20';
+    avatarEl.style.color = userProfile.avatar_color || '#7c5cfc';
+    avatarEl.style.display = 'flex'; avatarEl.style.alignItems = 'center'; avatarEl.style.justifyContent = 'center'; avatarEl.style.fontSize = '18px';
+  }
+  document.getElementById('userName').textContent = userProfile.display_name || userProfile.username || 'Guest User';
   document.getElementById('userPlanLabel').textContent = isPro ? 'Pro Plan ⚡' : 'Free Plan';
 }
 
@@ -1432,6 +1466,7 @@ function switchView(view, navEl) {
     case 'calendar': renderCalendar(); break;
     case 'aistudio': renderAIStudio(); break;
     case 'agent': renderAgent(); break;
+    case 'community': renderCommunity(); break;
     case 'sync': renderSync(); break;
     case 'settings': renderSettings(); break;
     case 'pricing': renderPricing(); break;
@@ -1504,13 +1539,16 @@ function renderHome() {
   const m = document.getElementById('mainContent');
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const tzName = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  const tzAbbr = today.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
   const quote = getDailyQuote();
 
   m.innerHTML = `
     <div style="flex:1;overflow-y:auto;padding:32px 48px">
       <div style="margin-bottom:24px">
-        <h2 style="font-size:26px;font-weight:700;letter-spacing:-.5px">Good ${getGreeting()}</h2>
-        <p style="color:var(--text-3);font-size:14px;margin-top:4px">${dateStr}</p>
+        <h2 style="font-size:26px;font-weight:700;letter-spacing:-.5px">Good ${getGreeting()}${userProfile.display_name ? ', '+esc(userProfile.display_name) : ''}</h2>
+        <p style="color:var(--text-3);font-size:14px;margin-top:4px">${dateStr} · ${timeStr} <span style="opacity:.6;font-size:12px">${tzAbbr} (${tzName})</span></p>
         <div style="margin-top:10px;padding:12px 16px;background:linear-gradient(135deg,rgba(124,92,252,.04),rgba(167,139,250,.04));border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;display:flex;align-items:center;gap:12px">
           <div style="flex:1">
             <p style="font-size:14px;color:var(--text-1);font-style:italic;line-height:1.6">"${esc(quote.text)}"</p>
@@ -1519,16 +1557,24 @@ function renderHome() {
           <button onclick="editDailyQuote()" title="Customize quote" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:14px;padding:4px;transition:color .2s">✏️</button>
         </div>
       </div>
-      <div class="daily-banner">
-        <div class="daily-icon">✨</div>
-        <div class="daily-text"><h3>Start your daily note</h3><p>Capture thoughts, ideas, and learnings for today</p></div>
-        <button onclick="createDailyNote()">Open</button>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="daily-banner" style="flex:1;min-width:200px">
+          <div class="daily-icon">✨</div>
+          <div class="daily-text"><h3>Start your daily note</h3><p>Capture thoughts, ideas, and learnings for today</p></div>
+          <button onclick="createDailyNote()">Open</button>
+        </div>
+        <div id="homeCheckinCard" style="min-width:160px;padding:16px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:var(--transition)" onclick="settingsTab='checkin';switchView('settings')">
+          <div style="font-size:28px">🔥</div>
+          <div style="font-size:20px;font-weight:700">${userProfile.checkin_streak||0}</div>
+          <div style="font-size:11px;color:var(--text-3)">day streak</div>
+          <button onclick="event.stopPropagation();quickCheckin()" id="homeCheckinBtn" style="padding:6px 14px;border-radius:6px;border:none;background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:11px;font-weight:600;margin-top:4px">Check In</button>
+        </div>
       </div>
       ${!userProfile.isPro ? `
       <div style="margin-top:16px;padding:20px;background:linear-gradient(135deg,rgba(124,92,252,.05),rgba(236,72,153,.04));border:1px solid rgba(124,92,252,.1);border-radius:var(--radius-lg);display:flex;align-items:center;gap:16px">
         <div style="font-size:32px">⚡</div>
         <div style="flex:1">
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of Vault</h3>
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of Fang's Vault</h3>
           <p style="font-size:13px;color:var(--text-3)">AI assistant, version history, analytics & unlimited notes</p>
         </div>
         <button onclick="switchView('pricing')" style="padding:8px 20px;border-radius:8px;border:none;background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(124,92,252,.2)">See Plans</button>
@@ -1762,7 +1808,7 @@ function renderEditor() {
   m.innerHTML = `
     <div class="topbar">
       <div class="breadcrumb">
-        <span onclick="switchView('home')">Vault</span><span class="sep">›</span>
+        <span onclick="switchView('home')">Fang's Vault</span><span class="sep">›</span>
         <span onclick="notesViewParent=null;switchView('notes')">Notes</span>${currentNote.parent_id ? `<span class="sep">›</span><span onclick="notesViewParent='${currentNote.parent_id}';switchView('notes')">${esc((notes.find(n=>n.id===currentNote.parent_id)||{}).title||'Folder')}</span>` : ''}<span class="sep">›</span>
         <span style="color:var(--text-1)">${getItemIcon(currentNote)} ${esc(currentNote.title || 'Untitled')}</span>
       </div>
@@ -1775,6 +1821,8 @@ function renderEditor() {
           <button class="topbar-btn pro-btn" onclick="openUpgradeModal()" title="Pro feature">🕐 History <span class="badge-pro" style="font-size:9px;padding:1px 5px;margin-left:2px">PRO</span></button>
         `}
         <button class="topbar-btn" onclick="openExportModal()">📤 Export</button>
+        <button class="topbar-btn" onclick="openShareModal('${currentNote.id}','${esc(currentNote.title)}')">📤 Share</button>
+        <button class="topbar-btn" onclick="shareNoteToCommunity('${currentNote.id}','${esc(currentNote.title)}')" title="Share to community">🌐</button>
         <button class="topbar-btn primary" onclick="saveNote()">💾 Save</button>
         <button class="topbar-btn danger" onclick="if(confirm('Delete this note?'))deleteNote()">🗑</button>
       </div>
@@ -2147,9 +2195,16 @@ async function renderGraph() {
     if (viewSwitchId !== myId) return;
     const d = await r.json();
     const g = d.data || { nodes: [], edges: [] };
+    const wikiCount = g.edges.filter(e => e.type === 'wiki').length;
+    const tagCount = g.edges.filter(e => e.type === 'tag').length;
+    const parentCount = g.edges.filter(e => e.type === 'parent').length;
     m.innerHTML = `
       <div class="graph-container">
-        <div class="graph-header"><h2>Knowledge Graph</h2><p>Visualize connections between your notes</p></div>
+        <div class="graph-header">
+          <h2>Knowledge Graph</h2>
+          <p>Visualize connections between your notes</p>
+          <button class="btn-sm" onclick="rebuildGraphLinks()" style="margin-top:8px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;color:var(--text-secondary)">Rebuild Links</button>
+        </div>
         <div class="graph-stats">
           <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value">${g.nodes.length}</div><div class="stat-label">Notes</div></div>
           <div class="stat-card"><div class="stat-icon">🔗</div><div class="stat-value">${g.edges.length}</div><div class="stat-label">Connections</div></div>
@@ -2158,15 +2213,37 @@ async function renderGraph() {
         <div class="graph-canvas-wrap">
           <canvas id="graphCanvas"></canvas>
           <div class="graph-legend">
-            <span><span class="dot" style="background:var(--accent)"></span> Note</span>
-            <span><span class="dot" style="background:var(--green)"></span> Connected</span>
+            <span><span class="dot" style="background:#7c5cfc"></span> Unlinked (${g.nodes.length - new Set(g.edges.flatMap(e=>[e.from,e.to])).size})</span>
+            <span><span class="dot" style="background:#34d399"></span> Connected</span>
+            <span style="margin-left:12px;border-left:1px solid var(--border);padding-left:12px"><span class="dot" style="background:#7c5cfc;width:12px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle"></span> Wiki Link (${wikiCount})</span>
+            <span><span class="dot" style="background:#f59e0b;width:12px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle"></span> Shared Tag (${tagCount})</span>
+            <span><span class="dot" style="background:#60a5fa;width:12px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle"></span> Parent-Child (${parentCount})</span>
           </div>
         </div>
+        ${g.edges.length === 0 ? `<div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;line-height:1.8">
+          <b>How to build connections:</b><br>
+          Use <code style="background:var(--bg);padding:2px 6px;border-radius:4px">[[Note Title]]</code> in your notes to create wiki links<br>
+          Add the same tags to related notes<br>
+          Organize notes into folders for parent-child links
+        </div>` : ''}
       </div>
     `;
     drawGraph(g);
   } catch(e) {
     m.innerHTML = '<div class="empty-state"><div class="empty-icon">🔮</div><h2>Graph unavailable</h2></div>';
+  }
+}
+
+async function rebuildGraphLinks() {
+  const btn = event.target;
+  btn.textContent = 'Rebuilding...'; btn.disabled = true;
+  try {
+    const r = await fetch(API + '/graph/rebuild', { method: 'POST' });
+    const d = await r.json();
+    btn.textContent = d.message || 'Done!';
+    setTimeout(() => renderGraph(), 1000);
+  } catch(e) {
+    btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Rebuild Links'; btn.disabled = false; }, 2000);
   }
 }
 
@@ -2214,13 +2291,22 @@ function drawGraph(g) {
     });
   }
 
-  ctx.strokeStyle='rgba(124,92,252,0.25)'; ctx.lineWidth=1.5;
-  g.edges.forEach(e => { const a=nodeMap[e.from],b=nodeMap[e.to]; if(!a||!b)return; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); });
+  const edgeColors = { wiki: 'rgba(124,92,252,0.4)', tag: 'rgba(245,158,11,0.35)', parent: 'rgba(96,165,250,0.4)' };
+  const edgeWidths = { wiki: 2, tag: 1.2, parent: 1.5 };
+  g.edges.forEach(e => {
+    const a=nodeMap[e.from],b=nodeMap[e.to]; if(!a||!b)return;
+    ctx.strokeStyle = edgeColors[e.type] || 'rgba(124,92,252,0.25)';
+    ctx.lineWidth = edgeWidths[e.type] || 1.5;
+    if (e.type === 'tag') { ctx.setLineDash([4,4]); } else { ctx.setLineDash([]); }
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  });
+  ctx.setLineDash([]);
 
   nodes.forEach(n => {
     const r=6+n.connections*2;
     if(n.connections>0){ const grad=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*3); grad.addColorStop(0,'rgba(52,211,153,0.15)'); grad.addColorStop(1,'transparent'); ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(n.x,n.y,r*3,0,Math.PI*2); ctx.fill(); }
-    ctx.fillStyle=n.connections>0?'#34d399':'#7c5cfc'; ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
+    const nodeColor = n.type==='folder'?'#f59e0b':n.connections>0?'#34d399':'#7c5cfc';
+    ctx.fillStyle=nodeColor; ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#3b3660'; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
     ctx.fillText(n.label.length>18?n.label.substring(0,18)+'…':n.label, n.x, n.y+r+14);
   });
@@ -2542,7 +2628,7 @@ let agentConvId = null, agentConvs = [], agentMessages = [], agentSending = fals
 async function renderAgent() {
   const m = document.getElementById('mainContent');
   const myId = viewSwitchId;
-  viewLoading('🧠', 'Loading AI Agent...');
+  viewLoading(userProfile.ai_agent_emoji||'🧠', `Loading ${userProfile.ai_agent_name||'AI Agent'}...`);
   // Load conversations
   try { const r = await fetch(API+'/agent/conversations'); if(viewSwitchId!==myId)return; const d = await r.json(); agentConvs = d.data||[]; } catch(e) {}
   // Load AI config to show provider status
@@ -2554,7 +2640,7 @@ async function renderAgent() {
     <div class="agent-container">
       <div class="agent-sidebar">
         <div class="agent-sidebar-header">
-          <h3>🧠 Conversations</h3>
+          <h3>${userProfile.ai_agent_emoji||'🧠'} Conversations</h3>
           <button class="agent-new-btn" onclick="newAgentConv()">+ New</button>
         </div>
         <div class="agent-conv-list" id="agentConvList">
@@ -2569,7 +2655,7 @@ async function renderAgent() {
       </div>
       <div class="agent-chat">
         <div class="agent-chat-header">
-          <h3>${agentConvId ? esc(agentConvs.find(c=>c.id===agentConvId)?.title||'Chat') : 'AI Agent'}</h3>
+          <h3>${agentConvId ? esc(agentConvs.find(c=>c.id===agentConvId)?.title||'Chat') : `${userProfile.ai_agent_emoji||'🧠'} ${esc(userProfile.ai_agent_name||'AI Agent')}`}</h3>
           ${activeProvider
             ? `<span class="agent-provider-badge active">${esc(activeProvider.provider)} · ${esc(activeProvider.model||'default')}</span>`
             : `<span class="agent-provider-badge simulated" onclick="switchView('settings')" style="cursor:pointer">Simulated · Click to configure AI</span>`}
@@ -2578,9 +2664,9 @@ async function renderAgent() {
         <div class="agent-messages" id="agentMsgArea">
           ${agentMessages.length ? agentMessages.map(msg => renderAgentMsg(msg)).join('') : `
             <div class="agent-empty">
-              <div class="big-icon">🧠</div>
-              <h2>Your Knowledge Agent</h2>
-              <p>Ask questions about your notes, find connections, get writing help, or explore your knowledge base. ${activeProvider ? '' : 'Configure an AI provider in <b>Settings</b> for intelligent responses.'}</p>
+              <div class="big-icon">${userProfile.ai_agent_emoji||'🧠'}</div>
+              <h2>${esc(userProfile.ai_agent_name||'Your Knowledge Agent')}</h2>
+              <p>${userProfile.ai_calls_me ? `Hey ${esc(userProfile.ai_calls_me)}! ` : ''}Ask questions about your notes, find connections, get writing help, or explore your knowledge base. ${activeProvider ? '' : 'Configure an AI provider in <b>Settings</b> for intelligent responses.'}</p>
             </div>
           `}
         </div>
@@ -2607,7 +2693,7 @@ function renderAgentMsg(msg) {
   const refs = msg.metadata?.notesReferenced || msg.notesReferenced || [];
   return `
     <div class="agent-msg ${msg.role}">
-      <div class="msg-avatar">${isUser ? '👤' : '🧠'}</div>
+      <div class="msg-avatar">${isUser ? (userProfile.avatar_emoji||'👤') : (userProfile.ai_agent_emoji||'🧠')}</div>
       <div>
         <div class="msg-bubble">${isUser ? esc(msg.content) : renderMarkdown(msg.content)}</div>
         ${refs.length ? `<div class="msg-refs">${refs.map(r => `<span class="msg-ref" onclick="openNote('${r.id||r}')">${esc(r.title||'Note')}</span>`).join('')}</div>` : ''}
@@ -2664,7 +2750,7 @@ async function sendAgentMsg(text) {
     const empty = area.querySelector('.agent-empty');
     if (empty) empty.remove();
     area.innerHTML += renderAgentMsg({ role: 'user', content: msg });
-    area.innerHTML += '<div class="agent-typing" id="agentTyping"><div class="msg-avatar" style="width:32px;height:32px;border-radius:10px;background:var(--gradient-fun);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">🧠</div><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    area.innerHTML += `<div class="agent-typing" id="agentTyping"><div class="msg-avatar" style="width:32px;height:32px;border-radius:10px;background:var(--gradient-fun);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">${userProfile.ai_agent_emoji||'🧠'}</div><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
     area.scrollTop = area.scrollHeight;
   }
   // Remove suggestions
@@ -2707,23 +2793,115 @@ const AI_PROVIDERS = [
   { id:'custom', name:'Custom / Self-hosted', icon:'⚙️', desc:'OpenAI-compatible API', models:[] },
 ];
 
+let settingsTab = 'profile'; // profile | ai | referral
+
 async function renderSettings() {
   const m = document.getElementById('mainContent');
   const myId = viewSwitchId;
   viewLoading('⚙️', 'Loading settings...');
-  let configs = [];
-  try { const r = await fetch(API+'/ai/config'); if(viewSwitchId!==myId)return; const d = await r.json(); configs = d.data||[]; } catch(e) {}
+
+  // Fetch AI configs and referral info in parallel
+  let configs = [], referralInfo = { code:'', referrals:[], totalEarnedDays:0 }, checkinStatus = { checkedInToday:false, streak:0, longest:0, total:0, recentDates:[], milestones:{} }, studentStatus = { verified:false, email:null }, feedbackList = [];
+  try {
+    const [aiR, refR, chkR, stuR, fbR] = await Promise.all([
+      fetch(API+'/ai/config').then(r=>r.json()).catch(()=>({data:[]})),
+      fetch(API+'/referral/info').then(r=>r.json()).catch(()=>({data:{code:'',referrals:[],totalEarnedDays:0}})),
+      fetch(API+'/checkin/status').then(r=>r.json()).catch(()=>({data:{}})),
+      fetch(API+'/student/status').then(r=>r.json()).catch(()=>({data:{verified:false}})),
+      fetch(API+'/feedback?sort=votes').then(r=>r.json()).catch(()=>({data:[]}))
+    ]);
+    if (viewSwitchId !== myId) return;
+    configs = aiR.data||[];
+    referralInfo = refR.data||referralInfo;
+    checkinStatus = chkR.data||checkinStatus;
+    studentStatus = stuR.data||studentStatus;
+    feedbackList = fbR.data||[];
+  } catch(e) {}
+
   const activeConfig = configs.find(c => c.is_active);
   if (activeConfig) settingsProvider = activeConfig.provider;
   const prov = AI_PROVIDERS.find(p => p.id === settingsProvider) || AI_PROVIDERS[0];
 
+  const up = userProfile;
+  const emojiOptions = ['👤','😎','🦊','🐱','🐼','🦁','🐨','🦉','🐙','🎯','🚀','💎','🌟','🔥','🎨','🧊','🪐','🌺','🍀','🎭'];
+  const colorOptions = ['#7c5cfc','#6366f1','#ec4899','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6','#f97316','#14b8a6'];
+
+  const tabBtn = (id, icon, label) => `<button class="settings-tab-btn${settingsTab===id?' active':''}" onclick="settingsTab='${id}';renderSettings()">${icon} ${label}</button>`;
+
   m.innerHTML = `
-    <div class="settings-container">
-      <div class="settings-header">
-        <h2>⚙️ AI Settings</h2>
-        <p>Configure your AI provider. Your API key is encrypted and stored securely.</p>
+    <div class="settings-container" style="max-width:860px;margin:0 auto">
+      <div class="settings-header" style="margin-bottom:0">
+        <h2>⚙️ Settings</h2>
+        <p>Personalize your vault, configure AI, and manage your account</p>
       </div>
 
+      <div style="display:flex;gap:4px;margin:16px 0;padding:4px;background:var(--bg-2);border-radius:10px;overflow-x:auto">
+        ${tabBtn('profile','👤','Profile')}
+        ${tabBtn('ai','🤖','AI Config')}
+        ${tabBtn('student','🎓','Student')}
+        ${tabBtn('checkin','🔥','Check-in')}
+        ${tabBtn('referral','🎁','Referral')}
+        ${tabBtn('feedback','💬','Feedback')}
+      </div>
+
+      <div id="settingsTabContent"></div>
+    </div>
+  `;
+
+  const tc = document.getElementById('settingsTabContent');
+
+  if (settingsTab === 'profile') {
+    tc.innerHTML = `
+      <!-- Avatar & Name -->
+      <div class="settings-card">
+        <h3>🎨 Your Identity</h3>
+        <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div id="previewAvatar" style="width:80px;height:80px;border-radius:50%;background:${up.avatar_color||'#7c5cfc'}20;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 8px;border:3px solid ${up.avatar_color||'#7c5cfc'}40">${up.avatar_emoji||'👤'}</div>
+            <div style="font-size:11px;color:var(--text-3)">Your avatar</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div class="settings-field"><label>Display Name</label><input class="settings-input" id="profDisplayName" value="${esc(up.display_name||'')}" placeholder="How you appear to others"></div>
+            <div class="settings-field"><label>Bio</label><input class="settings-input" id="profBio" value="${esc(up.bio||'')}" placeholder="A short bio about yourself"></div>
+          </div>
+        </div>
+        <div class="settings-field" style="margin-top:12px">
+          <label>Choose Avatar Emoji</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${emojiOptions.map(e => `<span class="emoji-pick${(up.avatar_emoji||'👤')===e?' selected':''}" onclick="pickEmoji('avatar','${e}',this)" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:2px solid ${(up.avatar_emoji||'👤')===e?'var(--accent)':'transparent'};cursor:pointer;font-size:18px;background:var(--bg-2);transition:all .15s">${e}</span>`).join('')}</div>
+        </div>
+        <div class="settings-field">
+          <label>Avatar Color</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${colorOptions.map(c => `<span class="color-pick${(up.avatar_color||'#7c5cfc')===c?' selected':''}" onclick="pickColor('avatar','${c}',this)" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${(up.avatar_color||'#7c5cfc')===c?'var(--text-1)':'transparent'};transition:all .15s"></span>`).join('')}</div>
+        </div>
+        <button class="settings-btn primary" onclick="saveProfile()" style="margin-top:12px">💾 Save Profile</button>
+      </div>
+
+      <!-- AI Agent Personalization -->
+      <div class="settings-card">
+        <h3>🧠 AI Agent Personality</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">Give your AI assistant a name and personality. It will greet you and respond with this identity.</p>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div class="settings-field"><label>Agent Name</label><input class="settings-input" id="profAgentName" value="${esc(up.ai_agent_name||'Fang's AI')}" placeholder="e.g. Jarvis, Friday, Atlas"></div>
+            <div class="settings-field"><label>Agent Calls Me</label><input class="settings-input" id="profAgentCallsMe" value="${esc(up.ai_calls_me||'')}" placeholder="e.g. Boss, Captain, your name"></div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:64px;height:64px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px" id="previewAgentEmoji">${up.ai_agent_emoji||'🧠'}</div>
+            <div style="font-size:11px;color:var(--text-3)">Agent avatar</div>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label>Agent Emoji</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${['🧠','🤖','🌟','🔮','🦊','🎯','💡','⚡','🪄','🌙','🦋','🎭','🐉','🤓','🛡️','🔬','📚','🌈','💜','🧙'].map(e => `<span class="emoji-pick${(up.ai_agent_emoji||'🧠')===e?' selected':''}" onclick="pickEmoji('agent','${e}',this)" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:2px solid ${(up.ai_agent_emoji||'🧠')===e?'var(--accent)':'transparent'};cursor:pointer;font-size:18px;background:var(--bg-2);transition:all .15s">${e}</span>`).join('')}</div>
+        </div>
+        <button class="settings-btn primary" onclick="saveProfile()" style="margin-top:12px">💾 Save Agent Settings</button>
+        <div style="margin-top:12px;padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px;color:var(--text-2)">
+          <strong>Preview:</strong> "${up.ai_agent_emoji||'🧠'} ${up.ai_agent_name||'Fang's AI'}: Hey ${up.ai_calls_me||'there'}, what can I help you with today?"
+        </div>
+      </div>
+    `;
+  } else if (settingsTab === 'ai') {
+    tc.innerHTML = `
       ${activeConfig ? `
       <div class="settings-card">
         <h3>✅ Current Configuration</h3>
@@ -2743,76 +2921,393 @@ async function renderSettings() {
           ${AI_PROVIDERS.map(p => `
             <div class="provider-option${settingsProvider===p.id?' selected':''}" onclick="settingsProvider='${p.id}';renderSettings()">
               <div class="prov-icon">${p.icon}</div>
-              <div>
-                <div class="prov-name">${p.name}</div>
-                <div class="prov-desc">${p.desc}</div>
-              </div>
+              <div><div class="prov-name">${p.name}</div><div class="prov-desc">${p.desc}</div></div>
             </div>
           `).join('')}
         </div>
-
-        <div class="settings-field">
-          <label>API Key</label>
-          <input class="settings-input" id="settingsApiKey" type="password" placeholder="sk-... or your API key" autocomplete="off">
+        <div class="settings-field"><label>API Key</label><input class="settings-input" id="settingsApiKey" type="password" placeholder="sk-... or your API key" autocomplete="off"></div>
+        <div class="settings-field"><label>Model</label>
+          ${prov.models.length ? `<select class="settings-select" id="settingsModel">${prov.models.map(m => `<option value="${m}">${m}</option>`).join('')}</select>`
+          : `<input class="settings-input" id="settingsModel" placeholder="Model name (e.g. gpt-4o)">`}
         </div>
-
-        <div class="settings-field">
-          <label>Model</label>
-          ${prov.models.length ? `
-            <select class="settings-select" id="settingsModel">
-              ${prov.models.map(m => `<option value="${m}">${m}</option>`).join('')}
-            </select>
-          ` : `<input class="settings-input" id="settingsModel" placeholder="Model name (e.g. gpt-4o)">`}
-        </div>
-
-        ${settingsProvider === 'custom' ? `
-        <div class="settings-field">
-          <label>Base URL (OpenAI-compatible endpoint)</label>
-          <input class="settings-input" id="settingsBaseUrl" placeholder="https://your-server.com/v1">
-        </div>` : ''}
-
+        ${settingsProvider === 'custom' ? `<div class="settings-field"><label>Base URL</label><input class="settings-input" id="settingsBaseUrl" placeholder="https://your-server.com/v1"></div>` : ''}
         <div class="settings-btn-row">
           <button class="settings-btn primary" onclick="saveAIConfig()">💾 Save Configuration</button>
           <button class="settings-btn" style="background:var(--bg-1)" onclick="testAIConfig()">🔍 Test Connection</button>
         </div>
-
         <div id="settingsTestResult"></div>
       </div>
-
-      <div class="settings-card">
-        <h3>ℹ️ How It Works</h3>
-        <div style="font-size:13px;color:var(--text-2);line-height:1.8">
-          <p><strong>1. Choose a provider</strong> — Select your preferred AI service above</p>
-          <p><strong>2. Enter your API key</strong> — Get one from your provider's dashboard</p>
-          <p><strong>3. Test & save</strong> — We'll verify the connection works</p>
-          <p style="margin-top:12px;color:var(--text-3)">🔒 Your key is encrypted with AES-256-GCM before storage. We never log or expose your key.</p>
-          <p style="color:var(--text-3)">💡 No API key? The app works with simulated AI responses — you can add a key anytime.</p>
-        </div>
-      </div>
-
       <div class="settings-card">
         <h3>🔗 Get API Keys</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
-            <div style="font-weight:600;margin-bottom:4px">🟢 OpenAI</div>
-            <div style="color:var(--text-3)">platform.openai.com/api-keys</div>
-          </div>
-          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
-            <div style="font-weight:600;margin-bottom:4px">🟣 Anthropic</div>
-            <div style="color:var(--text-3)">console.anthropic.com/settings/keys</div>
-          </div>
-          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
-            <div style="font-weight:600;margin-bottom:4px">🔵 DeepSeek</div>
-            <div style="color:var(--text-3)">platform.deepseek.com/api_keys</div>
-          </div>
-          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
-            <div style="font-weight:600;margin-bottom:4px">⚙️ Custom</div>
-            <div style="color:var(--text-3)">Any OpenAI-compatible API</div>
-          </div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px"><div style="font-weight:600;margin-bottom:4px">🟢 OpenAI</div><div style="color:var(--text-3)">platform.openai.com/api-keys</div></div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px"><div style="font-weight:600;margin-bottom:4px">🟣 Anthropic</div><div style="color:var(--text-3)">console.anthropic.com/settings/keys</div></div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px"><div style="font-weight:600;margin-bottom:4px">🔵 DeepSeek</div><div style="color:var(--text-3)">platform.deepseek.com/api_keys</div></div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px"><div style="font-weight:600;margin-bottom:4px">⚙️ Custom</div><div style="color:var(--text-3)">Any OpenAI-compatible API</div></div>
         </div>
       </div>
+    `;
+  } else if (settingsTab === 'checkin') {
+    const milestoneEntries = Object.entries(checkinStatus.milestones || {}).sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
+    tc.innerHTML = `
+      <div class="settings-card" style="text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">${checkinStatus.checkedInToday ? '✅' : '🔥'}</div>
+        <h3 style="font-size:24px;margin-bottom:4px">${checkinStatus.streak}-Day Streak</h3>
+        <p style="color:var(--text-3);font-size:13px">Longest: ${checkinStatus.longest} days · Total: ${checkinStatus.total} check-ins</p>
+        ${!checkinStatus.checkedInToday ? `
+          <div style="margin-top:16px">
+            <textarea id="checkinMsg" placeholder="What did you learn today? (optional)" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-2);color:var(--text-1);font-size:13px;resize:none;height:60px;font-family:inherit"></textarea>
+            <button class="settings-btn primary" onclick="doCheckin()" style="margin-top:8px;width:100%">🔥 Check In Today</button>
+          </div>
+        ` : `<div style="margin-top:12px;padding:10px;background:var(--green)15;color:var(--green);border-radius:var(--radius);font-size:13px">You've already checked in today! Come back tomorrow.</div>`}
+      </div>
+
+      <div class="settings-card">
+        <h3>🏆 Streak Rewards</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">Keep your streak alive to earn free Pro days!</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${milestoneEntries.map(([days, reward]) => {
+            const reached = checkinStatus.streak >= parseInt(days);
+            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:${reached?'var(--green)08':'var(--bg-2)'};border:1px solid ${reached?'var(--green)30':'var(--border)'};border-radius:var(--radius)">
+              <span style="font-size:20px">${reached?'✅':'🎯'}</span>
+              <div style="flex:1"><strong>${days} days</strong><span style="color:var(--text-3);font-size:12px;margin-left:8px">+${reward} days Pro</span></div>
+              ${reached?'<span style="color:var(--green);font-size:12px;font-weight:600">EARNED</span>':'<span style="color:var(--text-3);font-size:12px">${Math.max(0, parseInt(days) - checkinStatus.streak)} days to go</span>'}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>📅 Recent Activity</h3>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
+          ${(() => {
+            const days = [];
+            const recentSet = new Set((checkinStatus.recentDates||[]).map(d => d.substring ? d.substring(0,10) : localDateStr(d)));
+            for (let i = 29; i >= 0; i--) {
+              const d = new Date(); d.setDate(d.getDate() - i);
+              const ds = localDateStr(d);
+              const checked = recentSet.has(ds);
+              days.push(`<div title="${ds}" style="width:16px;height:16px;border-radius:3px;background:${checked?'var(--green)':'var(--bg-3)'};${checked?'opacity:1':'opacity:.4'}"></div>`);
+            }
+            return days.join('');
+          })()}
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:6px">Last 30 days</div>
+      </div>
+    `;
+  } else if (settingsTab === 'referral') {
+    tc.innerHTML = `
+      <div class="settings-card" style="text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">🎁</div>
+        <h3>Invite Friends, Earn Pro</h3>
+        <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">Both you and your friend get <strong>7 days of Pro</strong> when they join with your code!</p>
+        <div style="padding:16px;background:var(--bg-2);border-radius:var(--radius-lg);border:2px dashed var(--accent);margin-bottom:12px">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Your Referral Code</div>
+          <div style="font-size:24px;font-weight:700;letter-spacing:2px;color:var(--accent)" id="myRefCode">${esc(referralInfo.code||'')}</div>
+        </div>
+        <button class="settings-btn primary" onclick="copyRefCode()" style="width:100%">📋 Copy Referral Code</button>
+        <button class="settings-btn" onclick="shareRefCode()" style="width:100%;margin-top:8px;background:var(--bg-1)">📤 Share Link</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>🔑 Enter a Referral Code</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">Got a code from a friend? Enter it below to get 7 free Pro days.</p>
+        <div style="display:flex;gap:8px">
+          <input class="settings-input" id="refCodeInput" placeholder="e.g. FANG-ABC123" style="flex:1;text-transform:uppercase">
+          <button class="settings-btn primary" onclick="applyRefCode()">Apply</button>
+        </div>
+        <div id="refCodeResult" style="margin-top:8px"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>👥 Your Referrals (${referralInfo.referrals.length})</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:8px">Total earned: <strong>${referralInfo.totalEarnedDays} Pro days</strong></p>
+        ${referralInfo.referrals.length ? `<div style="display:flex;flex-direction:column;gap:6px">
+          ${referralInfo.referrals.map(r => `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)">
+            <span style="font-size:18px">${r.avatar_emoji||'👤'}</span>
+            <div style="flex:1"><strong>${esc(r.display_name||r.username)}</strong><span style="color:var(--text-3);font-size:12px;margin-left:8px">+${r.reward_days} days</span></div>
+            <span style="font-size:11px;color:var(--text-3)">${formatDate(r.created_at)}</span>
+          </div>`).join('')}
+        </div>` : '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:20px">No referrals yet. Share your code to get started!</div>'}
+      </div>
+    `;
+  } else if (settingsTab === 'student') {
+    tc.innerHTML = `
+      <div class="settings-card" style="text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">${studentStatus.verified ? '✅' : '🎓'}</div>
+        <h3 style="font-size:20px">${studentStatus.verified ? 'Student Verified!' : 'Student Email Verification'}</h3>
+        <p style="color:var(--text-3);font-size:13px;margin:8px 0 16px">${studentStatus.verified
+          ? `Verified with ${esc(studentStatus.email)}. Enjoy your free year of Pro!`
+          : 'Verify your student email (.edu.cn, .edu, etc.) to get <strong>1 year of Pro for free</strong>!'}</p>
+        ${!studentStatus.verified ? `
+          <div class="settings-field" style="text-align:left">
+            <label>Student Email Address</label>
+            <input class="settings-input" id="studentEmailInput" placeholder="yourname@university.edu.cn" type="email">
+          </div>
+          <button class="settings-btn primary" onclick="requestStudentVerify()" style="width:100%">📧 Send Verification Code</button>
+          <div id="studentVerifyStep2" style="display:none;margin-top:16px">
+            <div class="settings-field" style="text-align:left">
+              <label>Enter 6-digit Code</label>
+              <input class="settings-input" id="studentCodeInput" placeholder="123456" maxlength="6" style="text-align:center;font-size:24px;letter-spacing:8px;font-weight:700">
+            </div>
+            <button class="settings-btn primary" onclick="confirmStudentVerify()" style="width:100%">✅ Verify & Claim Pro</button>
+          </div>
+          <div id="studentVerifyResult" style="margin-top:12px"></div>
+        ` : ''}
+      </div>
+
+      <div class="settings-card">
+        <h3>🏫 Supported Institutions</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">We accept student emails from universities worldwide:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.edu.cn</strong> — China universities</div>
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.edu</strong> — US/Global universities</div>
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.ac.uk</strong> — UK universities</div>
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.edu.hk</strong> — Hong Kong</div>
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.edu.sg</strong> — Singapore</div>
+          <div style="padding:8px 12px;background:var(--bg-2);border-radius:var(--radius)"><strong>.ac.jp / .ac.kr</strong> — Japan / Korea</div>
+        </div>
+        <p style="font-size:12px;color:var(--text-3);margin-top:12px">Contact <strong>yulufang@sjtu.edu.cn</strong> if your institution is not listed.</p>
+      </div>
+    `;
+  } else if (settingsTab === 'feedback') {
+    const catFilter = 'all';
+    const categories = [{id:'all',label:'All',icon:'📋'},{id:'feature',label:'Feature Request',icon:'💡'},{id:'bug',label:'Bug Report',icon:'🐛'},{id:'improvement',label:'Improvement',icon:'✨'},{id:'other',label:'Other',icon:'💬'}];
+    tc.innerHTML = `
+      <div class="settings-card">
+        <h3>💬 Feature Requests & Feedback</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">Tell us what you'd like to see in Fang's Vault! Pro users' suggestions have priority. Popular requests may be implemented.</p>
+
+        <div class="settings-field"><label>Title</label><input class="settings-input" id="fbTitle" placeholder="Short summary of your idea"></div>
+        <div class="settings-field"><label>Category</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${categories.filter(c=>c.id!=='all').map(c => `<span class="cal-cat-pill" style="background:var(--bg-2);cursor:pointer;padding:4px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border);transition:all .15s" data-cat="${c.id}" onclick="document.querySelectorAll('[data-cat]').forEach(x=>{x.style.borderColor='var(--border)';x.style.background='var(--bg-2)'});this.style.borderColor='var(--accent)';this.style.background='var(--accent-soft)';this.dataset.selected='true'">${c.icon} ${c.label}</span>`).join('')}
+          </div>
+        </div>
+        <div class="settings-field"><label>Details</label><textarea id="fbContent" placeholder="Describe your idea, the problem it solves, or what you'd like improved..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-2);color:var(--text-1);font-size:13px;resize:none;height:80px;font-family:inherit"></textarea></div>
+        <button class="settings-btn primary" onclick="submitFeedback()" style="width:100%">📤 Submit Feedback</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>📊 Community Suggestions <span style="font-size:12px;color:var(--text-3);font-weight:400;margin-left:8px">${feedbackList.length} total</span></h3>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          ${categories.map(c => `<button class="settings-tab-btn" style="padding:4px 10px;font-size:11px" onclick="filterFeedback('${c.id}')">${c.icon} ${c.label}</button>`).join('')}
+        </div>
+        <div id="feedbackListContainer">
+          ${feedbackList.length ? feedbackList.map(fb => renderFeedbackItem(fb)).join('') : '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px">No feedback yet. Be the first to suggest something!</div>'}
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderFeedbackItem(fb) {
+  const catIcons = {feature:'💡',bug:'🐛',improvement:'✨',other:'💬'};
+  const statusColors = {pending:'var(--text-3)',planned:'var(--accent)',building:'var(--gold)',done:'var(--green)',declined:'var(--red)'};
+  return `<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;transition:var(--transition)">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:40px">
+      <button onclick="voteFeedback('${fb.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px;transition:all .15s${fb.user_voted?';color:var(--accent)':''}">${fb.user_voted?'▲':'△'}</button>
+      <span style="font-size:14px;font-weight:700;color:${fb.user_voted?'var(--accent)':'var(--text-2)'}">${fb.votes||0}</span>
     </div>
-  `;
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <span style="font-size:13px">${catIcons[fb.category]||'💬'}</span>
+        <strong style="font-size:13px">${esc(fb.title)}</strong>
+        ${fb.status && fb.status !== 'pending' ? `<span style="font-size:10px;padding:2px 6px;border-radius:10px;background:${statusColors[fb.status]||'var(--text-3)'}20;color:${statusColors[fb.status]||'var(--text-3)'};font-weight:600;text-transform:uppercase">${fb.status}</span>` : ''}
+      </div>
+      <p style="font-size:12px;color:var(--text-2);line-height:1.5;margin-bottom:4px">${esc(fb.content).substring(0,200)}${fb.content.length>200?'...':''}</p>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-3)">
+        <span>${fb.avatar_emoji||'👤'} ${esc(fb.display_name||fb.username)}</span>
+        <span>${formatDate(fb.created_at)}</span>
+        ${fb.user_id === userProfile.id ? `<button onclick="deleteFeedback('${fb.id}')" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:11px;margin-left:auto">Delete</button>` : ''}
+      </div>
+      ${fb.admin_reply ? `<div style="margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:var(--radius);font-size:12px;border-left:3px solid var(--accent)"><strong>Team reply:</strong> ${esc(fb.admin_reply)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+let pickedAvatarEmoji = null, pickedAvatarColor = null, pickedAgentEmoji = null;
+
+function pickEmoji(type, emoji, el) {
+  el.parentElement.querySelectorAll('.emoji-pick').forEach(e => e.style.borderColor = 'transparent');
+  el.style.borderColor = 'var(--accent)';
+  if (type === 'avatar') {
+    pickedAvatarEmoji = emoji;
+    const prev = document.getElementById('previewAvatar');
+    if (prev) prev.textContent = emoji;
+  } else {
+    pickedAgentEmoji = emoji;
+    const prev = document.getElementById('previewAgentEmoji');
+    if (prev) prev.textContent = emoji;
+  }
+}
+
+function pickColor(type, color, el) {
+  el.parentElement.querySelectorAll('.color-pick').forEach(e => e.style.borderColor = 'transparent');
+  el.style.borderColor = 'var(--text-1)';
+  if (type === 'avatar') {
+    pickedAvatarColor = color;
+    const prev = document.getElementById('previewAvatar');
+    if (prev) { prev.style.background = color + '20'; prev.style.borderColor = color + '40'; }
+  }
+}
+
+async function saveProfile() {
+  const body = {
+    display_name: document.getElementById('profDisplayName')?.value?.trim() || null,
+    bio: document.getElementById('profBio')?.value?.trim() || null,
+    avatar_emoji: pickedAvatarEmoji || null,
+    avatar_color: pickedAvatarColor || null,
+    ai_agent_name: document.getElementById('profAgentName')?.value?.trim() || null,
+    ai_agent_emoji: pickedAgentEmoji || null,
+    ai_calls_me: document.getElementById('profAgentCallsMe')?.value?.trim() || null,
+  };
+  // Remove null entries so COALESCE keeps existing values
+  Object.keys(body).forEach(k => { if (body[k] === null) delete body[k]; });
+  try {
+    const r = await fetch(API+'/user/profile', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const d = await r.json();
+    if (d.data) {
+      Object.assign(userProfile, d.data);
+      updateUIForPlan();
+      toast('Profile saved!', 'success');
+      pickedAvatarEmoji = null; pickedAvatarColor = null; pickedAgentEmoji = null;
+    }
+  } catch(e) { toast('Failed to save profile', 'error'); }
+}
+
+async function doCheckin() {
+  const msg = document.getElementById('checkinMsg')?.value?.trim();
+  try {
+    const r = await fetch(API+'/checkin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ message: msg || undefined }) });
+    const d = await r.json();
+    if (d.data) {
+      toast(d.data.message || 'Checked in!', 'success');
+      if (d.data.rewardDays) await fetchProfile();
+      renderSettings();
+    }
+  } catch(e) { toast('Check-in failed', 'error'); }
+}
+
+async function quickCheckin() {
+  const btn = document.getElementById('homeCheckinBtn');
+  if (btn) { btn.textContent = '...'; btn.disabled = true; }
+  try {
+    const r = await fetch(API+'/checkin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({}) });
+    const d = await r.json();
+    if (d.data) {
+      toast(d.data.message || 'Checked in!', 'success');
+      if (d.data.rewardDays) await fetchProfile();
+      else { userProfile.checkin_streak = d.data.streak; }
+      if (btn) { btn.textContent = '✅ Done'; }
+    }
+  } catch(e) { toast('Check-in failed', 'error'); if (btn) { btn.textContent = 'Check In'; btn.disabled = false; } }
+}
+
+function copyRefCode() {
+  const code = document.getElementById('myRefCode')?.textContent;
+  if (code) { navigator.clipboard.writeText(code); toast('Copied to clipboard!', 'success'); }
+}
+
+function shareRefCode() {
+  const code = document.getElementById('myRefCode')?.textContent;
+  const text = `Join me on Fang's Vault - Personal Knowledge Base! Use my code ${code} to get 7 free days of Pro. By yulufang@sjtu.edu.cn`;
+  if (navigator.share) {
+    navigator.share({ title: "Join Fang's Vault", text });
+  } else {
+    navigator.clipboard.writeText(text);
+    toast('Share text copied!', 'success');
+  }
+}
+
+async function applyRefCode() {
+  const code = document.getElementById('refCodeInput')?.value?.trim();
+  if (!code) { toast('Enter a code', 'info'); return; }
+  const el = document.getElementById('refCodeResult');
+  try {
+    const r = await fetch(API+'/referral/apply', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ code }) });
+    const d = await r.json();
+    if (d.error) { el.innerHTML = `<div style="color:var(--red);font-size:13px">${esc(d.error)}</div>`; return; }
+    el.innerHTML = `<div style="color:var(--green);font-size:13px">${esc(d.data.message)}</div>`;
+    await fetchProfile();
+    setTimeout(() => renderSettings(), 1500);
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);font-size:13px">Failed to apply code</div>'; }
+}
+
+// ===== STUDENT VERIFICATION =====
+async function requestStudentVerify() {
+  const email = document.getElementById('studentEmailInput')?.value?.trim();
+  if (!email) { toast('Enter your student email', 'info'); return; }
+  const el = document.getElementById('studentVerifyResult');
+  el.innerHTML = '<div style="color:var(--text-3);font-size:13px">Sending verification code...</div>';
+  try {
+    const r = await fetch(API+'/student/verify-request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ student_email: email }) });
+    const d = await r.json();
+    if (d.error) { el.innerHTML = `<div style="color:var(--red);font-size:13px">${esc(d.error)}</div>`; return; }
+    document.getElementById('studentVerifyStep2').style.display = 'block';
+    el.innerHTML = `<div style="color:var(--green);font-size:13px">${esc(d.data.message)}</div>${d.data.hint ? `<div style="color:var(--accent);font-size:12px;margin-top:4px">${esc(d.data.hint)}</div>` : ''}`;
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);font-size:13px">Failed to send code</div>'; }
+}
+
+async function confirmStudentVerify() {
+  const code = document.getElementById('studentCodeInput')?.value?.trim();
+  if (!code) { toast('Enter the code', 'info'); return; }
+  const el = document.getElementById('studentVerifyResult');
+  try {
+    const r = await fetch(API+'/student/verify-confirm', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ code }) });
+    const d = await r.json();
+    if (d.error) { el.innerHTML = `<div style="color:var(--red);font-size:13px">${esc(d.error)}</div>`; return; }
+    el.innerHTML = `<div style="color:var(--green);font-size:14px;font-weight:600">${esc(d.data.message)}</div>`;
+    await fetchProfile();
+    setTimeout(() => renderSettings(), 2000);
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);font-size:13px">Verification failed</div>'; }
+}
+
+// ===== FEEDBACK =====
+async function submitFeedback() {
+  const title = document.getElementById('fbTitle')?.value?.trim();
+  const content = document.getElementById('fbContent')?.value?.trim();
+  const catEl = document.querySelector('[data-cat][data-selected="true"]');
+  const category = catEl?.dataset?.cat || 'feature';
+  if (!title || !content) { toast('Please fill in title and details', 'info'); return; }
+  try {
+    const r = await fetch(API+'/feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ title, content, category }) });
+    const d = await r.json();
+    if (d.error) { toast(d.error, 'error'); return; }
+    toast('Feedback submitted! Thank you!', 'success');
+    renderSettings();
+  } catch(e) { toast('Failed to submit', 'error'); }
+}
+
+async function voteFeedback(id) {
+  try {
+    const r = await fetch(API+'/feedback/'+id+'/vote', { method:'POST' });
+    const d = await r.json();
+    if (d.data) renderSettings();
+  } catch(e) {}
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('Delete this feedback?')) return;
+  try {
+    await fetch(API+'/feedback/'+id, { method:'DELETE' });
+    toast('Deleted', 'info');
+    renderSettings();
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function filterFeedback(cat) {
+  try {
+    const url = cat === 'all' ? API+'/feedback?sort=votes' : API+'/feedback?sort=votes&category='+cat;
+    const r = await fetch(url);
+    const d = await r.json();
+    const container = document.getElementById('feedbackListContainer');
+    if (container) {
+      const list = d.data || [];
+      container.innerHTML = list.length ? list.map(fb => renderFeedbackItem(fb)).join('')
+        : '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px">No feedback in this category</div>';
+    }
+  } catch(e) {}
 }
 
 async function saveAIConfig() {
@@ -2868,6 +3363,260 @@ async function removeAIConfig(provider) {
     toast('Configuration removed', 'info');
     renderSettings();
   } catch(e) { toast('Failed to remove', 'error'); }
+}
+
+// ===== COMMUNITY =====
+let communityPosts = [], communityPage = 0;
+
+async function renderCommunity() {
+  const m = document.getElementById('mainContent');
+  const myId = viewSwitchId;
+  viewLoading('🌐', 'Loading community...');
+  communityPage = 0;
+  try {
+    const r = await fetch(API+'/community/feed?page=0');
+    if (viewSwitchId !== myId) return;
+    const d = await r.json();
+    communityPosts = d.data || [];
+  } catch(e) {}
+
+  const up = userProfile;
+  m.innerHTML = `
+    <div class="community-container">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:4px">🌐 Community</h2>
+        <p style="color:var(--text-3);font-size:13px">Share your learning journey, discover what others are studying</p>
+      </div>
+
+      <!-- New post composer -->
+      <div class="community-post" style="margin-bottom:20px">
+        <div class="post-header">
+          <div class="post-avatar" style="background:${up.avatar_color||'#7c5cfc'}20;color:${up.avatar_color||'#7c5cfc'}">${up.avatar_emoji||'👤'}</div>
+          <div><div class="post-author">${esc(up.display_name||up.username||'Guest')}</div></div>
+        </div>
+        <textarea id="newPostContent" placeholder="Share what you learned today, a note, or just say hi..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-2);color:var(--text-1);font-size:14px;resize:none;height:80px;font-family:inherit;line-height:1.6"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <div style="display:flex;gap:8px">
+            <button class="post-action" onclick="attachNoteToPost()" style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;background:var(--bg-2)">📄 Attach Note</button>
+          </div>
+          <button class="settings-btn primary" onclick="submitPost()" style="padding:8px 20px">Post</button>
+        </div>
+        <div id="postAttachment" style="display:none;margin-top:8px"></div>
+      </div>
+
+      <!-- Feed -->
+      <div id="communityFeed">${renderCommunityFeed()}</div>
+      ${communityPosts.length >= 20 ? `<button class="settings-btn" onclick="loadMorePosts()" style="width:100%;margin-top:8px;background:var(--bg-1)">Load More</button>` : ''}
+    </div>
+  `;
+}
+
+function renderCommunityFeed() {
+  if (!communityPosts.length) {
+    return '<div style="text-align:center;padding:40px;color:var(--text-3)"><div style="font-size:40px;margin-bottom:12px">🌱</div><h3>No posts yet</h3><p>Be the first to share something!</p></div>';
+  }
+  return communityPosts.map(p => {
+    const isCheckin = p.post_type === 'checkin';
+    return `
+    <div class="community-post" id="post-${p.id}">
+      <div class="post-header">
+        <div class="post-avatar" style="background:${p.avatar_color||'#7c5cfc'}20;color:${p.avatar_color||'#7c5cfc'}">${p.avatar_emoji||'👤'}</div>
+        <div style="flex:1">
+          <div class="post-author">${esc(p.display_name||p.username)}</div>
+          <div class="post-time">${formatDate(p.created_at)}${isCheckin ? ' · 🔥 Check-in' : ''}</div>
+        </div>
+        ${p.user_id === userProfile.id ? `<button class="post-action" onclick="deletePost('${p.id}')" title="Delete">🗑</button>` : ''}
+      </div>
+      <div class="post-content">${esc(p.content)}</div>
+      ${p.shared_note_title ? `<div class="post-shared-note" onclick="openNote('${p.shared_note_id}')">📄 ${esc(p.shared_note_title)}</div>` : ''}
+      <div class="post-actions">
+        <button class="post-action${p.user_liked?' liked':''}" onclick="togglePostLike('${p.id}')">
+          ${p.user_liked?'❤️':'🤍'} <span id="likeCount-${p.id}">${p.likes_count||0}</span>
+        </button>
+        <button class="post-action" onclick="toggleComments('${p.id}')">💬 ${p.comments_count||0}</button>
+        <button class="post-action" onclick="sharePost('${p.id}','${esc(p.content).substring(0,100)}')">📤 Share</button>
+      </div>
+      <div class="post-comments-section" id="comments-${p.id}" style="display:none"></div>
+    </div>`;
+  }).join('');
+}
+
+let postAttachedNoteId = null;
+
+function attachNoteToPost() {
+  // Show a simple note picker
+  const noteList = notes.filter(n => n.item_type === 'note').slice(0, 20);
+  const el = document.getElementById('postAttachment');
+  if (el.style.display === 'block') { el.style.display = 'none'; postAttachedNoteId = null; return; }
+  el.style.display = 'block';
+  el.innerHTML = noteList.length
+    ? `<div style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-2)">
+        ${noteList.map(n => `<div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background=''" onclick="selectNoteForPost('${n.id}','${esc(n.title)}')">${esc(n.title||'Untitled')}</div>`).join('')}
+      </div>`
+    : '<div style="padding:12px;color:var(--text-3);font-size:12px">No notes to attach</div>';
+}
+
+function selectNoteForPost(id, title) {
+  postAttachedNoteId = id;
+  const el = document.getElementById('postAttachment');
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-soft);border-radius:var(--radius);font-size:13px">📄 ${title} <button onclick="postAttachedNoteId=null;document.getElementById('postAttachment').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-3)">✕</button></div>`;
+}
+
+async function submitPost() {
+  const content = document.getElementById('newPostContent')?.value?.trim();
+  if (!content) { toast('Write something first', 'info'); return; }
+  try {
+    const body = { content, post_type: 'share' };
+    if (postAttachedNoteId) body.shared_note_id = postAttachedNoteId;
+    const r = await fetch(API+'/community/posts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const d = await r.json();
+    if (d.error) { toast(d.error, 'error'); return; }
+    postAttachedNoteId = null;
+    toast('Posted!', 'success');
+    renderCommunity();
+  } catch(e) { toast('Failed to post', 'error'); }
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  try {
+    await fetch(API+'/community/posts/'+id, { method:'DELETE' });
+    communityPosts = communityPosts.filter(p => p.id !== id);
+    document.getElementById('post-'+id)?.remove();
+    toast('Post deleted', 'info');
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function togglePostLike(postId) {
+  try {
+    const r = await fetch(API+'/community/posts/'+postId+'/like', { method:'POST' });
+    const d = await r.json();
+    const post = communityPosts.find(p => p.id === postId);
+    if (post) {
+      post.user_liked = d.data?.liked;
+      post.likes_count = d.data?.liked ? (post.likes_count||0)+1 : Math.max(0,(post.likes_count||0)-1);
+    }
+    // Update UI inline
+    const btn = document.querySelector(`#post-${postId} .post-action`);
+    if (btn) btn.innerHTML = `${d.data?.liked?'❤️':'🤍'} <span>${post?.likes_count||0}</span>`;
+  } catch(e) {}
+}
+
+async function toggleComments(postId) {
+  const section = document.getElementById('comments-'+postId);
+  if (section.style.display === 'block') { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  section.innerHTML = '<div style="padding:8px;color:var(--text-3);font-size:12px">Loading...</div>';
+  try {
+    const r = await fetch(API+'/community/posts/'+postId+'/comments');
+    const d = await r.json();
+    const comments = d.data || [];
+    section.innerHTML = `
+      ${comments.map(c => `
+        <div class="post-comment">
+          <div class="comment-avatar" style="background:${c.avatar_color||'#7c5cfc'}20;color:${c.avatar_color||'#7c5cfc'}">${c.avatar_emoji||'👤'}</div>
+          <div class="comment-body">
+            <span class="comment-author">${esc(c.display_name||c.username)}</span> <span style="color:var(--text-3);font-size:11px">${formatDate(c.created_at)}</span>
+            <div class="comment-text">${esc(c.content)}</div>
+          </div>
+        </div>
+      `).join('')}
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="commentInput-${postId}" placeholder="Add a comment..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg-2);color:var(--text-1)" onkeydown="if(event.key==='Enter')submitComment('${postId}')">
+        <button class="settings-btn primary" onclick="submitComment('${postId}')" style="padding:6px 14px;font-size:12px">Send</button>
+      </div>
+    `;
+  } catch(e) { section.innerHTML = '<div style="padding:8px;color:var(--red);font-size:12px">Failed to load</div>'; }
+}
+
+async function submitComment(postId) {
+  const input = document.getElementById('commentInput-'+postId);
+  const content = input?.value?.trim();
+  if (!content) return;
+  try {
+    await fetch(API+'/community/posts/'+postId+'/comments', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ content }) });
+    input.value = '';
+    const post = communityPosts.find(p => p.id === postId);
+    if (post) post.comments_count = (post.comments_count||0) + 1;
+    toggleComments(postId); // refresh
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function loadMorePosts() {
+  communityPage++;
+  try {
+    const r = await fetch(API+'/community/feed?page='+communityPage);
+    const d = await r.json();
+    if (d.data?.length) {
+      communityPosts.push(...d.data);
+      document.getElementById('communityFeed').innerHTML = renderCommunityFeed();
+    } else { toast('No more posts', 'info'); }
+  } catch(e) {}
+}
+
+function sharePost(postId, text) {
+  const shareText = text + "\n\nShared from Fang's Vault · yulufang@sjtu.edu.cn";
+  if (navigator.share) {
+    navigator.share({ title: "From Fang's Vault Community", text: shareText });
+  } else {
+    navigator.clipboard.writeText(shareText);
+    toast('Copied to clipboard!', 'success');
+  }
+}
+
+// ===== SHARE NOTE =====
+function openShareModal(noteId, noteTitle) {
+  const up = userProfile;
+  const shareText = `${noteTitle}\n\nShared from Fang's Vault · yulufang@sjtu.edu.cn`;
+  const overlay = document.createElement('div');
+  overlay.className = 'share-modal-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="share-modal">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">📤 Share Note</h3>
+      <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);margin-bottom:16px;font-size:13px">
+        <div style="font-weight:600;margin-bottom:4px">${esc(noteTitle)}</div>
+        <div style="color:var(--text-3)">by ${esc(up.display_name||up.username||'Guest')}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="settings-btn" onclick="shareVia('twitter','${esc(noteTitle)}')" style="width:100%;background:var(--bg-2)">🐦 Share on X / Twitter</button>
+        <button class="settings-btn" onclick="shareVia('linkedin','${esc(noteTitle)}')" style="width:100%;background:var(--bg-2)">💼 Share on LinkedIn</button>
+        <button class="settings-btn" onclick="shareVia('wechat','${esc(noteTitle)}')" style="width:100%;background:var(--bg-2)">💬 Share on WeChat</button>
+        <button class="settings-btn" onclick="shareVia('copy','${esc(noteTitle)}')" style="width:100%;background:var(--bg-2)">📋 Copy Link</button>
+        ${navigator.share ? `<button class="settings-btn primary" onclick="shareVia('native','${esc(noteTitle)}')" style="width:100%">📤 Share...</button>` : ''}
+      </div>
+      <button onclick="this.closest('.share-modal-overlay').remove()" style="width:100%;margin-top:12px;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:none;color:var(--text-3);cursor:pointer;font-size:13px">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function shareVia(platform, title) {
+  const text = `${title} - Shared from Fang's Vault · yulufang@sjtu.edu.cn`;
+  const url = window.location.href;
+  switch(platform) {
+    case 'twitter': window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)); break;
+    case 'linkedin': window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'&summary='+encodeURIComponent(text)); break;
+    case 'wechat': navigator.clipboard.writeText(text+'\n'+url); toast('Copied! Paste in WeChat', 'success'); break;
+    case 'copy': navigator.clipboard.writeText(text+'\n'+url); toast('Copied to clipboard!', 'success'); break;
+    case 'native': navigator.share({ title, text, url }); break;
+  }
+  document.querySelector('.share-modal-overlay')?.remove();
+}
+
+// Post to community from note
+function shareNoteToCommunity(noteId, noteTitle) {
+  switchView('community');
+  setTimeout(() => {
+    const ta = document.getElementById('newPostContent');
+    if (ta) ta.value = `Just studied: ${noteTitle} 📚`;
+    postAttachedNoteId = noteId;
+    const el = document.getElementById('postAttachment');
+    if (el) {
+      el.style.display = 'block';
+      el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-soft);border-radius:var(--radius);font-size:13px">📄 ${noteTitle} <button onclick="postAttachedNoteId=null;document.getElementById('postAttachment').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-3)">✕</button></div>`;
+    }
+  }, 300);
 }
 
 // ===== MULTI-DEVICE SYNC =====
@@ -3052,11 +3801,11 @@ function calVisibleRange() {
     const start = new Date(calYear, calMonth, 1 - sd);
     const end = new Date(calYear, calMonth + 1, 0);
     end.setDate(end.getDate() + (6 - end.getDay()) + 1);
-    return { start: start.toISOString().substring(0,10), end: end.toISOString().substring(0,10) };
+    return { start: localDateStr(start), end: localDateStr(end) };
   } else {
     const ws = getWeekStart();
     const we = new Date(ws); we.setDate(we.getDate() + 7);
-    return { start: ws.toISOString().substring(0,10), end: we.toISOString().substring(0,10) };
+    return { start: localDateStr(ws), end: localDateStr(we) };
   }
 }
 
@@ -3078,11 +3827,14 @@ async function fetchCalStats() {
 
 function getItemsForDate(dateStr) {
   const evts = calEvents.filter(e => {
-    const s = (e.start_time||'').substring(0,10), en = (e.end_time||'').substring(0,10);
+    // Compare using local dates, not UTC
+    const s = localDateStr(e.start_time), en = localDateStr(e.end_time);
     return dateStr >= s && dateStr <= en;
   }).filter(e => calFilterCats.size === 0 || calFilterCats.has(e.category_id));
-  const tasks = calTasks.filter(t => t.due_date === dateStr || (t.due_date||'').substring(0,10) === dateStr)
-    .filter(t => calFilterCats.size === 0 || calFilterCats.has(t.category_id));
+  const tasks = calTasks.filter(t => {
+    const dd = (t.due_date||'').substring(0,10);
+    return dd === dateStr;
+  }).filter(t => calFilterCats.size === 0 || calFilterCats.has(t.category_id));
   return { events: evts, tasks };
 }
 
@@ -3160,7 +3912,7 @@ function getWeekStart() {
 function renderCalMonth() {
   const body = document.getElementById('calBody');
   const today = new Date();
-  const todayStr = today.toISOString().substring(0, 10);
+  const todayStr = localDateStr(today);
   const firstDay = new Date(calYear, calMonth, 1);
   const startDay = firstDay.getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
@@ -3216,7 +3968,7 @@ function renderCalMonth() {
 function renderCalWeek() {
   const body = document.getElementById('calBody');
   const today = new Date();
-  const todayStr = today.toISOString().substring(0, 10);
+  const todayStr = localDateStr(today);
   const nowH = today.getHours() + today.getMinutes()/60;
   const ws = getWeekStart();
   const days = [];
@@ -3227,7 +3979,7 @@ function renderCalWeek() {
   let html = '<div class="cal-week"><div class="cal-week-header">';
   html += '<div class="cal-week-header-cell" style="border-right:1px solid var(--border)"></div>';
   days.forEach(d => {
-    const ds = d.toISOString().substring(0,10);
+    const ds = localDateStr(d);
     const isToday = ds === todayStr;
     html += `<div class="cal-week-header-cell${isToday?' today-col':''}" style="border-right:1px solid var(--border)">${weekdayShort[d.getDay()]}<span class="day-num">${d.getDate()}</span></div>`;
   });
@@ -3241,18 +3993,23 @@ function renderCalWeek() {
     const label = h === 0 ? '12 AM' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h-12) + ' PM';
     html += `<div class="cal-hour-label">${label}</div>`;
     days.forEach((d, di) => {
-      const ds = d.toISOString().substring(0,10);
+      const ds = localDateStr(d);
       html += `<div class="cal-week-col"><div class="cal-week-slot" onclick="openCalModal('event','${ds}',${h})"></div></div>`;
     });
   }
   html += '</div></div>';
   body.innerHTML = html;
 
-  // Overlay events as positioned blocks
+  // Overlay events AND tasks as positioned blocks
   const weekBody = document.getElementById('calWeekBody');
   days.forEach((d, di) => {
-    const ds = d.toISOString().substring(0,10);
-    const {events} = getItemsForDate(ds);
+    const ds = localDateStr(d);
+    const {events, tasks} = getItemsForDate(ds);
+    const colWidth = (weekBody.offsetWidth - 56) / 7;
+    const left = 56 + di * colWidth + 2;
+    const width = colWidth - 4;
+
+    // Render events
     events.forEach(e => {
       const st = new Date(e.start_time), et = new Date(e.end_time);
       const startH = st.getHours() + st.getMinutes()/60;
@@ -3261,14 +4018,34 @@ function renderCalWeek() {
       const top = startH * slotH;
       const height = dur * slotH;
       const col = e.category_color || '#7c5cfc';
-      const left = 56 + di * ((weekBody.offsetWidth - 56) / 7) + 2;
-      const width = (weekBody.offsetWidth - 56) / 7 - 4;
       const el = document.createElement('div');
       el.className = 'cal-week-event';
       el.style.cssText = `top:${top}px;height:${height}px;left:${left}px;width:${width}px;position:absolute;background:${col}15;color:${col};border-left-color:${col}`;
       el.textContent = e.title;
       el.title = `${e.title}\n${st.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} - ${et.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
       el.onclick = () => openCalEditModal('event', e);
+      weekBody.appendChild(el);
+    });
+
+    // Render tasks as small blocks at their due_time (or top of day if no time)
+    tasks.forEach((t, ti) => {
+      const col = t.category_color || '#6b6494';
+      let taskH = 0; // default: top of day
+      if (t.due_time) {
+        const [hh, mm] = t.due_time.split(':').map(Number);
+        taskH = hh + (mm || 0) / 60;
+      }
+      const top = taskH * slotH;
+      const el = document.createElement('div');
+      el.className = 'cal-week-task';
+      el.style.cssText = `top:${top}px;left:${left}px;width:${width}px;position:absolute;
+        background:${col}12;color:${col};border-left:3px solid ${col};
+        padding:2px 6px;border-radius:4px;font-size:11px;cursor:pointer;
+        display:flex;align-items:center;gap:4px;height:20px;z-index:2;
+        ${t.completed ? 'opacity:.5;text-decoration:line-through;' : ''}`;
+      el.innerHTML = `<span style="font-size:10px">${t.completed ? '✓' : '○'}</span>${esc(t.title)}`;
+      el.title = `Task: ${t.title}${t.due_time ? ' at ' + t.due_time : ''}${t.completed ? ' (done)' : ''}`;
+      el.onclick = () => openCalEditModal('task', t);
       weekBody.appendChild(el);
     });
   });
@@ -3386,7 +4163,7 @@ async function toggleCalTask(id) {
 // Event/Task create modal
 function openCalModal(type, dateStr, hour) {
   const today = new Date();
-  if (!dateStr) dateStr = today.toISOString().substring(0,10);
+  if (!dateStr) dateStr = localDateStr(today);
   if (hour === undefined) hour = today.getHours();
   const catsHtml = calCategories.map((c,i) =>
     `<span class="cal-modal-cat${i===0?' selected':''}" data-id="${c.id}" style="background:${c.color}20;color:${c.color}" onclick="document.querySelectorAll('.cal-modal-cat').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')">${c.icon} ${esc(c.name)}</span>`
@@ -3431,11 +4208,22 @@ function getSelectedCatId() {
   return sel ? sel.dataset.id : null;
 }
 
+// Append local timezone offset to datetime-local value so PostgreSQL stores it correctly
+function withTzOffset(dtLocal) {
+  if (!dtLocal) return dtLocal;
+  const d = new Date(dtLocal);
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? '+' : '-';
+  const hh = String(Math.floor(Math.abs(off)/60)).padStart(2,'0');
+  const mm = String(Math.abs(off)%60).padStart(2,'0');
+  return dtLocal + sign + hh + ':' + mm;
+}
+
 async function saveCalEvent() {
   const title = document.getElementById('calEvtTitle')?.value?.trim();
   if (!title) { toast('Enter a title','info'); return; }
-  const start_time = document.getElementById('calEvtStart')?.value;
-  const end_time = document.getElementById('calEvtEnd')?.value;
+  const start_time = withTzOffset(document.getElementById('calEvtStart')?.value);
+  const end_time = withTzOffset(document.getElementById('calEvtEnd')?.value);
   const all_day = document.getElementById('calEvtAllDay')?.checked;
   const description = document.getElementById('calEvtDesc')?.value||'';
   const category_id = getSelectedCatId();
@@ -3476,8 +4264,8 @@ function openCalEditModal(type, item) {
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
   if (type === 'event') {
-    const st = item.start_time ? item.start_time.substring(0,16) : '';
-    const et = item.end_time ? item.end_time.substring(0,16) : '';
+    const st = item.start_time ? localDateTimeStr(item.start_time) : '';
+    const et = item.end_time ? localDateTimeStr(item.end_time) : '';
     overlay.innerHTML = `<div class="cal-modal"><h2>📅 Edit Event</h2>
       <div class="cal-modal-field"><label>Title</label><input id="calEvtTitle" value="${esc(item.title)}"></div>
       <div class="cal-modal-field"><label>Description</label><textarea id="calEvtDesc">${esc(item.description||'')}</textarea></div>
@@ -3509,7 +4297,7 @@ function openCalEditModal(type, item) {
 async function updateCalEvent(id) {
   const title = document.getElementById('calEvtTitle')?.value?.trim();
   if (!title) return;
-  const body = {title, description: document.getElementById('calEvtDesc')?.value||'', category_id: getSelectedCatId(), start_time: document.getElementById('calEvtStart')?.value, end_time: document.getElementById('calEvtEnd')?.value};
+  const body = {title, description: document.getElementById('calEvtDesc')?.value||'', category_id: getSelectedCatId(), start_time: withTzOffset(document.getElementById('calEvtStart')?.value), end_time: withTzOffset(document.getElementById('calEvtEnd')?.value)};
   try { await fetch(API+'/calendar/events/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); document.getElementById('calModalOverlay')?.remove(); toast('Updated','success'); renderCalendar(); } catch(e) { toast('Failed','error'); }
 }
 
@@ -3628,7 +4416,7 @@ function exportNotes(format) {
   let content, filename, type;
   if (format==='json') { content=JSON.stringify(notes,null,2); filename='vault-export.json'; type='application/json'; }
   else if (format==='markdown') { content=notes.map(n=>`# ${n.title||'Untitled'}\n\n${n.markdown||n.content||''}\n\n---\n`).join('\n'); filename='vault-export.md'; type='text/markdown'; }
-  else { content=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vault Export</title><style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>${notes.map(n=>`<h1>${esc(n.title||'Untitled')}</h1>${renderMarkdown(n.markdown||n.content||'')}<hr>`).join('')}</body></html>`; filename='vault-export.html'; type='text/html'; }
+  else { content=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Fang's Vault Export</title><style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>${notes.map(n=>`<h1>${esc(n.title||'Untitled')}</h1>${renderMarkdown(n.markdown||n.content||'')}<hr>`).join('')}</body></html>`; filename='vault-export.html'; type='text/html'; }
   const blob = new Blob([content], { type });
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
   toast(`Exported as ${format.toUpperCase()}`, 'success');
@@ -3639,6 +4427,16 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
 
 // ===== UTILS =====
+// Local date string helper — avoids toISOString() which converts to UTC
+function localDateStr(d) {
+  const dt = d instanceof Date ? d : new Date(d);
+  const y = dt.getFullYear(), m = String(dt.getMonth()+1).padStart(2,'0'), day = String(dt.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function localDateTimeStr(d) {
+  const dt = d instanceof Date ? d : new Date(d);
+  return localDateStr(dt) + 'T' + String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+}
 function esc(s) { if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function formatDate(d) {
   if(!d) return '';

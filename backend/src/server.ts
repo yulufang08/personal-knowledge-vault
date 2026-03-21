@@ -117,6 +117,7 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS note_links (
         source_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
         target_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+        link_type VARCHAR(20) DEFAULT 'wiki',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (source_note_id, target_note_id)
       );
@@ -255,6 +256,94 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_ai_config_user ON user_ai_config(user_id);
       CREATE INDEX IF NOT EXISTS idx_agent_conv_user ON agent_conversations(user_id, updated_at DESC);
       CREATE INDEX IF NOT EXISTS idx_agent_msg_conv ON agent_messages(conversation_id, created_at);
+
+      -- ===== COMMUNITY POSTS =====
+      CREATE TABLE IF NOT EXISTS community_posts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        post_type VARCHAR(20) DEFAULT 'share',
+        shared_note_id UUID REFERENCES notes(id) ON DELETE SET NULL,
+        image_url TEXT,
+        likes_count INT DEFAULT 0,
+        comments_count INT DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS community_likes (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, post_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS community_comments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- ===== CHECK-IN STREAKS =====
+      CREATE TABLE IF NOT EXISTS user_checkins (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        checkin_date DATE NOT NULL,
+        post_id UUID REFERENCES community_posts(id) ON DELETE SET NULL,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, checkin_date)
+      );
+
+      -- ===== REFERRAL SYSTEM =====
+      CREATE TABLE IF NOT EXISTS referral_rewards (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        referrer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        referred_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reward_days INT DEFAULT 7,
+        applied BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(referrer_id, referred_id)
+      );
+
+      -- ===== STUDENT VERIFICATION =====
+      CREATE TABLE IF NOT EXISTS student_verifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        student_email VARCHAR(255) NOT NULL,
+        verification_code VARCHAR(6) NOT NULL,
+        verified BOOLEAN DEFAULT false,
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id)
+      );
+
+      -- ===== FEEDBACK =====
+      CREATE TABLE IF NOT EXISTS user_feedback (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        category VARCHAR(50) DEFAULT 'feature',
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        votes INT DEFAULT 0,
+        admin_reply TEXT,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS feedback_votes (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        feedback_id UUID NOT NULL REFERENCES user_feedback(id) ON DELETE CASCADE,
+        PRIMARY KEY (user_id, feedback_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_community_posts_user ON community_posts(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_community_posts_created ON community_posts(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_community_comments_post ON community_comments(post_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_checkins_user ON user_checkins(user_id, checkin_date DESC);
+      CREATE INDEX IF NOT EXISTS idx_feedback_votes ON user_feedback(votes DESC, created_at DESC);
     `);
 
     // Add subscription column if it doesn't exist (migration for existing DBs)
@@ -268,14 +357,32 @@ async function initializeDatabase() {
       ALTER TABLE notes ADD COLUMN IF NOT EXISTS media_url TEXT;
       ALTER TABLE notes ADD COLUMN IF NOT EXISTS media_type VARCHAR(20);
       ALTER TABLE notes ADD COLUMN IF NOT EXISTS annotation TEXT;
+
+      -- Personalization columns
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS display_name VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_emoji VARCHAR(10) DEFAULT '👤';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_color VARCHAR(7) DEFAULT '#7c5cfc';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_agent_name VARCHAR(100) DEFAULT 'Fang''s AI';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_agent_emoji VARCHAR(10) DEFAULT '🧠';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_calls_me VARCHAR(100);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(20);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by UUID;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS checkin_streak INT DEFAULT 0;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS longest_streak INT DEFAULT 0;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS total_checkins INT DEFAULT 0;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS student_verified BOOLEAN DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS student_email VARCHAR(255);
     `);
 
     // Create default guest user
     await client.query(`
-      INSERT INTO users (id, email, username, password_hash, subscription)
-      VALUES ('00000000-0000-0000-0000-000000000001', 'guest@example.com', 'guest', 'no-password', 'free')
+      INSERT INTO users (id, email, username, password_hash, subscription, referral_code)
+      VALUES ('00000000-0000-0000-0000-000000000001', 'guest@example.com', 'guest', 'no-password', 'free', 'FANG-GUEST')
       ON CONFLICT (id) DO NOTHING
     `);
+    // Ensure referral code exists for guest
+    await client.query(`UPDATE users SET referral_code = 'FANG-GUEST' WHERE id = '00000000-0000-0000-0000-000000000001' AND referral_code IS NULL`);
 
     // Seed default calendar categories
     await client.query(`
@@ -364,7 +471,9 @@ app.get('/api/user/profile', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const userResult = await pool.query(
-      `SELECT id, email, username, subscription, subscription_expires_at, created_at FROM users WHERE id = $1`,
+      `SELECT id, email, username, subscription, subscription_expires_at, created_at,
+       display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me,
+       bio, referral_code, checkin_streak, longest_streak, total_checkins, student_verified, student_email FROM users WHERE id = $1`,
       [userId]
     );
     const noteCount = await pool.query(
@@ -374,6 +483,12 @@ app.get('/api/user/profile', async (req: Request, res: Response) => {
     const user = userResult.rows[0] || {};
     const isPro = user.subscription === 'pro' &&
       (!user.subscription_expires_at || new Date(user.subscription_expires_at) > new Date());
+    // Generate referral code if missing
+    if (!user.referral_code) {
+      const code = 'FANG-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      await pool.query('UPDATE users SET referral_code = $1 WHERE id = $2', [code, userId]);
+      user.referral_code = code;
+    }
     res.json({
       data: {
         ...user,
@@ -384,6 +499,31 @@ app.get('/api/user/profile', async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+// Update user profile / personalization
+app.put('/api/user/profile', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio } = req.body;
+    const r = await pool.query(
+      `UPDATE users SET
+        display_name = COALESCE($2, display_name),
+        avatar_emoji = COALESCE($3, avatar_emoji),
+        avatar_color = COALESCE($4, avatar_color),
+        ai_agent_name = COALESCE($5, ai_agent_name),
+        ai_agent_emoji = COALESCE($6, ai_agent_emoji),
+        ai_calls_me = COALESCE($7, ai_calls_me),
+        bio = COALESCE($8, bio),
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1
+       RETURNING display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio`,
+      [userId, display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio]
+    );
+    res.json({ data: r.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
@@ -439,6 +579,34 @@ app.get('/api/notes', async (req: Request, res: Response) => {
   }
 });
 
+// Helper: extract [[wiki links]] from markdown and save to note_links
+async function extractAndSaveLinks(noteId: string, userId: string, markdown: string) {
+  if (!markdown) return;
+  const wikiLinkRegex = /\[\[([^\]]+)\]\]/g;
+  const linkedTitles: string[] = [];
+  let match;
+  while ((match = wikiLinkRegex.exec(markdown)) !== null) {
+    linkedTitles.push(match[1].trim());
+  }
+  // Delete old wiki links for this note
+  await pool.query(`DELETE FROM note_links WHERE source_note_id = $1 AND link_type = 'wiki'`, [noteId]);
+  if (linkedTitles.length === 0) return;
+  // Find matching notes by title (case-insensitive, same user, not self)
+  for (const title of linkedTitles) {
+    const found = await pool.query(
+      `SELECT id FROM notes WHERE user_id = $1 AND LOWER(title) = LOWER($2) AND id != $3 AND deleted_at IS NULL LIMIT 1`,
+      [userId, title, noteId]
+    );
+    if (found.rows.length > 0) {
+      await pool.query(
+        `INSERT INTO note_links (source_note_id, target_note_id, link_type) VALUES ($1, $2, 'wiki')
+         ON CONFLICT (source_note_id, target_note_id) DO UPDATE SET link_type = 'wiki'`,
+        [noteId, found.rows[0].id]
+      );
+    }
+  }
+}
+
 app.post('/api/notes', async (req: Request, res: Response) => {
   try {
     const { title, content, markdown, tags, parent_id, item_type, media_url, media_type, annotation } = req.body;
@@ -483,6 +651,9 @@ app.post('/api/notes', async (req: Request, res: Response) => {
         );
       }
     }
+
+    // Extract [[wiki links]] and save to note_links
+    await extractAndSaveLinks(noteId, userId!, markdown || '');
 
     res.status(201).json({ data: result.rows[0] });
   } catch (error) {
@@ -575,6 +746,9 @@ app.put('/api/notes/:id', async (req: Request, res: Response) => {
       }
     }
 
+    // Extract [[wiki links]] and save to note_links
+    await extractAndSaveLinks(id, userId!, markdown || '');
+
     res.json({ data: result.rows[0] });
   } catch (error) {
     console.error('Error updating note:', error);
@@ -660,22 +834,76 @@ app.get('/api/graph', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const notesResult = await pool.query(
-      `SELECT id, title FROM notes WHERE user_id = $1 AND deleted_at IS NULL LIMIT 500`,
+      `SELECT id, title, parent_id, item_type FROM notes WHERE user_id = $1 AND deleted_at IS NULL LIMIT 500`,
       [userId]
     );
-    const linksResult = await pool.query(
-      `SELECT source_note_id, target_note_id FROM note_links
+
+    // 1. Wiki links (from note_links table)
+    const wikiLinksResult = await pool.query(
+      `SELECT source_note_id, target_note_id, 'wiki' as link_type FROM note_links
        WHERE source_note_id IN (SELECT id FROM notes WHERE user_id = $1 AND deleted_at IS NULL) LIMIT 1000`,
       [userId]
     );
+
+    // 2. Shared-tag edges: notes that share at least one tag
+    const tagLinksResult = await pool.query(
+      `SELECT DISTINCT nt1.note_id as source_note_id, nt2.note_id as target_note_id, 'tag' as link_type
+       FROM note_tags nt1
+       JOIN note_tags nt2 ON nt1.tag_id = nt2.tag_id AND nt1.note_id < nt2.note_id
+       WHERE nt1.note_id IN (SELECT id FROM notes WHERE user_id = $1 AND deleted_at IS NULL)
+         AND nt2.note_id IN (SELECT id FROM notes WHERE user_id = $1 AND deleted_at IS NULL)
+       LIMIT 1000`,
+      [userId]
+    );
+
+    // 3. Parent-child edges
+    const parentChildEdges = notesResult.rows
+      .filter(n => n.parent_id)
+      .map(n => ({ from: n.parent_id, to: n.id, type: 'parent' }));
+
+    // Combine all edges, dedup by from+to
+    const edgeMap = new Map<string, { from: string; to: string; type: string }>();
+    for (const l of wikiLinksResult.rows) {
+      const key = `${l.source_note_id}-${l.target_note_id}`;
+      edgeMap.set(key, { from: l.source_note_id, to: l.target_note_id, type: 'wiki' });
+    }
+    for (const l of tagLinksResult.rows) {
+      const key = `${l.source_note_id}-${l.target_note_id}`;
+      if (!edgeMap.has(key)) edgeMap.set(key, { from: l.source_note_id, to: l.target_note_id, type: 'tag' });
+    }
+    for (const e of parentChildEdges) {
+      const key = `${e.from}-${e.to}`;
+      if (!edgeMap.has(key)) edgeMap.set(key, e);
+    }
+
     res.json({
       data: {
-        nodes: notesResult.rows.map(n => ({ id: n.id, label: n.title })),
-        edges: linksResult.rows.map(l => ({ from: l.source_note_id, to: l.target_note_id }))
+        nodes: notesResult.rows.map(n => ({ id: n.id, label: n.title, type: n.item_type })),
+        edges: Array.from(edgeMap.values())
       }
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch graph' });
+  }
+});
+
+// Rebuild all wiki links for existing notes (one-time migration helper)
+app.post('/api/graph/rebuild', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const allNotes = await pool.query(
+      `SELECT id, markdown FROM notes WHERE user_id = $1 AND deleted_at IS NULL`,
+      [userId]
+    );
+    let linkCount = 0;
+    for (const note of allNotes.rows) {
+      await extractAndSaveLinks(note.id, userId!, note.markdown || '');
+      const wikiLinkRegex = /\[\[([^\]]+)\]\]/g;
+      let m; while ((m = wikiLinkRegex.exec(note.markdown || '')) !== null) linkCount++;
+    }
+    res.json({ message: `Rebuilt links for ${allNotes.rows.length} notes, found ${linkCount} wiki references` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to rebuild graph links' });
   }
 });
 
@@ -1423,9 +1651,14 @@ app.post('/api/agent/chat', async (req: Request, res: Response) => {
     let response: string;
 
     if (aiConfig) {
-      const systemPrompt = `You are a helpful knowledge assistant for a personal note-taking app called "Vault". The user has ${userNotes.length} notes.
+      // Fetch user personalization for agent
+      const profR = await pool.query('SELECT ai_agent_name, ai_calls_me, display_name FROM users WHERE id=$1', [userId]);
+      const prof = profR.rows[0] || {};
+      const agentName = prof.ai_agent_name || "Fang's AI";
+      const callsMe = prof.ai_calls_me || prof.display_name || '';
+      const systemPrompt = `You are "${agentName}", a helpful knowledge assistant for a personal knowledge base called "Fang's Vault" (by yulufang@sjtu.edu.cn).${callsMe ? ` Address the user as "${callsMe}".` : ''} The user has ${userNotes.length} notes.
 ${relevantNotes.length > 0 ? `\nRelevant notes found:\n${relevantNotes.map(n => `--- ${n.title} ---\n${n.content}`).join('\n\n')}` : ''}
-\nHelp the user explore, understand, and build on their knowledge. Reference specific notes when relevant. Be concise and insightful. Support both Chinese and English.`;
+\nHelp the user explore, understand, and build on their knowledge. Reference specific notes when relevant. Be concise and insightful. Support both Chinese and English. Stay in character as ${agentName}.`;
 
       const messages = [
         { role: 'system', content: systemPrompt },
@@ -1677,6 +1910,348 @@ app.get('/api/calendar/stats', authenticateToken, async (req: Request, res: Resp
     const totalHours = timeR.rows.reduce((s: number, r: any) => s + parseFloat(r.total_hours), 0);
     res.json({ data: { timeByCategory: timeR.rows, tasksByCategory: taskR.rows, totalHours: Math.round(totalHours * 10) / 10 } });
   } catch(e) { console.error(e); res.status(500).json({ error: 'Failed to fetch stats' }); }
+});
+
+// ===== COMMUNITY =====
+const CHECKIN_REWARD_MILESTONES: Record<number, number> = { 7: 3, 14: 5, 30: 7, 60: 14, 100: 30 }; // streak days -> pro days reward
+
+// Get community feed
+app.get('/api/community/feed', async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 0;
+    const limit = 20;
+    const r = await pool.query(
+      `SELECT p.*, u.username, u.display_name, u.avatar_emoji, u.avatar_color,
+       n.title as shared_note_title,
+       EXISTS(SELECT 1 FROM community_likes cl WHERE cl.post_id=p.id AND cl.user_id=$1) as user_liked
+       FROM community_posts p
+       JOIN users u ON p.user_id=u.id
+       LEFT JOIN notes n ON p.shared_note_id=n.id
+       ORDER BY p.created_at DESC LIMIT $2 OFFSET $3`,
+      [req.user.id, limit, page * limit]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch feed' }); }
+});
+
+// Create post
+app.post('/api/community/posts', async (req: Request, res: Response) => {
+  try {
+    const { content, post_type, shared_note_id, image_url } = req.body;
+    if (!content?.trim()) return res.status(400).json({ error: 'Content required' });
+    const r = await pool.query(
+      `INSERT INTO community_posts (user_id, content, post_type, shared_note_id, image_url)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [req.user.id, content.trim(), post_type || 'share', shared_note_id || null, image_url || null]
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to create post' }); }
+});
+
+// Delete own post
+app.delete('/api/community/posts/:id', async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM community_posts WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete post' }); }
+});
+
+// Like / unlike
+app.post('/api/community/posts/:id/like', async (req: Request, res: Response) => {
+  try {
+    const exists = await pool.query('SELECT 1 FROM community_likes WHERE user_id=$1 AND post_id=$2', [req.user.id, req.params.id]);
+    if (exists.rows.length) {
+      await pool.query('DELETE FROM community_likes WHERE user_id=$1 AND post_id=$2', [req.user.id, req.params.id]);
+      await pool.query('UPDATE community_posts SET likes_count=GREATEST(likes_count-1,0) WHERE id=$1', [req.params.id]);
+      res.json({ data: { liked: false } });
+    } else {
+      await pool.query('INSERT INTO community_likes (user_id,post_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [req.user.id, req.params.id]);
+      await pool.query('UPDATE community_posts SET likes_count=likes_count+1 WHERE id=$1', [req.params.id]);
+      res.json({ data: { liked: true } });
+    }
+  } catch(e) { res.status(500).json({ error: 'Failed to toggle like' }); }
+});
+
+// Get comments
+app.get('/api/community/posts/:id/comments', async (req: Request, res: Response) => {
+  try {
+    const r = await pool.query(
+      `SELECT c.*, u.username, u.display_name, u.avatar_emoji, u.avatar_color
+       FROM community_comments c JOIN users u ON c.user_id=u.id
+       WHERE c.post_id=$1 ORDER BY c.created_at`,
+      [req.params.id]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch comments' }); }
+});
+
+// Add comment
+app.post('/api/community/posts/:id/comments', async (req: Request, res: Response) => {
+  try {
+    const { content } = req.body;
+    if (!content?.trim()) return res.status(400).json({ error: 'Content required' });
+    const r = await pool.query(
+      `INSERT INTO community_comments (post_id,user_id,content) VALUES ($1,$2,$3) RETURNING *`,
+      [req.params.id, req.user.id, content.trim()]
+    );
+    await pool.query('UPDATE community_posts SET comments_count=comments_count+1 WHERE id=$1', [req.params.id]);
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to add comment' }); }
+});
+
+// ===== CHECK-IN =====
+app.post('/api/checkin', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const today = new Date().toISOString().substring(0, 10);
+    // Check if already checked in
+    const existing = await pool.query('SELECT 1 FROM user_checkins WHERE user_id=$1 AND checkin_date=$2', [userId, today]);
+    if (existing.rows.length) return res.json({ data: { already: true, message: 'Already checked in today' } });
+
+    // Auto-create a check-in post
+    const postR = await pool.query(
+      `INSERT INTO community_posts (user_id, content, post_type) VALUES ($1, $2, 'checkin') RETURNING id`,
+      [userId, req.body.message || `Checked in today! Keeping the streak going 🔥`]
+    );
+    await pool.query(
+      'INSERT INTO user_checkins (user_id, checkin_date, post_id) VALUES ($1,$2,$3)',
+      [userId, today, postR.rows[0].id]
+    );
+
+    // Calculate streak
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().substring(0, 10);
+    const hadYesterday = await pool.query('SELECT 1 FROM user_checkins WHERE user_id=$1 AND checkin_date=$2', [userId, yesterdayStr]);
+    const userR = await pool.query('SELECT checkin_streak, longest_streak, total_checkins FROM users WHERE id=$1', [userId]);
+    const prev = userR.rows[0] || { checkin_streak: 0, longest_streak: 0, total_checkins: 0 };
+    const newStreak = hadYesterday.rows.length ? prev.checkin_streak + 1 : 1;
+    const newLongest = Math.max(newStreak, prev.longest_streak);
+    const newTotal = prev.total_checkins + 1;
+
+    await pool.query(
+      'UPDATE users SET checkin_streak=$1, longest_streak=$2, total_checkins=$3 WHERE id=$4',
+      [newStreak, newLongest, newTotal, userId]
+    );
+
+    // Check milestone rewards
+    let rewardDays = 0;
+    for (const [milestone, days] of Object.entries(CHECKIN_REWARD_MILESTONES)) {
+      if (newStreak === parseInt(milestone)) { rewardDays = days; break; }
+    }
+    if (rewardDays > 0) {
+      const user = await pool.query('SELECT subscription_expires_at FROM users WHERE id=$1', [userId]);
+      const base = user.rows[0]?.subscription_expires_at && new Date(user.rows[0].subscription_expires_at) > new Date()
+        ? new Date(user.rows[0].subscription_expires_at) : new Date();
+      base.setDate(base.getDate() + rewardDays);
+      await pool.query("UPDATE users SET subscription='pro', subscription_expires_at=$1 WHERE id=$2", [base.toISOString(), userId]);
+    }
+
+    res.json({ data: { streak: newStreak, longest: newLongest, total: newTotal, rewardDays, message: rewardDays ? `🎉 ${newStreak}-day streak! +${rewardDays} days Pro!` : `🔥 ${newStreak}-day streak!` } });
+  } catch(e) { console.error(e); res.status(500).json({ error: 'Failed to check in' }); }
+});
+
+// Get check-in status
+app.get('/api/checkin/status', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const today = new Date().toISOString().substring(0, 10);
+    const checked = await pool.query('SELECT 1 FROM user_checkins WHERE user_id=$1 AND checkin_date=$2', [userId, today]);
+    const userR = await pool.query('SELECT checkin_streak, longest_streak, total_checkins FROM users WHERE id=$1', [userId]);
+    const u = userR.rows[0] || {};
+    // Get recent check-in dates for heatmap
+    const recent = await pool.query(
+      "SELECT checkin_date FROM user_checkins WHERE user_id=$1 AND checkin_date > CURRENT_DATE - INTERVAL '30 days' ORDER BY checkin_date",
+      [userId]
+    );
+    res.json({ data: { checkedInToday: !!checked.rows.length, streak: u.checkin_streak||0, longest: u.longest_streak||0, total: u.total_checkins||0, recentDates: recent.rows.map((r: any) => r.checkin_date), milestones: CHECKIN_REWARD_MILESTONES } });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch check-in status' }); }
+});
+
+// ===== REFERRAL SYSTEM =====
+app.post('/api/referral/apply', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Referral code required' });
+    // Find referrer
+    const referrer = await pool.query('SELECT id FROM users WHERE referral_code=$1 AND id!=$2', [code.toUpperCase(), userId]);
+    if (!referrer.rows.length) return res.status(404).json({ error: 'Invalid referral code' });
+    const referrerId = referrer.rows[0].id;
+    // Check not already referred
+    const existing = await pool.query('SELECT 1 FROM referral_rewards WHERE referred_id=$1', [userId]);
+    if (existing.rows.length) return res.status(400).json({ error: 'You have already used a referral code' });
+    // Create reward for both parties
+    const rewardDays = 7;
+    await pool.query(
+      'INSERT INTO referral_rewards (referrer_id, referred_id, reward_days, applied) VALUES ($1,$2,$3,true)',
+      [referrerId, userId, rewardDays]
+    );
+    await pool.query('UPDATE users SET referred_by=$1 WHERE id=$2', [referrerId, userId]);
+    // Add pro days to both users
+    for (const uid of [referrerId, userId]) {
+      const u = await pool.query('SELECT subscription_expires_at FROM users WHERE id=$1', [uid]);
+      const base = u.rows[0]?.subscription_expires_at && new Date(u.rows[0].subscription_expires_at) > new Date()
+        ? new Date(u.rows[0].subscription_expires_at) : new Date();
+      base.setDate(base.getDate() + rewardDays);
+      await pool.query("UPDATE users SET subscription='pro', subscription_expires_at=$1 WHERE id=$2", [base.toISOString(), uid]);
+    }
+    res.json({ data: { message: `Both you and your friend received ${rewardDays} days of Pro!`, rewardDays } });
+  } catch(e) { res.status(500).json({ error: 'Failed to apply referral' }); }
+});
+
+// Get referral info
+app.get('/api/referral/info', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const u = await pool.query('SELECT referral_code FROM users WHERE id=$1', [userId]);
+    const refs = await pool.query(
+      `SELECT rr.created_at, rr.reward_days, u.username, u.display_name, u.avatar_emoji
+       FROM referral_rewards rr JOIN users u ON rr.referred_id=u.id WHERE rr.referrer_id=$1 ORDER BY rr.created_at DESC`,
+      [userId]
+    );
+    const totalEarned = refs.rows.reduce((s: number, r: any) => s + r.reward_days, 0);
+    res.json({ data: { code: u.rows[0]?.referral_code, referrals: refs.rows, totalEarnedDays: totalEarned } });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch referral info' }); }
+});
+
+// ===== SHARE =====
+app.get('/api/notes/:id/share', async (req: Request, res: Response) => {
+  try {
+    const r = await pool.query(
+      `SELECT n.title, n.content, n.markdown, u.username, u.display_name, u.avatar_emoji
+       FROM notes n JOIN users u ON n.user_id=u.id WHERE n.id=$1 AND n.user_id=$2 AND n.deleted_at IS NULL`,
+      [req.params.id, req.user.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Note not found' });
+    const note = r.rows[0];
+    const shareText = `${note.title}\n\n${(note.markdown || note.content || '').substring(0, 280)}`;
+    res.json({ data: { title: note.title, text: shareText, author: note.display_name || note.username, authorEmoji: note.avatar_emoji } });
+  } catch(e) { res.status(500).json({ error: 'Failed to get share data' }); }
+});
+
+// ===== STUDENT EMAIL VERIFICATION =====
+const EDU_DOMAINS = ['edu.cn', 'edu', 'ac.uk', 'edu.au', 'edu.sg', 'edu.hk', 'edu.tw', 'ac.jp', 'ac.kr'];
+
+function isEduEmail(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase() || '';
+  return EDU_DOMAINS.some(edu => domain.endsWith(edu));
+}
+
+// Request student verification (sends a code)
+app.post('/api/student/verify-request', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { student_email } = req.body;
+    if (!student_email) return res.status(400).json({ error: 'Student email required' });
+    if (!isEduEmail(student_email)) return res.status(400).json({ error: 'Please use a valid student email (.edu.cn, .edu, .ac.uk, etc.)' });
+
+    // Check if already verified
+    const existing = await pool.query('SELECT student_verified FROM users WHERE id=$1', [userId]);
+    if (existing.rows[0]?.student_verified) return res.status(400).json({ error: 'Already verified as a student' });
+
+    // Generate 6-digit code
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min
+
+    await pool.query(
+      `INSERT INTO student_verifications (user_id, student_email, verification_code, expires_at)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) DO UPDATE SET student_email=$2, verification_code=$3, verified=false, expires_at=$4`,
+      [userId, student_email, code, expiresAt.toISOString()]
+    );
+
+    // In production, send email. For demo, return the code in response.
+    console.log(`[Student Verify] Code for ${student_email}: ${code}`);
+    res.json({ data: { message: 'Verification code sent to your student email!', hint: `Demo mode: your code is ${code}`, expiresIn: '30 minutes' } });
+  } catch(e) { console.error(e); res.status(500).json({ error: 'Failed to send verification' }); }
+});
+
+// Confirm verification code
+app.post('/api/student/verify-confirm', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Verification code required' });
+
+    const vr = await pool.query(
+      'SELECT * FROM student_verifications WHERE user_id=$1 AND verification_code=$2 AND verified=false AND expires_at > NOW()',
+      [userId, code]
+    );
+    if (!vr.rows.length) return res.status(400).json({ error: 'Invalid or expired verification code' });
+
+    // Mark as verified
+    await pool.query('UPDATE student_verifications SET verified=true WHERE user_id=$1', [userId]);
+    await pool.query('UPDATE users SET student_verified=true, student_email=$1 WHERE id=$2', [vr.rows[0].student_email, userId]);
+
+    // Grant 1 year of Pro
+    const expiresAt = new Date();
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    await pool.query(
+      "UPDATE users SET subscription='pro', subscription_expires_at=$1 WHERE id=$2",
+      [expiresAt.toISOString(), userId]
+    );
+
+    res.json({ data: { message: 'Student verified! You now have 1 year of Pro for free!', proExpires: expiresAt.toISOString() } });
+  } catch(e) { console.error(e); res.status(500).json({ error: 'Verification failed' }); }
+});
+
+// Get student verification status
+app.get('/api/student/status', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const u = await pool.query('SELECT student_verified, student_email FROM users WHERE id=$1', [userId]);
+    res.json({ data: { verified: u.rows[0]?.student_verified || false, email: u.rows[0]?.student_email || null } });
+  } catch(e) { res.status(500).json({ error: 'Failed to check status' }); }
+});
+
+// ===== FEEDBACK SYSTEM =====
+app.get('/api/feedback', async (req: Request, res: Response) => {
+  try {
+    const category = req.query.category as string;
+    const sort = req.query.sort === 'votes' ? 'f.votes DESC' : 'f.created_at DESC';
+    let q = `SELECT f.*, u.username, u.display_name, u.avatar_emoji, u.avatar_color,
+      EXISTS(SELECT 1 FROM feedback_votes fv WHERE fv.feedback_id=f.id AND fv.user_id=$1) as user_voted
+      FROM user_feedback f JOIN users u ON f.user_id=u.id`;
+    const params: any[] = [req.user.id];
+    if (category && category !== 'all') { q += ` WHERE f.category=$2`; params.push(category); }
+    q += ` ORDER BY ${sort} LIMIT 50`;
+    const r = await pool.query(q, params);
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch feedback' }); }
+});
+
+app.post('/api/feedback', async (req: Request, res: Response) => {
+  try {
+    const { title, content, category } = req.body;
+    if (!title?.trim() || !content?.trim()) return res.status(400).json({ error: 'Title and content required' });
+    const r = await pool.query(
+      'INSERT INTO user_feedback (user_id, title, content, category) VALUES ($1,$2,$3,$4) RETURNING *',
+      [req.user.id, title.trim(), content.trim(), category || 'feature']
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to submit feedback' }); }
+});
+
+app.post('/api/feedback/:id/vote', async (req: Request, res: Response) => {
+  try {
+    const exists = await pool.query('SELECT 1 FROM feedback_votes WHERE user_id=$1 AND feedback_id=$2', [req.user.id, req.params.id]);
+    if (exists.rows.length) {
+      await pool.query('DELETE FROM feedback_votes WHERE user_id=$1 AND feedback_id=$2', [req.user.id, req.params.id]);
+      await pool.query('UPDATE user_feedback SET votes=GREATEST(votes-1,0) WHERE id=$1', [req.params.id]);
+      res.json({ data: { voted: false } });
+    } else {
+      await pool.query('INSERT INTO feedback_votes (user_id,feedback_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [req.user.id, req.params.id]);
+      await pool.query('UPDATE user_feedback SET votes=votes+1 WHERE id=$1', [req.params.id]);
+      res.json({ data: { voted: true } });
+    }
+  } catch(e) { res.status(500).json({ error: 'Failed to vote' }); }
+});
+
+app.delete('/api/feedback/:id', async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM user_feedback WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete' }); }
 });
 
 // ===== ERROR HANDLING =====
