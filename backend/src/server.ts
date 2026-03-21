@@ -373,6 +373,17 @@ async function initializeDatabase() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS total_checkins INT DEFAULT 0;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS student_verified BOOLEAN DEFAULT false;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS student_email VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS theme_color VARCHAR(20) DEFAULT 'purple';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS font_size VARCHAR(10) DEFAULT 'medium';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS editor_font_family VARCHAR(50) DEFAULT 'default';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS startup_page VARCHAR(20) DEFAULT 'home';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS sidebar_collapsed BOOLEAN DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS show_word_count BOOLEAN DEFAULT true;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS show_line_numbers BOOLEAN DEFAULT false;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS spellcheck BOOLEAN DEFAULT true;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS date_format VARCHAR(20) DEFAULT 'YYYY-MM-DD';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'en';
     `);
 
     // Create default guest user
@@ -473,7 +484,9 @@ app.get('/api/user/profile', async (req: Request, res: Response) => {
     const userResult = await pool.query(
       `SELECT id, email, username, subscription, subscription_expires_at, created_at,
        display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me,
-       bio, referral_code, checkin_streak, longest_streak, total_checkins, student_verified, student_email FROM users WHERE id = $1`,
+       bio, referral_code, checkin_streak, longest_streak, total_checkins, student_verified, student_email,
+       theme_color, dark_mode, font_size, editor_font_family, startup_page, sidebar_collapsed,
+       show_word_count, show_line_numbers, spellcheck, date_format, language FROM users WHERE id = $1`,
       [userId]
     );
     const noteCount = await pool.query(
@@ -506,7 +519,9 @@ app.get('/api/user/profile', async (req: Request, res: Response) => {
 app.put('/api/user/profile', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio } = req.body;
+    const { display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio,
+            theme_color, dark_mode, font_size, editor_font_family, startup_page, sidebar_collapsed,
+            show_word_count, show_line_numbers, spellcheck, date_format, language } = req.body;
     const r = await pool.query(
       `UPDATE users SET
         display_name = COALESCE($2, display_name),
@@ -516,10 +531,25 @@ app.put('/api/user/profile', async (req: Request, res: Response) => {
         ai_agent_emoji = COALESCE($6, ai_agent_emoji),
         ai_calls_me = COALESCE($7, ai_calls_me),
         bio = COALESCE($8, bio),
+        theme_color = COALESCE($9, theme_color),
+        dark_mode = COALESCE($10, dark_mode),
+        font_size = COALESCE($11, font_size),
+        editor_font_family = COALESCE($12, editor_font_family),
+        startup_page = COALESCE($13, startup_page),
+        sidebar_collapsed = COALESCE($14, sidebar_collapsed),
+        show_word_count = COALESCE($15, show_word_count),
+        show_line_numbers = COALESCE($16, show_line_numbers),
+        spellcheck = COALESCE($17, spellcheck),
+        date_format = COALESCE($18, date_format),
+        language = COALESCE($19, language),
         updated_at = CURRENT_TIMESTAMP
        WHERE id = $1
-       RETURNING display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio`,
-      [userId, display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio]
+       RETURNING display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio,
+                 theme_color, dark_mode, font_size, editor_font_family, startup_page, sidebar_collapsed,
+                 show_word_count, show_line_numbers, spellcheck, date_format, language`,
+      [userId, display_name, avatar_emoji, avatar_color, ai_agent_name, ai_agent_emoji, ai_calls_me, bio,
+       theme_color, dark_mode, font_size, editor_font_family, startup_page, sidebar_collapsed,
+       show_word_count, show_line_numbers, spellcheck, date_format, language]
     );
     res.json({ data: r.rows[0] });
   } catch (error) {

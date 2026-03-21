@@ -24,15 +24,28 @@
   --gold:#f59e0b;--gold-soft:rgba(245,158,11,.08);
   --radius:12px;--radius-lg:16px;--radius-xl:20px;
   --shadow:0 2px 16px rgba(124,92,252,.08);
-  --shadow-lg:0 8px 32px rgba(124,92,252,.12);
+  --shadow-lg:0 8px 32px var(--accent-glow);
   --transition:all .28s cubic-bezier(.22,1,.36,1);
   --transition-fast:all .18s cubic-bezier(.22,1,.36,1);
   --transition-bounce:all .4s cubic-bezier(.34,1.56,.64,1);
   --gradient-fun:linear-gradient(135deg,#7c5cfc,#a78bfa,#c084fc,#e879f9);
   --gradient-card:linear-gradient(135deg,rgba(124,92,252,.04),rgba(236,72,153,.04));
+  --fs-base:14px;--fs-sm:13px;--fs-lg:16px;
 }
+/* ===== DARK MODE ===== */
+[data-theme="dark"]{
+  --bg-0:#0f0f14;--bg-1:#1a1a24;--bg-2:#22222e;--bg-3:#2c2c3a;--bg-4:#3a3a4c;
+  --text-0:#e8e6f0;--text-1:#c8c5d6;--text-2:#9590ad;--text-3:#6b6580;
+  --border:#2e2e3e;--border-hover:#3e3e52;
+  --shadow:0 2px 16px rgba(0,0,0,.25);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.35);
+  --gradient-card:linear-gradient(135deg,rgba(124,92,252,.06),rgba(236,72,153,.06));
+}
+/* ===== FONT SIZE ===== */
+[data-font-size="small"]{--fs-base:12px;--fs-sm:11px;--fs-lg:14px}
+[data-font-size="large"]{--fs-base:16px;--fs-sm:14px;--fs-lg:18px}
 html,body{height:100%;overflow:hidden;scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg-0);color:var(--text-0);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg-0);color:var(--text-0);font-size:var(--fs-base);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 ::selection{background:var(--accent);color:#fff}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -57,7 +70,7 @@ a{color:var(--accent);text-decoration:none}
   width:32px;height:32px;border-radius:10px;
   background:var(--gradient-fun);
   display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;
-  box-shadow:0 2px 8px rgba(124,92,252,.25);
+  box-shadow:var(--shadow);
 }
 .sidebar-brand h1{font-size:15px;font-weight:600;letter-spacing:-.3px}
 .sidebar-brand .badge{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--accent-soft);color:var(--accent);font-weight:600;margin-left:auto}
@@ -78,9 +91,9 @@ a{color:var(--accent);text-decoration:none}
   border-radius:var(--radius);border:none;
   background:var(--gradient-fun);
   color:#fff;cursor:pointer;font-size:13px;font-weight:500;
-  transition:var(--transition);box-shadow:0 2px 8px rgba(124,92,252,.2);
+  transition:var(--transition);box-shadow:var(--shadow);
 }
-.new-note-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.3)}
+.new-note-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:var(--shadow-lg)}
 
 /* Sidebar nav */
 .sidebar-section{padding:0 12px;margin-bottom:4px}
@@ -329,7 +342,7 @@ a{color:var(--accent);text-decoration:none}
 .modal-overlay.show{display:flex}
 .modal{
   background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px rgba(124,92,252,.12);
+  padding:32px;width:90%;max-width:440px;box-shadow:0 20px 60px var(--accent-glow);
 }
 .modal h2{font-size:18px;font-weight:600;margin-bottom:16px}
 .modal-option{
@@ -358,7 +371,7 @@ a{color:var(--accent);text-decoration:none}
   background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-xl);
   padding:32px;position:relative;transition:var(--transition);
 }
-.pricing-card.featured{border-color:var(--accent);box-shadow:0 4px 32px rgba(124,92,252,.15)}
+.pricing-card.featured{border-color:var(--accent);box-shadow:var(--shadow-lg)}
 .pricing-card.featured::before{
   content:'MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);
   background:var(--gradient-fun);color:#fff;
@@ -383,7 +396,7 @@ a{color:var(--accent);text-decoration:none}
 .plan-btn.free{background:var(--bg-3);color:var(--text-2)}
 .plan-btn.free:hover{background:var(--bg-4)}
 .plan-btn.pro{background:var(--gradient-fun);color:#fff}
-.plan-btn.pro:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.25)}
+.plan-btn.pro:hover{opacity:.92;transform:translateY(-1px);box-shadow:var(--shadow-lg)}
 
 /* ===== AI PANEL ===== */
 .ai-panel{
@@ -456,7 +469,7 @@ a{color:var(--accent);text-decoration:none}
 .daily-banner{
   margin:0 0 24px;padding:16px 20px;
   background:linear-gradient(135deg,rgba(124,92,252,.06),rgba(236,72,153,.04));
-  border:1px solid rgba(124,92,252,.12);border-radius:var(--radius-lg);
+  border:1px solid var(--accent-glow);border-radius:var(--radius-lg);
   display:flex;align-items:center;gap:12px;
 }
 .daily-banner .daily-icon{font-size:24px}
@@ -525,7 +538,7 @@ a{color:var(--accent);text-decoration:none}
 .ai-file-info .file-remove{cursor:pointer;color:var(--text-3);font-size:14px}
 .ai-file-info .file-remove:hover{color:var(--red)}
 .ai-analyze-btn{padding:14px;border:none;border-radius:var(--radius-lg);background:var(--gradient-fun);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
-.ai-analyze-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.3)}
+.ai-analyze-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:var(--shadow-lg)}
 .ai-analyze-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .ai-analyze-btn .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -545,7 +558,7 @@ a{color:var(--accent);text-decoration:none}
 .ai-key-point .kp-bar{margin-top:4px;height:3px;border-radius:2px;background:var(--bg-4);overflow:hidden}
 .ai-key-point .kp-bar-fill{height:100%;border-radius:2px;background:var(--gradient-fun)}
 .ai-highlight{display:inline;padding:1px 4px;border-radius:3px;font-weight:500}
-.ai-highlight.entity{background:rgba(124,92,252,.12);color:#7c5cfc}
+.ai-highlight.entity{background:var(--accent-glow);color:var(--accent)}
 .ai-highlight.quote{background:rgba(16,185,129,.1);color:#059669}
 .ai-highlight.emphasis{background:rgba(245,158,11,.1);color:#d97706}
 .ai-highlight.important{background:rgba(236,72,153,.1);color:#db2777}
@@ -651,7 +664,7 @@ a{color:var(--accent);text-decoration:none}
 .saved-config .sc-hint{font-size:11px;color:var(--text-3);font-family:var(--mono)}
 .settings-tab-btn{padding:8px 16px;border:none;border-radius:8px;background:transparent;color:var(--text-3);font-size:13px;font-weight:500;cursor:pointer;transition:var(--transition);white-space:nowrap}
 .settings-tab-btn:hover{color:var(--text-1);background:var(--bg-3)}
-.settings-tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(124,92,252,.25)}
+.settings-tab-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
 /* Community */
 .community-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:680px;margin:0 auto}
 .community-post{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:20px;margin-bottom:14px;transition:var(--transition)}
@@ -687,7 +700,7 @@ a{color:var(--accent);text-decoration:none}
 .sync-status-info h3{font-size:16px;font-weight:600;margin-bottom:2px}
 .sync-status-info p{font-size:13px;color:var(--text-3)}
 .sync-now-btn{padding:10px 24px;border:none;border-radius:var(--radius);background:var(--gradient-fun);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)}
-.sync-now-btn:hover{opacity:.92;box-shadow:0 4px 16px rgba(124,92,252,.25)}
+.sync-now-btn:hover{opacity:.92;box-shadow:var(--shadow-lg)}
 .device-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;transition:var(--transition)}
 .device-card:hover{border-color:var(--border-hover)}
 .device-card.current{border-color:var(--accent);background:var(--accent-soft)}
@@ -752,10 +765,10 @@ a{color:var(--accent);text-decoration:none}
 .cal-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;overflow-y:auto}
 .cal-day{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px 5px;min-height:85px;cursor:pointer;transition:background .15s;position:relative}
 .cal-day:nth-child(7n){border-right:none}
-.cal-day:hover{background:rgba(124,92,252,.03)}
+.cal-day:hover{background:var(--accent-soft)}
 .cal-day.other-month{background:var(--bg-2)}
 .cal-day.other-month .cal-day-num{color:var(--text-3);opacity:.5}
-.cal-day.today{background:rgba(124,92,252,.05)}
+.cal-day.today{background:var(--accent-soft)}
 .cal-day.today .cal-day-num{background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
 .cal-day-num{font-size:12px;font-weight:500;color:var(--text-1);margin-bottom:2px;line-height:24px}
 .cal-day.weekend .cal-day-num{color:var(--pink)}
@@ -798,7 +811,7 @@ a{color:var(--accent);text-decoration:none}
 .cal-hour-label{padding:2px 6px;font-size:10px;color:var(--text-3);text-align:right;border-right:1px solid var(--border);height:48px;border-bottom:1px solid rgba(228,224,246,.4)}
 .cal-week-col{border-right:1px solid var(--border);position:relative}
 .cal-week-slot{height:48px;border-bottom:1px solid rgba(228,224,246,.4);cursor:pointer;transition:background .1s}
-.cal-week-slot:hover{background:rgba(124,92,252,.03)}
+.cal-week-slot:hover{background:var(--accent-soft)}
 .cal-week-event{position:absolute;left:2px;right:2px;padding:2px 5px;border-radius:4px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;border-left:3px solid;line-height:1.3}
 .cal-week-event:hover{opacity:.85}
 .cal-time-now{position:absolute;left:56px;right:0;height:2px;background:var(--red);z-index:3;pointer-events:none}
@@ -1247,6 +1260,68 @@ function bindKeyboard() {
   });
 }
 
+// ===== THEME ENGINE =====
+const THEME_PRESETS = {
+  purple:  { accent:'#7c5cfc', hover:'#6a4af0', gradient:['#7c5cfc','#a78bfa','#c084fc','#e879f9'] },
+  blue:    { accent:'#3b82f6', hover:'#2563eb', gradient:['#3b82f6','#60a5fa','#93c5fd','#6366f1'] },
+  green:   { accent:'#10b981', hover:'#059669', gradient:['#10b981','#34d399','#6ee7b7','#14b8a6'] },
+  rose:    { accent:'#f43f5e', hover:'#e11d48', gradient:['#f43f5e','#fb7185','#fda4af','#ec4899'] },
+  orange:  { accent:'#f97316', hover:'#ea580c', gradient:['#f97316','#fb923c','#fdba74','#f59e0b'] },
+  teal:    { accent:'#14b8a6', hover:'#0d9488', gradient:['#14b8a6','#2dd4bf','#5eead4','#06b6d4'] },
+  indigo:  { accent:'#6366f1', hover:'#4f46e5', gradient:['#6366f1','#818cf8','#a5b4fc','#7c5cfc'] },
+  slate:   { accent:'#64748b', hover:'#475569', gradient:['#64748b','#94a3b8','#cbd5e1','#6b7280'] },
+  amber:   { accent:'#f59e0b', hover:'#d97706', gradient:['#f59e0b','#fbbf24','#fcd34d','#f97316'] },
+  cyan:    { accent:'#06b6d4', hover:'#0891b2', gradient:['#06b6d4','#22d3ee','#67e8f9','#3b82f6'] },
+};
+
+function applyTheme(opts) {
+  const el = document.documentElement;
+  // Dark mode
+  if (opts.dark_mode) { el.setAttribute('data-theme', 'dark'); } else { el.removeAttribute('data-theme'); }
+  // Font size
+  if (opts.font_size && opts.font_size !== 'medium') { el.setAttribute('data-font-size', opts.font_size); } else { el.removeAttribute('data-font-size'); }
+  // Theme color
+  const preset = THEME_PRESETS[opts.theme_color] || THEME_PRESETS.purple;
+  const [r,g,b] = hexToRgb(preset.accent);
+  el.style.setProperty('--accent', preset.accent);
+  el.style.setProperty('--accent-hover', preset.hover);
+  el.style.setProperty('--accent-soft', `rgba(${r},${g},${b},.08)`);
+  el.style.setProperty('--accent-glow', `rgba(${r},${g},${b},.18)`);
+  el.style.setProperty('--gradient-fun', `linear-gradient(135deg,${preset.gradient.join(',')})`);
+  el.style.setProperty('--shadow', `0 2px 16px rgba(${r},${g},${b},.08)`);
+  el.style.setProperty('--shadow-lg', `0 8px 32px rgba(${r},${g},${b},.12)`);
+  // Light mode backgrounds tinted with accent
+  if (!opts.dark_mode) {
+    el.style.setProperty('--bg-0', blendWithWhite(preset.accent, 0.02));
+    el.style.setProperty('--bg-2', blendWithWhite(preset.accent, 0.06));
+    el.style.setProperty('--bg-3', blendWithWhite(preset.accent, 0.10));
+    el.style.setProperty('--bg-4', blendWithWhite(preset.accent, 0.16));
+    el.style.setProperty('--border', blendWithWhite(preset.accent, 0.12));
+    el.style.setProperty('--border-hover', blendWithWhite(preset.accent, 0.20));
+  }
+  // Store locally for instant load next time
+  localStorage.setItem('fv-theme', JSON.stringify({ theme_color: opts.theme_color, dark_mode: opts.dark_mode, font_size: opts.font_size }));
+}
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
+
+function blendWithWhite(hex, alpha) {
+  const [r,g,b] = hexToRgb(hex);
+  const blend = (c) => Math.round(255 - alpha * (255 - c));
+  return `rgb(${blend(r)},${blend(g)},${blend(b)})`;
+}
+
+// Apply cached theme immediately to prevent flash
+(function() {
+  try {
+    const cached = JSON.parse(localStorage.getItem('fv-theme') || '{}');
+    if (cached.theme_color || cached.dark_mode || cached.font_size) applyTheme(cached);
+  } catch(e) {}
+})();
+
 // ===== USER PROFILE =====
 async function fetchProfile() {
   try {
@@ -1254,6 +1329,11 @@ async function fetchProfile() {
     const d = await r.json();
     if (d.data) {
       userProfile = d.data;
+      applyTheme({
+        theme_color: d.data.theme_color || 'purple',
+        dark_mode: d.data.dark_mode || false,
+        font_size: d.data.font_size || 'medium'
+      });
       updateUIForPlan();
     }
   } catch(e) { console.error('Failed to fetch profile:', e); }
@@ -1571,13 +1651,13 @@ function renderHome() {
         </div>
       </div>
       ${!userProfile.isPro ? `
-      <div style="margin-top:16px;padding:20px;background:linear-gradient(135deg,rgba(124,92,252,.05),rgba(236,72,153,.04));border:1px solid rgba(124,92,252,.1);border-radius:var(--radius-lg);display:flex;align-items:center;gap:16px">
+      <div style="margin-top:16px;padding:20px;background:linear-gradient(135deg,var(--accent-soft),rgba(236,72,153,.04));border:1px solid rgba(124,92,252,.1);border-radius:var(--radius-lg);display:flex;align-items:center;gap:16px">
         <div style="font-size:32px">⚡</div>
         <div style="flex:1">
           <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of Fang's Vault</h3>
           <p style="font-size:13px;color:var(--text-3)">AI assistant, version history, analytics & unlimited notes</p>
         </div>
-        <button onclick="switchView('pricing')" style="padding:8px 20px;border-radius:8px;border:none;background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(124,92,252,.2)">See Plans</button>
+        <button onclick="switchView('pricing')" style="padding:8px 20px;border-radius:8px;border:none;background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:13px;font-weight:600;box-shadow:var(--shadow)">See Plans</button>
       </div>` : ''}
       <div style="margin-top:32px">
         <h3 style="font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text-2)">Recent Notes</h3>
@@ -2291,11 +2371,11 @@ function drawGraph(g) {
     });
   }
 
-  const edgeColors = { wiki: 'rgba(124,92,252,0.4)', tag: 'rgba(245,158,11,0.35)', parent: 'rgba(96,165,250,0.4)' };
+  const edgeColors = { wiki: 'var(--accent-glow)', tag: 'rgba(245,158,11,0.35)', parent: 'rgba(96,165,250,0.4)' };
   const edgeWidths = { wiki: 2, tag: 1.2, parent: 1.5 };
   g.edges.forEach(e => {
     const a=nodeMap[e.from],b=nodeMap[e.to]; if(!a||!b)return;
-    ctx.strokeStyle = edgeColors[e.type] || 'rgba(124,92,252,0.25)';
+    ctx.strokeStyle = edgeColors[e.type] || 'var(--accent-glow)';
     ctx.lineWidth = edgeWidths[e.type] || 1.5;
     if (e.type === 'tag') { ctx.setLineDash([4,4]); } else { ctx.setLineDash([]); }
     ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
@@ -2793,7 +2873,7 @@ const AI_PROVIDERS = [
   { id:'custom', name:'Custom / Self-hosted', icon:'⚙️', desc:'OpenAI-compatible API', models:[] },
 ];
 
-let settingsTab = 'profile'; // profile | ai | referral
+let settingsTab = 'appearance'; // appearance | general | profile | ai | student | checkin | referral | feedback
 
 async function renderSettings() {
   const m = document.getElementById('mainContent');
@@ -2836,6 +2916,8 @@ async function renderSettings() {
       </div>
 
       <div style="display:flex;gap:4px;margin:16px 0;padding:4px;background:var(--bg-2);border-radius:10px;overflow-x:auto">
+        ${tabBtn('appearance','🎨','Appearance')}
+        ${tabBtn('general','⚙️','General')}
         ${tabBtn('profile','👤','Profile')}
         ${tabBtn('ai','🤖','AI Config')}
         ${tabBtn('student','🎓','Student')}
@@ -2850,7 +2932,181 @@ async function renderSettings() {
 
   const tc = document.getElementById('settingsTabContent');
 
-  if (settingsTab === 'profile') {
+  if (settingsTab === 'appearance') {
+    const currentTheme = up.theme_color || 'purple';
+    const isDark = up.dark_mode || false;
+    const currentFs = up.font_size || 'medium';
+    const themes = [
+      { id:'purple', label:'Purple',  color:'#7c5cfc' },
+      { id:'blue',   label:'Blue',    color:'#3b82f6' },
+      { id:'green',  label:'Green',   color:'#10b981' },
+      { id:'rose',   label:'Rose',    color:'#f43f5e' },
+      { id:'orange', label:'Orange',  color:'#f97316' },
+      { id:'teal',   label:'Teal',    color:'#14b8a6' },
+      { id:'indigo', label:'Indigo',  color:'#6366f1' },
+      { id:'slate',  label:'Slate',   color:'#64748b' },
+      { id:'amber',  label:'Amber',   color:'#f59e0b' },
+      { id:'cyan',   label:'Cyan',    color:'#06b6d4' },
+    ];
+    tc.innerHTML = `
+      <div class="settings-card">
+        <h3>🎨 Theme Color</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">Choose an accent color for your workspace</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px">
+          ${themes.map(t => `
+            <div onclick="setThemeColor('${t.id}')" style="cursor:pointer;padding:12px 8px;border-radius:var(--radius);border:2px solid ${currentTheme===t.id?t.color:'var(--border)'};background:${currentTheme===t.id?t.color+'12':'var(--bg-2)'};text-align:center;transition:all .2s">
+              <div style="width:36px;height:36px;border-radius:50%;background:${t.color};margin:0 auto 6px;box-shadow:0 2px 8px ${t.color}40"></div>
+              <div style="font-size:12px;font-weight:${currentTheme===t.id?'600':'400'};color:${currentTheme===t.id?t.color:'var(--text-2)'}">${t.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🌓 Dark Mode</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+          <div>
+            <div style="font-weight:500">Dark Mode</div>
+            <div style="font-size:12px;color:var(--text-3)">Easier on the eyes in low-light environments</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+            <input type="checkbox" id="darkModeToggle" ${isDark?'checked':''} onchange="toggleDarkMode(this.checked)" style="opacity:0;width:0;height:0">
+            <span style="position:absolute;inset:0;border-radius:14px;background:${isDark?'var(--accent)':'var(--bg-4)'};transition:all .3s"></span>
+            <span style="position:absolute;top:3px;left:${isDark?'26px':'3px'};width:22px;height:22px;border-radius:50%;background:#fff;transition:all .3s;box-shadow:0 1px 3px rgba(0,0,0,.15)"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🔤 Font Size</h3>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          ${['small','medium','large'].map(s => `
+            <button onclick="setFontSize('${s}')" style="flex:1;padding:10px;border-radius:var(--radius);border:2px solid ${currentFs===s?'var(--accent)':'var(--border)'};background:${currentFs===s?'var(--accent-soft)':'var(--bg-2)'};color:${currentFs===s?'var(--accent)':'var(--text-2)'};cursor:pointer;font-weight:${currentFs===s?'600':'400'};font-size:${s==='small'?'12px':s==='large'?'16px':'14px'};transition:all .2s">
+              Aa <span style="display:block;font-size:11px;margin-top:2px">${s.charAt(0).toUpperCase()+s.slice(1)}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (settingsTab === 'general') {
+    const currentStartup = up.startup_page || 'home';
+    const currentDateFmt = up.date_format || 'YYYY-MM-DD';
+    const currentLang = up.language || 'en';
+    const showWc = up.show_word_count !== false;
+    const showLn = up.show_line_numbers || false;
+    const spellchk = up.spellcheck !== false;
+    const currentEditorFont = up.editor_font_family || 'default';
+    tc.innerHTML = `
+      <div class="settings-card">
+        <h3>🏠 Startup Page</h3>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:12px">Choose which view opens when you launch the app</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${[{id:'home',icon:'🏠',label:'Home'},{id:'notes',icon:'📄',label:'All Notes'},{id:'calendar',icon:'📅',label:'Calendar'},{id:'graph',icon:'🔮',label:'Graph View'},{id:'agent',icon:'🧠',label:'AI Agent'}].map(p => `
+            <button onclick="saveSetting('startup_page','${p.id}')" style="padding:8px 14px;border-radius:var(--radius);border:2px solid ${currentStartup===p.id?'var(--accent)':'var(--border)'};background:${currentStartup===p.id?'var(--accent-soft)':'var(--bg-2)'};color:${currentStartup===p.id?'var(--accent)':'var(--text-2)'};cursor:pointer;font-size:13px;font-weight:${currentStartup===p.id?'600':'400'};transition:all .2s">
+              ${p.icon} ${p.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>✏️ Editor</h3>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-weight:500">Word Count</div><div style="font-size:12px;color:var(--text-3)">Show word count in the editor footer</div></div>
+            <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+              <input type="checkbox" ${showWc?'checked':''} onchange="saveSetting('show_word_count',this.checked)" style="opacity:0;width:0;height:0">
+              <span style="position:absolute;inset:0;border-radius:14px;background:${showWc?'var(--accent)':'var(--bg-4)'};transition:all .3s"></span>
+              <span style="position:absolute;top:3px;left:${showWc?'26px':'3px'};width:22px;height:22px;border-radius:50%;background:#fff;transition:all .3s;box-shadow:0 1px 3px rgba(0,0,0,.15)"></span>
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-weight:500">Spellcheck</div><div style="font-size:12px;color:var(--text-3)">Enable browser spellcheck in editor</div></div>
+            <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+              <input type="checkbox" ${spellchk?'checked':''} onchange="saveSetting('spellcheck',this.checked)" style="opacity:0;width:0;height:0">
+              <span style="position:absolute;inset:0;border-radius:14px;background:${spellchk?'var(--accent)':'var(--bg-4)'};transition:all .3s"></span>
+              <span style="position:absolute;top:3px;left:${spellchk?'26px':'3px'};width:22px;height:22px;border-radius:50%;background:#fff;transition:all .3s;box-shadow:0 1px 3px rgba(0,0,0,.15)"></span>
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-weight:500">Line Numbers</div><div style="font-size:12px;color:var(--text-3)">Show line numbers in code blocks</div></div>
+            <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+              <input type="checkbox" ${showLn?'checked':''} onchange="saveSetting('show_line_numbers',this.checked)" style="opacity:0;width:0;height:0">
+              <span style="position:absolute;inset:0;border-radius:14px;background:${showLn?'var(--accent)':'var(--bg-4)'};transition:all .3s"></span>
+              <span style="position:absolute;top:3px;left:${showLn?'26px':'3px'};width:22px;height:22px;border-radius:50%;background:#fff;transition:all .3s;box-shadow:0 1px 3px rgba(0,0,0,.15)"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-field" style="margin-top:16px">
+          <label>Editor Font</label>
+          <select class="settings-input" onchange="saveSetting('editor_font_family',this.value)" style="cursor:pointer">
+            <option value="default" ${currentEditorFont==='default'?'selected':''}>System Default</option>
+            <option value="mono" ${currentEditorFont==='mono'?'selected':''}>JetBrains Mono</option>
+            <option value="serif" ${currentEditorFont==='serif'?'selected':''}>Georgia (Serif)</option>
+            <option value="sans" ${currentEditorFont==='sans'?'selected':''}>Inter (Sans-serif)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🌍 Locale</h3>
+        <div class="settings-field">
+          <label>Date Format</label>
+          <select class="settings-input" onchange="saveSetting('date_format',this.value)" style="cursor:pointer">
+            <option value="YYYY-MM-DD" ${currentDateFmt==='YYYY-MM-DD'?'selected':''}>2026-03-21 (ISO)</option>
+            <option value="MM/DD/YYYY" ${currentDateFmt==='MM/DD/YYYY'?'selected':''}>03/21/2026 (US)</option>
+            <option value="DD/MM/YYYY" ${currentDateFmt==='DD/MM/YYYY'?'selected':''}>21/03/2026 (EU)</option>
+            <option value="DD.MM.YYYY" ${currentDateFmt==='DD.MM.YYYY'?'selected':''}>21.03.2026 (DE)</option>
+            <option value="YYYY年MM月DD日" ${currentDateFmt==='YYYY年MM月DD日'?'selected':''}>2026年03月21日 (CN)</option>
+          </select>
+        </div>
+        <div class="settings-field">
+          <label>Language</label>
+          <select class="settings-input" onchange="saveSetting('language',this.value)" style="cursor:pointer">
+            <option value="en" ${currentLang==='en'?'selected':''}>English</option>
+            <option value="zh" ${currentLang==='zh'?'selected':''}>中文</option>
+            <option value="ja" ${currentLang==='ja'?'selected':''}>日本語</option>
+            <option value="ko" ${currentLang==='ko'?'selected':''}>한국어</option>
+            <option value="fr" ${currentLang==='fr'?'selected':''}>Français</option>
+            <option value="de" ${currentLang==='de'?'selected':''}>Deutsch</option>
+            <option value="es" ${currentLang==='es'?'selected':''}>Español</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>📦 Data</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="settings-btn" onclick="exportAllNotes()" style="flex:1;min-width:140px">📥 Export All Notes</button>
+          <button class="settings-btn danger" onclick="if(confirm('Are you sure you want to delete all notes? This cannot be undone.'))deleteAllNotes()" style="flex:1;min-width:140px">🗑️ Delete All Notes</button>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:var(--bg-2);border-radius:8px;font-size:12px;color:var(--text-3)">
+          📊 Total Notes: ${userProfile.noteCount || 0} · Plan: ${userProfile.isPro ? 'Pro ⚡' : 'Free'} · Limit: ${userProfile.isPro ? 'Unlimited' : userProfile.noteLimit}
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <div style="display:grid;gap:8px;font-size:13px">
+          ${[
+            ['Ctrl + K', 'Command Palette'],
+            ['Ctrl + N', 'New Note'],
+            ['Ctrl + S', 'Save Note'],
+            ['Ctrl + B', 'Bold Text'],
+            ['Ctrl + I', 'Italic Text'],
+            ['Ctrl + Shift + S', 'Strikethrough'],
+            ['Ctrl + Shift + C', 'Code Block'],
+            ['Esc', 'Close Modal / Go Back'],
+          ].map(([key, desc]) => `
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-2)">${desc}</span>
+              <kbd style="padding:2px 8px;border-radius:6px;background:var(--bg-3);font-family:var(--mono);font-size:11px;color:var(--text-1)">${key}</kbd>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (settingsTab === 'profile') {
     tc.innerHTML = `
       <!-- Avatar & Name -->
       <div class="settings-card">
@@ -3150,6 +3406,66 @@ function pickColor(type, color, el) {
     const prev = document.getElementById('previewAvatar');
     if (prev) { prev.style.background = color + '20'; prev.style.borderColor = color + '40'; }
   }
+}
+
+async function setThemeColor(color) {
+  userProfile.theme_color = color;
+  applyTheme({ theme_color: color, dark_mode: userProfile.dark_mode, font_size: userProfile.font_size });
+  await saveSetting('theme_color', color);
+  renderSettings();
+}
+
+async function toggleDarkMode(enabled) {
+  userProfile.dark_mode = enabled;
+  applyTheme({ theme_color: userProfile.theme_color, dark_mode: enabled, font_size: userProfile.font_size });
+  await saveSetting('dark_mode', enabled);
+  renderSettings();
+}
+
+async function setFontSize(size) {
+  userProfile.font_size = size;
+  applyTheme({ theme_color: userProfile.theme_color, dark_mode: userProfile.dark_mode, font_size: size });
+  await saveSetting('font_size', size);
+  renderSettings();
+}
+
+async function saveSetting(key, value) {
+  userProfile[key] = value;
+  try {
+    const body = {};
+    body[key] = value;
+    await fetch(API+'/user/profile', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    toast('Setting saved', 'success');
+  } catch(e) { toast('Failed to save', 'error'); }
+}
+
+async function exportAllNotes() {
+  try {
+    const r = await fetch(API+'/notes');
+    const d = await r.json();
+    const exportData = (d.data || []).map(n => ({
+      title: n.title, content: n.content, markdown: n.markdown,
+      tags: n.tags, created_at: n.created_at, updated_at: n.updated_at
+    }));
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `fangs-vault-export-${localDateStr(new Date())}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast(`Exported ${exportData.length} notes`, 'success');
+  } catch(e) { toast('Export failed', 'error'); }
+}
+
+async function deleteAllNotes() {
+  try {
+    const r = await fetch(API+'/notes');
+    const d = await r.json();
+    for (const n of (d.data || [])) {
+      await fetch(API+'/notes/'+n.id, { method:'DELETE' });
+    }
+    notes = [];
+    toast('All notes deleted', 'success');
+    switchView('home');
+  } catch(e) { toast('Failed to delete', 'error'); }
 }
 
 async function saveProfile() {
