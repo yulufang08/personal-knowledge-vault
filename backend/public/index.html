@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>yulufang@sjtu.edu.cn — Personal Knowledge Base</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -47,7 +49,7 @@
 [data-font-size="large"]{--fs-base:16px;--fs-sm:14px;--fs-lg:18px}
 html,body{height:100%;overflow:hidden;scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg-0);color:var(--text-0);font-size:var(--fs-base);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
-::selection{background:var(--accent);color:#fff}
+::selection{background:var(--accent);color:var(--accent-text,#fff)}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:10px;transition:background .2s}
@@ -161,7 +163,7 @@ a{color:var(--accent);text-decoration:none}
   display:flex;align-items:center;gap:5px;transition:var(--transition);
 }
 .topbar-btn:hover{background:var(--bg-3);color:var(--text-1);border-color:var(--border-hover)}
-.topbar-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.topbar-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text,#fff)}
 .topbar-btn.primary:hover{background:var(--accent-hover)}
 .topbar-btn.danger{border-color:var(--red);color:var(--red)}
 .topbar-btn.danger:hover{background:var(--red-soft)}
@@ -653,7 +655,7 @@ a{color:var(--accent);text-decoration:none}
 .settings-select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;background:var(--bg-0);color:var(--text-0);cursor:pointer}
 .settings-btn-row{display:flex;gap:8px;margin-top:16px}
 .settings-btn{padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid var(--border)}
-.settings-btn.primary{background:var(--gradient-fun);color:#fff;border:none}
+.settings-btn.primary{background:var(--gradient-fun);color:var(--accent-text,#fff);border:none}
 .settings-btn.primary:hover{opacity:.9}
 .settings-btn.danger{border-color:var(--red);color:var(--red);background:transparent}
 .settings-btn.danger:hover{background:var(--red-soft)}
@@ -665,7 +667,7 @@ a{color:var(--accent);text-decoration:none}
 .saved-config .sc-hint{font-size:11px;color:var(--text-3);font-family:var(--mono)}
 .settings-tab-btn{padding:8px 16px;border:none;border-radius:8px;background:transparent;color:var(--text-3);font-size:13px;font-weight:500;cursor:pointer;transition:var(--transition);white-space:nowrap}
 .settings-tab-btn:hover{color:var(--text-1);background:var(--bg-3)}
-.settings-tab-btn.active{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+.settings-tab-btn.active{background:var(--accent);color:var(--accent-text,#fff);box-shadow:var(--shadow)}
 /* Community */
 .community-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:680px;margin:0 auto}
 .community-post{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:20px;margin-bottom:14px;transition:var(--transition)}
@@ -771,7 +773,7 @@ a{color:var(--accent);text-decoration:none}
 .pdf-ai-input input:focus{border-color:var(--accent)}
 .pdf-ai-input button{padding:8px 14px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;font-weight:600}
 /* ===== NOTE MULTI-SELECT ===== */
-.note-select-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--accent);color:#fff;border-radius:var(--radius);margin-bottom:12px;font-size:13px}
+.note-select-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--accent);color:var(--accent-text,#fff);border-radius:var(--radius);margin-bottom:12px;font-size:13px}
 .note-select-bar button{padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:12px;transition:var(--transition)}
 .note-select-bar button:hover{background:rgba(255,255,255,.25)}
 .note-select-bar button.danger{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.3)}
@@ -1378,6 +1380,7 @@ const THEME_PRESETS = {
   slate:   { accent:'#64748b', hover:'#475569', gradient:['#64748b','#94a3b8','#cbd5e1','#6b7280'] },
   amber:   { accent:'#f59e0b', hover:'#d97706', gradient:['#f59e0b','#fbbf24','#fcd34d','#f97316'] },
   cyan:    { accent:'#06b6d4', hover:'#0891b2', gradient:['#06b6d4','#22d3ee','#67e8f9','#3b82f6'] },
+  meituan: { accent:'#FFD100', hover:'#FFC000', gradient:['#FFD100','#FFE033','#FFEB66','#FF9500'] },
 };
 
 function applyTheme(opts) {
@@ -1396,6 +1399,9 @@ function applyTheme(opts) {
   el.style.setProperty('--gradient-fun', `linear-gradient(135deg,${preset.gradient.join(',')})`);
   el.style.setProperty('--shadow', `0 2px 16px rgba(${r},${g},${b},.08)`);
   el.style.setProperty('--shadow-lg', `0 8px 32px rgba(${r},${g},${b},.12)`);
+  // For light accent colors (like Meituan yellow), use dark text on accent backgrounds
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  el.style.setProperty('--accent-text', lum > 0.6 ? '#1a1a1a' : '#ffffff');
   // Light mode backgrounds tinted with accent
   if (!opts.dark_mode) {
     el.style.setProperty('--bg-0', blendWithWhite(preset.accent, 0.02));
@@ -2096,9 +2102,38 @@ function renderEditor() {
     </div>` : ''}
     <div id="aiPanelSlot"></div>
     <div id="versionPanelSlot"></div>
+    <div class="editor-format-bar" style="display:flex;align-items:center;gap:2px;padding:4px 48px;border-bottom:1px solid var(--border);background:var(--bg-1);flex-wrap:wrap">
+      <button onclick="editorInsert('**','**')" title="Bold (Ctrl+B)" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-weight:700;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">B</button>
+      <button onclick="editorInsert('*','*')" title="Italic (Ctrl+I)" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-style:italic;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">I</button>
+      <button onclick="editorInsert('~~','~~')" title="Strikethrough" style="padding:4px 8px;border:none;background:none;cursor:pointer;text-decoration:line-through;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">S</button>
+      <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+      <button onclick="editorInsertLine('# ')" title="Heading 1" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:700;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">H1</button>
+      <button onclick="editorInsertLine('## ')" title="Heading 2" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">H2</button>
+      <button onclick="editorInsertLine('### ')" title="Heading 3" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">H3</button>
+      <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+      <button onclick="editorInsertLine('- ')" title="Bullet List" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">•</button>
+      <button onclick="editorInsertLine('1. ')" title="Numbered List" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">1.</button>
+      <button onclick="editorInsertLine('- [ ] ')" title="Task" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">☐</button>
+      <button onclick="editorInsertLine('> ')" title="Quote" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">❝</button>
+      <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+      <button onclick="editorInsert('\`','\`')" title="Inline Code" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">&lt;/&gt;</button>
+      <button onclick="editorInsertBlock('\`\`\`\\n','\\n\`\`\`')" title="Code Block" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:12px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">{ }</button>
+      <button onclick="editorInsert('$','$')" title="Inline LaTeX" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;font-style:italic;color:var(--text-2);border-radius:4px;font-family:serif" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">∑</button>
+      <button onclick="editorInsertBlock('$$\\n','\\n$$')" title="LaTeX Block" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:12px;color:var(--text-2);border-radius:4px;font-family:serif" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">∫dx</button>
+      <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+      <button onclick="editorInsertLink()" title="Insert Link" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">🔗</button>
+      <button onclick="editorInsertImage()" title="Insert Image" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">🖼️</button>
+      <button onclick="editorInsertVideo()" title="Insert Video" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">🎬</button>
+      <button onclick="editorInsertAudio()" title="Insert Audio" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">🎵</button>
+      <button onclick="editorInsertTable()" title="Insert Table" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">📊</button>
+      <button onclick="editorInsertLine('---')" title="Divider" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">—</button>
+      <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+      <button onclick="editorUploadImage()" title="Upload Image from Device" style="padding:4px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-2);border-radius:4px" onmouseover="this.style.background='var(--bg-3)'" onmouseout="this.style.background='none'">📤</button>
+      <input type="file" id="editorFileInput" style="display:none" accept="image/*,audio/*,video/*" onchange="handleEditorFileUpload(this.files[0])">
+    </div>
     <div class="editor-body">
       <div class="editor-pane">
-        <textarea id="noteContent" placeholder="Start writing in Markdown..." oninput="updatePreview();updateWordCount()">${esc(currentNote.markdown || currentNote.content || '')}</textarea>
+        <textarea id="noteContent" placeholder="Start writing in Markdown...&#10;&#10;Supports: **bold**, *italic*, # headings, \`code\`, $LaTeX$, images, videos, tables..." oninput="updatePreview();updateWordCount()">${esc(currentNote.markdown || currentNote.content || '')}</textarea>
       </div>
       <div class="preview-pane" id="preview"></div>
     </div>
@@ -2373,13 +2408,57 @@ function updateWordCount() {
 }
 
 function renderMarkdown(md) {
+  // Protect code blocks from further processing
+  const codeBlocks = [];
+  md = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    codeBlocks.push(`<pre><code class="lang-${lang||'text'}">${esc(code)}</code></pre>`);
+    return `%%CODEBLOCK_${codeBlocks.length-1}%%`;
+  });
+  // LaTeX block $$...$$
+  md = md.replace(/\$\$([\s\S]*?)\$\$/g, (_, tex) => {
+    try { if(typeof katex!=='undefined') return '<div class="katex-block">'+katex.renderToString(tex.trim(),{displayMode:true,throwOnError:false})+'</div>'; } catch(e){}
+    return `<pre class="katex-fallback">$$${tex}$$</pre>`;
+  });
+  // Inline LaTeX $...$
+  md = md.replace(/\$([^\$\n]+?)\$/g, (_, tex) => {
+    try { if(typeof katex!=='undefined') return katex.renderToString(tex.trim(),{throwOnError:false}); } catch(e){}
+    return `<code>$${tex}$</code>`;
+  });
+  // Tables: | a | b |\n|---|---|\n| c | d |
+  md = md.replace(/((\|[^\n]+\|\n)+)/g, (table) => {
+    const rows = table.trim().split('\n').filter(r => r.trim());
+    if (rows.length < 2) return table;
+    const isAlignRow = r => /^\|[\s\-:|]+\|$/.test(r.trim());
+    let headerEnd = isAlignRow(rows[1]) ? 1 : -1;
+    let html = '<table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:13px">';
+    rows.forEach((row, i) => {
+      if (i === headerEnd) return; // skip align row
+      const cells = row.split('|').filter((_,j,a)=>j>0&&j<a.length-1).map(c=>c.trim());
+      const tag = i < headerEnd || (headerEnd<0 && i===0) ? 'th' : 'td';
+      const style = tag==='th' ? 'background:var(--bg-3);font-weight:600;' : '';
+      html += '<tr>' + cells.map(c => `<${tag} style="${style}padding:8px 12px;border:1px solid var(--border);text-align:left">${c}</${tag}>`).join('') + '</tr>';
+    });
+    return html + '</table>';
+  });
+  // Images with alt text: ![alt](url)
+  md = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<div style="margin:12px 0"><img src="$2" alt="$1" style="max-width:100%;border-radius:var(--radius);border:1px solid var(--border)"><div style="text-align:center;font-size:11px;color:var(--text-3);margin-top:4px">$1</div></div>');
+  // Video embed: !video[url]
+  md = md.replace(/!video\[([^\]]+)\]/g, (_, url) => {
+    if (url.includes('youtu')) {
+      const vid = url.match(/(?:v=|\.be\/)([a-zA-Z0-9_-]+)/)?.[1];
+      if (vid) return `<div style="margin:12px 0;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius)"><iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>`;
+    }
+    return `<div style="margin:12px 0"><video src="${esc(url)}" controls style="max-width:100%;border-radius:var(--radius)"></video></div>`;
+  });
+  // Audio embed: !audio[url]
+  md = md.replace(/!audio\[([^\]]+)\]/g, '<div style="margin:12px 0"><audio src="$1" controls style="width:100%"></audio></div>');
+  // Standard markdown
   return md
     .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
     .replace(/^# (.+)$/gm, '<h1>$1</h1>')
     .replace(/^---$/gm, '<hr>')
-    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -2387,12 +2466,128 @@ function renderMarkdown(md) {
     .replace(/^> (.+)$/gm, '<blockquote><p>$1</p></blockquote>')
     .replace(/^- \[x\] (.+)$/gm, '<div style="display:flex;gap:8px;align-items:center"><span style="color:var(--green)">☑</span><del style="color:var(--text-3)">$1</del></div>')
     .replace(/^- \[ \] (.+)$/gm, '<div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text-3)">☐</span>$1</div>')
+    .replace(/^\d+\. (.+)$/gm, '<li style="list-style-type:decimal">$1</li>')
     .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>)/g, '<ul style="margin:4px 0 4px 20px">$1</ul>')
     .replace(/\[\[(.+?)\]\]/g, '<span class="wiki-link" onclick="searchAndOpen(\'$1\')">$1</span>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/%%CODEBLOCK_(\d+)%%/g, (_, i) => codeBlocks[i])
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
+}
+
+// ===== EDITOR INSERT HELPERS =====
+function editorInsert(before, after) {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end);
+  const replacement = before + (sel || 'text') + after;
+  ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd = start + before.length + (sel || 'text').length;
+  ta.focus();
+  updatePreview(); updateWordCount();
+}
+
+function editorInsertLine(prefix) {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+  ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
+  ta.selectionStart = ta.selectionEnd = lineStart + prefix.length;
+  ta.focus();
+  updatePreview(); updateWordCount();
+}
+
+function editorInsertBlock(before, after) {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end);
+  const b = before.replace(/\\n/g,'\n'), a = after.replace(/\\n/g,'\n');
+  const replacement = b + (sel || '') + a;
+  ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + b.length + sel.length;
+  ta.focus();
+  updatePreview(); updateWordCount();
+}
+
+function editorInsertLink() {
+  const url = prompt('Enter URL:');
+  if (!url) return;
+  const text = prompt('Link text:', 'Link') || 'Link';
+  editorInsertAtCursor(`[${text}](${url})`);
+}
+
+function editorInsertImage() {
+  const url = prompt('Enter image URL:');
+  if (!url) return;
+  const alt = prompt('Caption (optional):', '') || '';
+  editorInsertAtCursor(`![${alt}](${url})`);
+}
+
+function editorInsertVideo() {
+  const url = prompt('Enter video URL (YouTube, MP4, etc.):');
+  if (!url) return;
+  editorInsertAtCursor(`!video[${url}]`);
+}
+
+function editorInsertAudio() {
+  const url = prompt('Enter audio URL (MP3, etc.):');
+  if (!url) return;
+  editorInsertAtCursor(`!audio[${url}]`);
+}
+
+function editorInsertTable() {
+  const cols = parseInt(prompt('Number of columns:', '3')) || 3;
+  const rows = parseInt(prompt('Number of rows:', '3')) || 3;
+  let table = '| ' + Array(cols).fill('Header').map((h,i)=>h+(i+1)).join(' | ') + ' |\n';
+  table += '| ' + Array(cols).fill('---').join(' | ') + ' |\n';
+  for (let r = 0; r < rows; r++) {
+    table += '| ' + Array(cols).fill('').map((_,i)=>`Cell`).join(' | ') + ' |\n';
+  }
+  editorInsertAtCursor('\n' + table);
+}
+
+function editorInsertAtCursor(text) {
+  const ta = document.getElementById('noteContent');
+  if (!ta) return;
+  const start = ta.selectionStart;
+  ta.value = ta.value.substring(0, start) + text + ta.value.substring(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = start + text.length;
+  ta.focus();
+  updatePreview(); updateWordCount();
+}
+
+function editorUploadImage() {
+  document.getElementById('editorFileInput')?.click();
+}
+
+async function handleEditorFileUpload(file) {
+  if (!file) return;
+  if (file.size > 15 * 1024 * 1024) { toast('File too large (max 15MB)', 'error'); return; }
+  // Upload to files API
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    toast('Uploading...', 'info');
+    const r = await fetch(API+'/files', { method:'POST', body: fd });
+    const d = await r.json();
+    if (d.error) { toast(d.error, 'error'); return; }
+    const url = API+'/files/'+d.data.id+'/content';
+    if (file.type.startsWith('image/')) {
+      editorInsertAtCursor(`![${file.name}](${url})`);
+    } else if (file.type.startsWith('video/')) {
+      editorInsertAtCursor(`!video[${url}]`);
+    } else if (file.type.startsWith('audio/')) {
+      editorInsertAtCursor(`!audio[${url}]`);
+    } else {
+      editorInsertAtCursor(`[📎 ${file.name}](${url})`);
+    }
+    toast('Inserted!', 'success');
+  } catch(e) { toast('Upload failed', 'error'); }
 }
 
 async function searchAndOpen(term) {
@@ -3115,6 +3310,7 @@ async function renderSettings() {
       { id:'slate',  label:'Slate',   color:'#64748b' },
       { id:'amber',  label:'Amber',   color:'#f59e0b' },
       { id:'cyan',   label:'Cyan',    color:'#06b6d4' },
+      { id:'meituan',label:'Meituan', color:'#FFD100' },
     ];
     tc.innerHTML = `
       <div class="settings-card">
