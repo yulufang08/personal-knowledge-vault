@@ -2,10 +2,12 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -36,6 +38,26 @@ const pool = process.env.DATABASE_URL
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
     });
+
+// ===== ENCRYPTION HELPERS =====
+const AI_ENC_KEY = process.env.AI_KEY_ENCRYPTION_SECRET || crypto.randomBytes(32).toString('hex');
+
+function encryptKey(plain: string): string {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(AI_ENC_KEY.substring(0, 64), 'hex'), iv);
+  let enc = cipher.update(plain, 'utf8', 'hex');
+  enc += cipher.final('hex');
+  return `${iv.toString('hex')}:${cipher.getAuthTag().toString('hex')}:${enc}`;
+}
+
+function decryptKey(cipher: string): string {
+  const [ivH, tagH, enc] = cipher.split(':');
+  const dec = crypto.createDecipheriv('aes-256-gcm', Buffer.from(AI_ENC_KEY.substring(0, 64), 'hex'), Buffer.from(ivH, 'hex'));
+  dec.setAuthTag(Buffer.from(tagH, 'hex'));
+  let plain = dec.update(enc, 'hex', 'utf8');
+  plain += dec.final('utf8');
+  return plain;
+}
 
 // ===== CONSTANTS =====
 const GUEST_USER_ID = '00000000-0000-0000-0000-000000000001';
@@ -156,8 +178,42 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_note_links_source ON note_links(source_note_id);
       CREATE INDEX IF NOT EXISTS idx_note_links_target ON note_links(target_note_id);
       CREATE INDEX IF NOT EXISTS idx_note_versions_note ON note_versions(note_id, version_number DESC);
+      CREATE TABLE IF NOT EXISTS user_ai_config (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        provider VARCHAR(50) NOT NULL,
+        api_key_encrypted TEXT NOT NULL,
+        api_key_hint VARCHAR(20),
+        model VARCHAR(100),
+        base_url VARCHAR(500),
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, provider)
+      );
+
+      CREATE TABLE IF NOT EXISTS agent_conversations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) DEFAULT 'New Conversation',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS agent_messages (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        conversation_id UUID NOT NULL REFERENCES agent_conversations(id) ON DELETE CASCADE,
+        role VARCHAR(20) NOT NULL,
+        content TEXT NOT NULL,
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE INDEX IF NOT EXISTS idx_ai_analyses_user ON ai_analyses(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sync_devices_user ON sync_devices(user_id);
+      CREATE INDEX IF NOT EXISTS idx_ai_config_user ON user_ai_config(user_id);
+      CREATE INDEX IF NOT EXISTS idx_agent_conv_user ON agent_conversations(user_id, updated_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_agent_msg_conv ON agent_messages(conversation_id, created_at);
     `);
 
     // Add subscription column if it doesn't exist (migration for existing DBs)
@@ -1067,6 +1123,288 @@ app.get('/api/sync/status', async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to get sync status' });
+  }
+});
+
+// ===== AI PROVIDER ABSTRACTION =====
+
+async function getUserAIConfig(userId: string) {
+  const r = await pool.query(
+    `SELECT provider, api_key_encrypted, model, base_url FROM user_ai_config WHERE user_id = $1 AND is_active = true LIMIT 1`,
+    [userId]
+  );
+  if (r.rows.length === 0) return null;
+  const row = r.rows[0];
+  try {
+    return { provider: row.provider, apiKey: decryptKey(row.api_key_encrypted), model: row.model, baseUrl: row.base_url };
+  } catch(e) { return null; }
+}
+
+async function callAIProvider(config: any, messages: any[]): Promise<{ content: string; model: string }> {
+  const { provider, apiKey, model, baseUrl } = config;
+
+  if (provider === 'claude' || provider === 'anthropic') {
+    const r = await axios.post(baseUrl || 'https://api.anthropic.com/v1/messages', {
+      model: model || 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      messages: messages.filter((m: any) => m.role !== 'system'),
+      system: messages.find((m: any) => m.role === 'system')?.content || '',
+    }, {
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+      timeout: 30000,
+    });
+    return { content: r.data.content?.[0]?.text || '', model: r.data.model || model };
+  }
+
+  // OpenAI-compatible (OpenAI, DeepSeek, custom)
+  const url = baseUrl
+    ? `${baseUrl}/chat/completions`
+    : provider === 'deepseek'
+      ? 'https://api.deepseek.com/v1/chat/completions'
+      : 'https://api.openai.com/v1/chat/completions';
+
+  const r = await axios.post(url, {
+    model: model || 'gpt-4o-mini',
+    messages,
+    max_tokens: 2048,
+  }, {
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    timeout: 30000,
+  });
+  return { content: r.data.choices?.[0]?.message?.content || '', model: r.data.model || model };
+}
+
+function simulateAgentResponse(message: string, userNotes: any[]): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('how many') || lower.includes('多少') || lower.includes('count')) {
+    return `You currently have **${userNotes.length}** notes in your vault.\n\n_[Simulated response — configure an AI provider in Settings for intelligent answers]_`;
+  }
+  if (lower.includes('recent') || lower.includes('最近') || lower.includes('latest')) {
+    const recent = userNotes.slice(0, 5).map(n => `- "${n.title}"`).join('\n');
+    return `Here are your most recent notes:\n${recent}\n\n_[Simulated — connect an AI provider for deeper analysis]_`;
+  }
+  const keywords = message.split(/[\s,，。.!?]+/).filter(w => w.length > 2);
+  const matching = userNotes.filter(n =>
+    keywords.some(kw => (n.title||'').toLowerCase().includes(kw.toLowerCase()) || (n.content||'').toLowerCase().includes(kw.toLowerCase()))
+  );
+  if (matching.length > 0) {
+    const list = matching.slice(0, 5).map(n => `- **${n.title}**`).join('\n');
+    return `I found ${matching.length} related note${matching.length>1?'s':''}:\n${list}\n\nWould you like me to analyze any of these?\n\n_[Simulated — configure an AI provider in Settings for real AI reasoning]_`;
+  }
+  return `I can help you explore your knowledge vault! Try asking about specific topics in your notes, or configure an AI provider in **Settings** for intelligent conversations.\n\n**Quick suggestions:**\n- "How many notes do I have?"\n- "What are my recent notes?"\n- "Find notes about [topic]"\n\n_[Simulated response]_`;
+}
+
+// ===== AI CONFIG ENDPOINTS =====
+
+app.get('/api/ai/config', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `SELECT id, provider, api_key_hint, model, base_url, is_active, updated_at FROM user_ai_config WHERE user_id = $1 ORDER BY is_active DESC`,
+      [userId]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch AI config' }); }
+});
+
+app.post('/api/ai/config', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { provider, apiKey, model, baseUrl } = req.body;
+    if (!provider || !apiKey) return res.status(400).json({ error: 'Provider and API key required' });
+
+    const encrypted = encryptKey(apiKey);
+    const hint = '...' + apiKey.slice(-4);
+
+    // Deactivate other providers
+    await pool.query(`UPDATE user_ai_config SET is_active = false WHERE user_id = $1`, [userId]);
+
+    const r = await pool.query(
+      `INSERT INTO user_ai_config (user_id, provider, api_key_encrypted, api_key_hint, model, base_url, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, true)
+       ON CONFLICT (user_id, provider) DO UPDATE SET
+         api_key_encrypted = $3, api_key_hint = $4, model = $5, base_url = $6, is_active = true, updated_at = CURRENT_TIMESTAMP
+       RETURNING id, provider, api_key_hint, model, base_url, is_active`,
+      [userId, provider, encrypted, hint, model || null, baseUrl || null]
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) {
+    console.error('AI config save error:', e);
+    res.status(500).json({ error: 'Failed to save AI config' });
+  }
+});
+
+app.delete('/api/ai/config/:provider', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    await pool.query(`DELETE FROM user_ai_config WHERE user_id = $1 AND provider = $2`, [userId, req.params.provider]);
+    res.json({ message: 'Config deleted' });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete config' }); }
+});
+
+app.post('/api/ai/config/test', async (req: Request, res: Response) => {
+  try {
+    const { provider, apiKey, model, baseUrl } = req.body;
+    if (!provider || !apiKey) return res.status(400).json({ error: 'Provider and API key required' });
+
+    const start = Date.now();
+    const config = { provider, apiKey, model, baseUrl };
+    const result = await callAIProvider(config, [
+      { role: 'user', content: 'Say "Connection successful!" in exactly 3 words.' }
+    ]);
+    res.json({ data: { success: true, model: result.model, latency: Date.now() - start, response: result.content.substring(0, 100) } });
+  } catch(e: any) {
+    const msg = e.response?.data?.error?.message || e.message || 'Connection failed';
+    res.json({ data: { success: false, error: msg } });
+  }
+});
+
+// ===== AI AGENT ENDPOINTS =====
+
+app.get('/api/agent/conversations', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `SELECT c.id, c.title, c.created_at, c.updated_at,
+        (SELECT COUNT(*) FROM agent_messages WHERE conversation_id = c.id) as message_count,
+        (SELECT content FROM agent_messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message
+       FROM agent_conversations c WHERE c.user_id = $1 ORDER BY c.updated_at DESC LIMIT 50`,
+      [userId]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch conversations' }); }
+});
+
+app.post('/api/agent/conversations', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `INSERT INTO agent_conversations (user_id) VALUES ($1) RETURNING id, title, created_at`,
+      [userId]
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to create conversation' }); }
+});
+
+app.get('/api/agent/conversations/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const conv = await pool.query(
+      `SELECT * FROM agent_conversations WHERE id = $1 AND user_id = $2`, [req.params.id, userId]
+    );
+    if (conv.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    const msgs = await pool.query(
+      `SELECT id, role, content, metadata, created_at FROM agent_messages WHERE conversation_id = $1 ORDER BY created_at`,
+      [req.params.id]
+    );
+    res.json({ data: { ...conv.rows[0], messages: msgs.rows } });
+  } catch(e) { res.status(500).json({ error: 'Failed to fetch conversation' }); }
+});
+
+app.delete('/api/agent/conversations/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    await pool.query(`DELETE FROM agent_conversations WHERE id = $1 AND user_id = $2`, [req.params.id, userId]);
+    res.json({ message: 'Deleted' });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete' }); }
+});
+
+app.post('/api/agent/chat', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    let { conversationId, message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message required' });
+
+    // Create conversation if needed
+    if (!conversationId) {
+      const r = await pool.query(
+        `INSERT INTO agent_conversations (user_id, title) VALUES ($1, $2) RETURNING id`,
+        [userId, message.substring(0, 60)]
+      );
+      conversationId = r.rows[0].id;
+    }
+
+    // Save user message
+    await pool.query(
+      `INSERT INTO agent_messages (conversation_id, role, content) VALUES ($1, 'user', $2)`,
+      [conversationId, message]
+    );
+
+    // Fetch user's notes for context
+    const notesR = await pool.query(
+      `SELECT id, title, content FROM notes WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 100`,
+      [userId]
+    );
+    const userNotes = notesR.rows;
+
+    // Search relevant notes by keywords
+    const keywords = message.split(/[\s,，。.!?]+/).filter((w: string) => w.length > 2).slice(0, 5);
+    let relevantNotes: any[] = [];
+    if (keywords.length > 0) {
+      const searchQ = keywords.map((kw: string) => `%${kw}%`);
+      const conditions = searchQ.map((_: string, i: number) => `(title ILIKE $${i+2} OR content ILIKE $${i+2})`).join(' OR ');
+      const rn = await pool.query(
+        `SELECT id, title, SUBSTRING(content, 1, 1000) as content FROM notes WHERE user_id = $1 AND deleted_at IS NULL AND (${conditions}) LIMIT 5`,
+        [userId, ...searchQ]
+      );
+      relevantNotes = rn.rows;
+    }
+
+    // Get conversation history
+    const histR = await pool.query(
+      `SELECT role, content FROM agent_messages WHERE conversation_id = $1 ORDER BY created_at DESC LIMIT 20`,
+      [conversationId]
+    );
+    const history = histR.rows.reverse();
+
+    // Try real AI provider
+    const aiConfig = await getUserAIConfig(userId);
+    let response: string;
+
+    if (aiConfig) {
+      const systemPrompt = `You are a helpful knowledge assistant for a personal note-taking app called "Vault". The user has ${userNotes.length} notes.
+${relevantNotes.length > 0 ? `\nRelevant notes found:\n${relevantNotes.map(n => `--- ${n.title} ---\n${n.content}`).join('\n\n')}` : ''}
+\nHelp the user explore, understand, and build on their knowledge. Reference specific notes when relevant. Be concise and insightful. Support both Chinese and English.`;
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...history.slice(-18).map((m: any) => ({ role: m.role, content: m.content })),
+        { role: 'user', content: message }
+      ];
+
+      try {
+        const result = await callAIProvider(aiConfig, messages);
+        response = result.content;
+      } catch(e: any) {
+        response = `_AI provider error: ${e.response?.data?.error?.message || e.message}_\n\nFalling back to simulated response:\n\n${simulateAgentResponse(message, userNotes)}`;
+      }
+    } else {
+      response = simulateAgentResponse(message, userNotes);
+    }
+
+    // Save assistant response
+    await pool.query(
+      `INSERT INTO agent_messages (conversation_id, role, content, metadata) VALUES ($1, 'assistant', $2, $3)`,
+      [conversationId, response, JSON.stringify({ notesReferenced: relevantNotes.map(n => n.id) })]
+    );
+
+    // Update conversation timestamp
+    await pool.query(
+      `UPDATE agent_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [conversationId]
+    );
+
+    res.json({
+      data: {
+        conversationId,
+        message: response,
+        notesReferenced: relevantNotes.map(n => ({ id: n.id, title: n.title })),
+        provider: aiConfig ? aiConfig.provider : 'simulated',
+      }
+    });
+  } catch(e) {
+    console.error('Agent chat error:', e);
+    res.status(500).json({ error: 'Chat failed' });
   }
 });
 

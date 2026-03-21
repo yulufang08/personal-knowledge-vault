@@ -567,6 +567,88 @@ a{color:var(--accent);text-decoration:none}
 .ai-history-card .hist-summary{font-size:13px;color:var(--text-1);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ai-history-card .hist-meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text-3)}
 
+/* ===== AI AGENT CHAT ===== */
+.agent-container{flex:1;display:flex;overflow:hidden}
+.agent-sidebar{width:260px;min-width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-1)}
+.agent-sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.agent-sidebar-header h3{font-size:14px;font-weight:600;flex:1}
+.agent-new-btn{padding:6px 14px;border:none;border-radius:var(--radius);background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition)}
+.agent-conv-list{flex:1;overflow-y:auto;padding:8px}
+.agent-conv-item{padding:10px 12px;border-radius:var(--radius);cursor:pointer;margin-bottom:2px;transition:var(--transition)}
+.agent-conv-item:hover{background:var(--bg-3)}
+.agent-conv-item.active{background:var(--accent-soft)}
+.agent-conv-item h4{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent-conv-item .conv-preview{font-size:11px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.agent-conv-item .conv-time{font-size:10px;color:var(--text-3);margin-top:2px}
+.agent-chat{flex:1;display:flex;flex-direction:column;min-width:0}
+.agent-chat-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--bg-1)}
+.agent-chat-header h3{font-size:14px;font-weight:600;flex:1}
+.agent-provider-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600}
+.agent-provider-badge.active{background:var(--green-soft);color:var(--green)}
+.agent-provider-badge.simulated{background:var(--bg-3);color:var(--text-3)}
+.agent-messages{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.agent-msg{display:flex;gap:10px;max-width:85%}
+.agent-msg.user{align-self:flex-end;flex-direction:row-reverse}
+.agent-msg .msg-avatar{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.agent-msg.assistant .msg-avatar{background:var(--gradient-fun);color:#fff}
+.agent-msg.user .msg-avatar{background:var(--bg-3);color:var(--text-1)}
+.agent-msg .msg-bubble{padding:12px 16px;border-radius:var(--radius-lg);font-size:13px;line-height:1.7}
+.agent-msg.assistant .msg-bubble{background:var(--bg-1);border:1px solid var(--border);color:var(--text-1)}
+.agent-msg.user .msg-bubble{background:var(--accent);color:#fff}
+.agent-msg .msg-bubble p{margin:4px 0}
+.agent-msg .msg-bubble strong{font-weight:600}
+.agent-msg .msg-bubble code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px;font-family:var(--mono);font-size:12px}
+.agent-msg .msg-refs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.agent-msg .msg-ref{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);cursor:pointer}
+.agent-typing{display:flex;align-items:center;gap:6px;padding:8px 0;align-self:flex-start}
+.typing-dots{display:flex;gap:4px}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:bounce .6s ease-in-out infinite}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.agent-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 24px 12px}
+.agent-suggest-chip{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-2);cursor:pointer;transition:var(--transition);background:var(--bg-1)}
+.agent-suggest-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.agent-input-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;background:var(--bg-1)}
+.agent-input{flex:1;padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-lg);font-size:13px;outline:none;resize:none;max-height:120px;font-family:var(--font);color:var(--text-0);background:var(--bg-0);transition:var(--transition);line-height:1.5}
+.agent-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.agent-send-btn{width:40px;height:40px;border:none;border-radius:var(--radius);background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:16px;transition:var(--transition);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.agent-send-btn:hover{opacity:.9}
+.agent-send-btn:disabled{opacity:.4;cursor:not-allowed}
+.agent-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:48px}
+.agent-empty .big-icon{font-size:56px;margin-bottom:16px}
+
+/* ===== AI SETTINGS ===== */
+.settings-container{flex:1;overflow-y:auto;padding:32px 48px;max-width:720px}
+.settings-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.settings-header p{color:var(--text-3);font-size:13px;margin-bottom:24px}
+.settings-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;margin-bottom:16px}
+.settings-card h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.provider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.provider-option{padding:14px;border:2px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:12px}
+.provider-option:hover{border-color:var(--border-hover)}
+.provider-option.selected{border-color:var(--accent);background:var(--accent-soft)}
+.provider-option .prov-icon{font-size:24px}
+.provider-option .prov-name{font-size:13px;font-weight:600}
+.provider-option .prov-desc{font-size:11px;color:var(--text-3)}
+.settings-field{margin-bottom:14px}
+.settings-field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.settings-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;background:var(--bg-0);color:var(--text-0);transition:var(--transition);font-family:var(--mono)}
+.settings-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.settings-select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;background:var(--bg-0);color:var(--text-0);cursor:pointer}
+.settings-btn-row{display:flex;gap:8px;margin-top:16px}
+.settings-btn{padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid var(--border)}
+.settings-btn.primary{background:var(--gradient-fun);color:#fff;border:none}
+.settings-btn.primary:hover{opacity:.9}
+.settings-btn.danger{border-color:var(--red);color:var(--red);background:transparent}
+.settings-btn.danger:hover{background:var(--red-soft)}
+.test-result{margin-top:12px;padding:10px 14px;border-radius:var(--radius);font-size:12px;display:flex;align-items:center;gap:8px}
+.test-result.success{background:var(--green-soft);color:var(--green)}
+.test-result.fail{background:var(--red-soft);color:var(--red)}
+.saved-config{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-2);border-radius:var(--radius);margin-bottom:12px}
+.saved-config .sc-provider{font-size:13px;font-weight:500}
+.saved-config .sc-hint{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+
 /* ===== SYNC VIEW ===== */
 .sync-container{flex:1;overflow-y:auto;padding:32px 48px}
 .sync-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:4px}
@@ -733,6 +815,9 @@ a{color:var(--accent);text-decoration:none}
   .sync-container{padding:24px 20px}
   .sync-tier-compare{grid-template-columns:1fr}
   .sync-feature-grid{grid-template-columns:1fr 1fr}
+  .agent-sidebar{display:none}
+  .settings-container{padding:24px 20px}
+  .provider-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -867,10 +952,12 @@ const defaultNavItems = [
   { id:'home', icon:'🏠', label:'Home' },
   { id:'notes', icon:'📄', label:'All Notes', countId:'navNoteCount' },
   { id:'aistudio', icon:'🤖', label:'AI Studio' },
+  { id:'agent', icon:'🧠', label:'AI Agent' },
   { id:'graph', icon:'🔮', label:'Graph View' },
   { id:'search', icon:'🔍', label:'Search' },
   { id:'calendar', icon:'📅', label:'Calendar' },
   { id:'sync', icon:'🔄', label:'Sync' },
+  { id:'settings', icon:'⚙️', label:'AI Settings' },
   { id:'analytics', icon:'📊', label:'Analytics', proLock:true, lockId:'analyticsLock' },
   { id:'pricing', icon:'⚡', label:'Plans & Pricing' },
 ];
@@ -1171,7 +1258,9 @@ function switchView(view, navEl) {
     case 'search': renderSearchView(); break;
     case 'calendar': renderCalendar(); break;
     case 'aistudio': renderAIStudio(); break;
+    case 'agent': renderAgent(); break;
     case 'sync': renderSync(); break;
+    case 'settings': renderSettings(); break;
     case 'pricing': renderPricing(); break;
     case 'analytics': renderAnalytics(); break;
     default: renderHome();
@@ -2034,6 +2123,336 @@ async function deleteAnalysis(id) {
   } catch(e) { toast('Failed to delete', 'error'); }
 }
 
+// ===== AI AGENT =====
+let agentConvId = null, agentConvs = [], agentMessages = [], agentSending = false;
+
+async function renderAgent() {
+  const m = document.getElementById('mainContent');
+  // Load conversations
+  try { const r = await fetch(API+'/agent/conversations'); const d = await r.json(); agentConvs = d.data||[]; } catch(e) {}
+  // Load AI config to show provider status
+  let aiConfig = [];
+  try { const r = await fetch(API+'/ai/config'); const d = await r.json(); aiConfig = d.data||[]; } catch(e) {}
+  const activeProvider = aiConfig.find(c => c.is_active);
+
+  m.innerHTML = `
+    <div class="agent-container">
+      <div class="agent-sidebar">
+        <div class="agent-sidebar-header">
+          <h3>🧠 Conversations</h3>
+          <button class="agent-new-btn" onclick="newAgentConv()">+ New</button>
+        </div>
+        <div class="agent-conv-list" id="agentConvList">
+          ${agentConvs.length ? agentConvs.map(c => `
+            <div class="agent-conv-item${agentConvId===c.id?' active':''}" onclick="loadAgentConv('${c.id}')">
+              <h4>${esc(c.title||'New Conversation')}</h4>
+              <div class="conv-preview">${esc((c.last_message||'').substring(0,50))}</div>
+              <div class="conv-time">${formatDate(c.updated_at)}</div>
+            </div>
+          `).join('') : '<div style="padding:20px;text-align:center;color:var(--text-3);font-size:12px">No conversations yet</div>'}
+        </div>
+      </div>
+      <div class="agent-chat">
+        <div class="agent-chat-header">
+          <h3>${agentConvId ? esc(agentConvs.find(c=>c.id===agentConvId)?.title||'Chat') : 'AI Agent'}</h3>
+          ${activeProvider
+            ? `<span class="agent-provider-badge active">${esc(activeProvider.provider)} · ${esc(activeProvider.model||'default')}</span>`
+            : `<span class="agent-provider-badge simulated" onclick="switchView('settings')" style="cursor:pointer">Simulated · Click to configure AI</span>`}
+          ${agentConvId ? `<button style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px" onclick="deleteAgentConv('${agentConvId}')">🗑</button>` : ''}
+        </div>
+        <div class="agent-messages" id="agentMsgArea">
+          ${agentMessages.length ? agentMessages.map(msg => renderAgentMsg(msg)).join('') : `
+            <div class="agent-empty">
+              <div class="big-icon">🧠</div>
+              <h2>Your Knowledge Agent</h2>
+              <p>Ask questions about your notes, find connections, get writing help, or explore your knowledge base. ${activeProvider ? '' : 'Configure an AI provider in <b>Settings</b> for intelligent responses.'}</p>
+            </div>
+          `}
+        </div>
+        ${!agentMessages.length ? `
+        <div class="agent-suggestions">
+          <span class="agent-suggest-chip" onclick="sendAgentMsg('How many notes do I have?')">How many notes?</span>
+          <span class="agent-suggest-chip" onclick="sendAgentMsg('What are my recent notes about?')">Recent topics</span>
+          <span class="agent-suggest-chip" onclick="sendAgentMsg('Find connections between my notes')">Find connections</span>
+          <span class="agent-suggest-chip" onclick="sendAgentMsg('Summarize my knowledge base')">Summarize vault</span>
+        </div>` : ''}
+        <div class="agent-input-bar">
+          <textarea class="agent-input" id="agentInput" placeholder="Ask about your notes..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMsg()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+          <button class="agent-send-btn" id="agentSendBtn" onclick="sendAgentMsg()">▶</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAgentMsg(msg) {
+  const isUser = msg.role === 'user';
+  const refs = msg.metadata?.notesReferenced || msg.notesReferenced || [];
+  return `
+    <div class="agent-msg ${msg.role}">
+      <div class="msg-avatar">${isUser ? '👤' : '🧠'}</div>
+      <div>
+        <div class="msg-bubble">${isUser ? esc(msg.content) : renderMarkdown(msg.content)}</div>
+        ${refs.length ? `<div class="msg-refs">${refs.map(r => `<span class="msg-ref" onclick="openNote('${r.id||r}')">${esc(r.title||'Note')}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+async function newAgentConv() {
+  agentConvId = null; agentMessages = [];
+  renderAgent();
+}
+
+async function loadAgentConv(id) {
+  try {
+    const r = await fetch(API+'/agent/conversations/'+id);
+    const d = await r.json();
+    if (d.data) {
+      agentConvId = d.data.id;
+      agentMessages = d.data.messages || [];
+      renderAgent();
+      const area = document.getElementById('agentMsgArea');
+      if (area) area.scrollTop = area.scrollHeight;
+    }
+  } catch(e) { toast('Failed to load conversation', 'error'); }
+}
+
+async function deleteAgentConv(id) {
+  if (!confirm('Delete this conversation?')) return;
+  try {
+    await fetch(API+'/agent/conversations/'+id, {method:'DELETE'});
+    agentConvId = null; agentMessages = [];
+    renderAgent();
+    toast('Conversation deleted', 'info');
+  } catch(e) { toast('Failed to delete', 'error'); }
+}
+
+async function sendAgentMsg(text) {
+  if (agentSending) return;
+  const input = document.getElementById('agentInput');
+  const msg = text || input?.value?.trim();
+  if (!msg) return;
+  if (input) input.value = '';
+
+  agentSending = true;
+  const btn = document.getElementById('agentSendBtn');
+  if (btn) btn.disabled = true;
+
+  // Show user message immediately
+  agentMessages.push({ role: 'user', content: msg });
+  const area = document.getElementById('agentMsgArea');
+  if (area) {
+    // Remove empty state
+    const empty = area.querySelector('.agent-empty');
+    if (empty) empty.remove();
+    area.innerHTML += renderAgentMsg({ role: 'user', content: msg });
+    area.innerHTML += '<div class="agent-typing" id="agentTyping"><div class="msg-avatar" style="width:32px;height:32px;border-radius:10px;background:var(--gradient-fun);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">🧠</div><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    area.scrollTop = area.scrollHeight;
+  }
+  // Remove suggestions
+  document.querySelector('.agent-suggestions')?.remove();
+
+  try {
+    const r = await fetch(API+'/agent/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ conversationId: agentConvId, message: msg })
+    });
+    const d = await r.json();
+    if (d.data) {
+      agentConvId = d.data.conversationId;
+      const assistantMsg = { role:'assistant', content: d.data.message, notesReferenced: d.data.notesReferenced||[] };
+      agentMessages.push(assistantMsg);
+      // Remove typing indicator and add response
+      document.getElementById('agentTyping')?.remove();
+      if (area) {
+        area.innerHTML += renderAgentMsg(assistantMsg);
+        area.scrollTop = area.scrollHeight;
+      }
+    }
+  } catch(e) {
+    document.getElementById('agentTyping')?.remove();
+    toast('Chat failed', 'error');
+  }
+
+  agentSending = false;
+  if (btn) btn.disabled = false;
+  input?.focus();
+}
+
+// ===== AI SETTINGS =====
+let settingsProvider = 'openai', settingsTestResult = null;
+
+const AI_PROVIDERS = [
+  { id:'openai', name:'OpenAI', icon:'🟢', desc:'GPT-4o, GPT-4o-mini', models:['gpt-4o','gpt-4o-mini','gpt-3.5-turbo'] },
+  { id:'claude', name:'Claude (Anthropic)', icon:'🟣', desc:'Claude Sonnet, Haiku', models:['claude-sonnet-4-20250514','claude-haiku-4-5-20251001'] },
+  { id:'deepseek', name:'DeepSeek', icon:'🔵', desc:'DeepSeek Chat, Reasoner', models:['deepseek-chat','deepseek-reasoner'] },
+  { id:'custom', name:'Custom / Self-hosted', icon:'⚙️', desc:'OpenAI-compatible API', models:[] },
+];
+
+async function renderSettings() {
+  const m = document.getElementById('mainContent');
+  let configs = [];
+  try { const r = await fetch(API+'/ai/config'); const d = await r.json(); configs = d.data||[]; } catch(e) {}
+  const activeConfig = configs.find(c => c.is_active);
+  if (activeConfig) settingsProvider = activeConfig.provider;
+  const prov = AI_PROVIDERS.find(p => p.id === settingsProvider) || AI_PROVIDERS[0];
+
+  m.innerHTML = `
+    <div class="settings-container">
+      <div class="settings-header">
+        <h2>⚙️ AI Settings</h2>
+        <p>Configure your AI provider. Your API key is encrypted and stored securely.</p>
+      </div>
+
+      ${activeConfig ? `
+      <div class="settings-card">
+        <h3>✅ Current Configuration</h3>
+        <div class="saved-config">
+          <span style="font-size:20px">${(AI_PROVIDERS.find(p=>p.id===activeConfig.provider)||{}).icon||'🔧'}</span>
+          <div style="flex:1">
+            <div class="sc-provider">${esc(activeConfig.provider)} — ${esc(activeConfig.model||'default')}</div>
+            <div class="sc-hint">Key: ${esc(activeConfig.api_key_hint)}</div>
+          </div>
+          <button class="settings-btn danger" onclick="removeAIConfig('${esc(activeConfig.provider)}')">Remove</button>
+        </div>
+      </div>` : ''}
+
+      <div class="settings-card">
+        <h3>🔌 ${activeConfig ? 'Change' : 'Choose'} AI Provider</h3>
+        <div class="provider-grid">
+          ${AI_PROVIDERS.map(p => `
+            <div class="provider-option${settingsProvider===p.id?' selected':''}" onclick="settingsProvider='${p.id}';renderSettings()">
+              <div class="prov-icon">${p.icon}</div>
+              <div>
+                <div class="prov-name">${p.name}</div>
+                <div class="prov-desc">${p.desc}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="settings-field">
+          <label>API Key</label>
+          <input class="settings-input" id="settingsApiKey" type="password" placeholder="sk-... or your API key" autocomplete="off">
+        </div>
+
+        <div class="settings-field">
+          <label>Model</label>
+          ${prov.models.length ? `
+            <select class="settings-select" id="settingsModel">
+              ${prov.models.map(m => `<option value="${m}">${m}</option>`).join('')}
+            </select>
+          ` : `<input class="settings-input" id="settingsModel" placeholder="Model name (e.g. gpt-4o)">`}
+        </div>
+
+        ${settingsProvider === 'custom' ? `
+        <div class="settings-field">
+          <label>Base URL (OpenAI-compatible endpoint)</label>
+          <input class="settings-input" id="settingsBaseUrl" placeholder="https://your-server.com/v1">
+        </div>` : ''}
+
+        <div class="settings-btn-row">
+          <button class="settings-btn primary" onclick="saveAIConfig()">💾 Save Configuration</button>
+          <button class="settings-btn" style="background:var(--bg-1)" onclick="testAIConfig()">🔍 Test Connection</button>
+        </div>
+
+        <div id="settingsTestResult"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>ℹ️ How It Works</h3>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.8">
+          <p><strong>1. Choose a provider</strong> — Select your preferred AI service above</p>
+          <p><strong>2. Enter your API key</strong> — Get one from your provider's dashboard</p>
+          <p><strong>3. Test & save</strong> — We'll verify the connection works</p>
+          <p style="margin-top:12px;color:var(--text-3)">🔒 Your key is encrypted with AES-256-GCM before storage. We never log or expose your key.</p>
+          <p style="color:var(--text-3)">💡 No API key? The app works with simulated AI responses — you can add a key anytime.</p>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🔗 Get API Keys</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
+            <div style="font-weight:600;margin-bottom:4px">🟢 OpenAI</div>
+            <div style="color:var(--text-3)">platform.openai.com/api-keys</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
+            <div style="font-weight:600;margin-bottom:4px">🟣 Anthropic</div>
+            <div style="color:var(--text-3)">console.anthropic.com/settings/keys</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
+            <div style="font-weight:600;margin-bottom:4px">🔵 DeepSeek</div>
+            <div style="color:var(--text-3)">platform.deepseek.com/api_keys</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:12px">
+            <div style="font-weight:600;margin-bottom:4px">⚙️ Custom</div>
+            <div style="color:var(--text-3)">Any OpenAI-compatible API</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function saveAIConfig() {
+  const apiKey = document.getElementById('settingsApiKey')?.value?.trim();
+  const modelEl = document.getElementById('settingsModel');
+  const model = modelEl?.value?.trim() || modelEl?.options?.[modelEl.selectedIndex]?.value;
+  const baseUrl = document.getElementById('settingsBaseUrl')?.value?.trim();
+
+  if (!apiKey) { toast('Please enter an API key', 'info'); return; }
+
+  try {
+    const r = await fetch(API+'/ai/config', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ provider: settingsProvider, apiKey, model, baseUrl: baseUrl||null })
+    });
+    const d = await r.json();
+    if (d.data) { toast('AI provider saved!', 'success'); renderSettings(); }
+    else toast(d.error || 'Failed to save', 'error');
+  } catch(e) { toast('Failed to save configuration', 'error'); }
+}
+
+async function testAIConfig() {
+  const apiKey = document.getElementById('settingsApiKey')?.value?.trim();
+  const modelEl = document.getElementById('settingsModel');
+  const model = modelEl?.value?.trim() || modelEl?.options?.[modelEl.selectedIndex]?.value;
+  const baseUrl = document.getElementById('settingsBaseUrl')?.value?.trim();
+
+  if (!apiKey) { toast('Enter an API key first', 'info'); return; }
+
+  const el = document.getElementById('settingsTestResult');
+  el.innerHTML = '<div style="padding:10px;color:var(--text-3);font-size:12px">Testing connection...</div>';
+
+  try {
+    const r = await fetch(API+'/ai/config/test', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ provider: settingsProvider, apiKey, model, baseUrl: baseUrl||null })
+    });
+    const d = await r.json();
+    if (d.data?.success) {
+      el.innerHTML = `<div class="test-result success">✅ Connected! Model: ${esc(d.data.model)} · Latency: ${d.data.latency}ms</div>`;
+    } else {
+      el.innerHTML = `<div class="test-result fail">❌ Failed: ${esc(d.data?.error||'Unknown error')}</div>`;
+    }
+  } catch(e) {
+    el.innerHTML = `<div class="test-result fail">❌ Connection error</div>`;
+  }
+}
+
+async function removeAIConfig(provider) {
+  if (!confirm('Remove this AI configuration?')) return;
+  try {
+    await fetch(API+'/ai/config/'+provider, {method:'DELETE'});
+    toast('Configuration removed', 'info');
+    renderSettings();
+  } catch(e) { toast('Failed to remove', 'error'); }
+}
+
 // ===== MULTI-DEVICE SYNC =====
 function getDeviceId() {
   let id = localStorage.getItem('vault-device-id');
@@ -2432,7 +2851,9 @@ const commands = [
   { icon:'🔍', label:'Search Notes', shortcut:'Ctrl+K', action:()=>{closeCmdPalette();switchView('search')}},
   { icon:'📅', label:'Calendar', shortcut:'', action:()=>{closeCmdPalette();switchView('calendar')}},
   { icon:'🤖', label:'AI Studio', shortcut:'', action:()=>{closeCmdPalette();switchView('aistudio')}},
+  { icon:'🧠', label:'AI Agent', shortcut:'', action:()=>{closeCmdPalette();switchView('agent')}},
   { icon:'🔄', label:'Sync Devices', shortcut:'', action:()=>{closeCmdPalette();switchView('sync')}},
+  { icon:'⚙️', label:'AI Settings', shortcut:'', action:()=>{closeCmdPalette();switchView('settings')}},
   { icon:'📊', label:'Analytics', shortcut:'', action:()=>{closeCmdPalette();switchView('analytics')}},
   { icon:'⚡', label:'Plans & Pricing', shortcut:'', action:()=>{closeCmdPalette();switchView('pricing')}},
   { icon:'📤', label:'Export Notes', shortcut:'', action:()=>{closeCmdPalette();openExportModal()}},
