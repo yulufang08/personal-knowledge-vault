@@ -490,6 +490,119 @@ a{color:var(--accent);text-decoration:none}
 .limit-fill.warn{background:var(--yellow)}
 .limit-fill.full{background:var(--red)}
 
+/* ===== AI STUDIO ===== */
+.ai-studio{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ai-studio-header{padding:24px 32px 16px}
+.ai-studio-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+.ai-studio-header p{color:var(--text-3);font-size:13px;margin-top:4px}
+.ai-usage-bar{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--text-3)}
+.ai-usage-pills{display:flex;gap:4px}
+.ai-usage-pill{width:18px;height:6px;border-radius:3px;background:var(--bg-4)}
+.ai-usage-pill.used{background:var(--accent)}
+.ai-usage-pill.full{background:var(--red)}
+.ai-studio-body{flex:1;display:flex;overflow:hidden;padding:0 32px 24px;gap:20px}
+.ai-input-panel{width:420px;min-width:360px;display:flex;flex-direction:column;gap:12px}
+.ai-source-tabs{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ai-source-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:500;background:var(--bg-1);color:var(--text-2);transition:var(--transition);border-right:1px solid var(--border)}
+.ai-source-tab:last-child{border-right:none}
+.ai-source-tab.active{background:var(--accent);color:#fff}
+.ai-source-tab:hover:not(.active){background:var(--bg-3)}
+.ai-text-input{flex:1;width:100%;padding:16px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text-0);font-size:13px;line-height:1.7;resize:none;outline:none;font-family:var(--font);transition:var(--transition)}
+.ai-text-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.ai-url-input{width:100%;padding:14px 16px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text-0);font-size:13px;outline:none;transition:var(--transition)}
+.ai-url-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.ai-file-drop{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;cursor:pointer;transition:var(--transition);text-align:center}
+.ai-file-drop:hover,.ai-file-drop.drag-over{border-color:var(--accent);background:var(--accent-soft)}
+.ai-file-drop .drop-icon{font-size:36px}
+.ai-file-drop .drop-title{font-size:14px;font-weight:500;color:var(--text-1)}
+.ai-file-drop .drop-desc{font-size:12px;color:var(--text-3)}
+.ai-file-drop .drop-limit{font-size:11px;color:var(--text-3);margin-top:4px;padding:4px 12px;background:var(--bg-3);border-radius:20px}
+.ai-file-info{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-2);border-radius:var(--radius);font-size:13px}
+.ai-file-info .file-icon{font-size:20px}
+.ai-file-info .file-name{font-weight:500;flex:1}
+.ai-file-info .file-size{font-size:11px;color:var(--text-3)}
+.ai-file-info .file-remove{cursor:pointer;color:var(--text-3);font-size:14px}
+.ai-file-info .file-remove:hover{color:var(--red)}
+.ai-analyze-btn{padding:14px;border:none;border-radius:var(--radius-lg);background:var(--gradient-fun);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+.ai-analyze-btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.3)}
+.ai-analyze-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.ai-analyze-btn .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-result-panel{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;min-width:0}
+.ai-result-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;color:var(--text-3)}
+.ai-result-empty .big-icon{font-size:48px;margin-bottom:12px}
+.ai-result-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.ai-result-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.ai-result-card-header h3{font-size:14px;font-weight:600;flex:1}
+.ai-result-card-header .card-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.ai-result-card-body{padding:20px}
+.ai-summary-text{font-size:14px;color:var(--text-1);line-height:1.8}
+.ai-key-point{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ai-key-point:last-child{border:none}
+.ai-key-point .kp-num{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ai-key-point .kp-text{font-size:13px;color:var(--text-1);line-height:1.6;flex:1}
+.ai-key-point .kp-bar{margin-top:4px;height:3px;border-radius:2px;background:var(--bg-4);overflow:hidden}
+.ai-key-point .kp-bar-fill{height:100%;border-radius:2px;background:var(--gradient-fun)}
+.ai-highlight{display:inline;padding:1px 4px;border-radius:3px;font-weight:500}
+.ai-highlight.entity{background:rgba(124,92,252,.12);color:#7c5cfc}
+.ai-highlight.quote{background:rgba(16,185,129,.1);color:#059669}
+.ai-highlight.emphasis{background:rgba(245,158,11,.1);color:#d97706}
+.ai-highlight.important{background:rgba(236,72,153,.1);color:#db2777}
+.ai-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ai-stat{text-align:center;padding:14px;background:var(--bg-2);border-radius:var(--radius)}
+.ai-stat .stat-num{font-size:24px;font-weight:700;color:var(--text-0)}
+.ai-stat .stat-label{font-size:11px;color:var(--text-3);margin-top:2px}
+.ai-tags-row{display:flex;flex-wrap:wrap;gap:6px}
+.ai-tag-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:var(--accent-soft);color:var(--accent);transition:var(--transition)}
+.ai-tag-chip:hover{background:var(--accent);color:#fff}
+.ai-result-actions{display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--border)}
+.ai-action-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-1);color:var(--text-2);cursor:pointer;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--transition)}
+.ai-action-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.ai-action-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ai-action-btn.primary:hover{opacity:.9}
+.ai-history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:0 32px 24px}
+.ai-history-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:var(--transition)}
+.ai-history-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.ai-history-card .hist-source{font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.ai-history-card .hist-summary{font-size:13px;color:var(--text-1);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ai-history-card .hist-meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text-3)}
+
+/* ===== SYNC VIEW ===== */
+.sync-container{flex:1;overflow-y:auto;padding:32px 48px}
+.sync-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sync-header p{color:var(--text-3);font-size:13px;margin-bottom:24px}
+.sync-status-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-xl);padding:28px;margin-bottom:24px;display:flex;align-items:center;gap:24px}
+.sync-status-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.sync-status-icon.active{background:rgba(16,185,129,.1)}
+.sync-status-icon.inactive{background:var(--bg-3)}
+.sync-status-info{flex:1}
+.sync-status-info h3{font-size:16px;font-weight:600;margin-bottom:2px}
+.sync-status-info p{font-size:13px;color:var(--text-3)}
+.sync-now-btn{padding:10px 24px;border:none;border-radius:var(--radius);background:var(--gradient-fun);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)}
+.sync-now-btn:hover{opacity:.92;box-shadow:0 4px 16px rgba(124,92,252,.25)}
+.device-card{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;transition:var(--transition)}
+.device-card:hover{border-color:var(--border-hover)}
+.device-card.current{border-color:var(--accent);background:var(--accent-soft)}
+.device-icon{font-size:28px}
+.device-info{flex:1}
+.device-info .device-name{font-size:14px;font-weight:500}
+.device-info .device-meta{font-size:12px;color:var(--text-3);display:flex;gap:12px;margin-top:2px}
+.device-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--green-soft);color:var(--green);font-weight:600}
+.device-remove{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text-3);cursor:pointer;font-size:11px;transition:var(--transition)}
+.device-remove:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.sync-feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:24px}
+.sync-feature{padding:20px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center;transition:var(--transition)}
+.sync-feature:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.sync-feature .sf-icon{font-size:28px;margin-bottom:8px}
+.sync-feature .sf-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.sync-feature .sf-desc{font-size:12px;color:var(--text-3);line-height:1.5}
+.sync-tier-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sync-tier{padding:20px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.sync-tier.pro{border-color:var(--accent)}
+.sync-tier h4{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sync-tier ul{list-style:none}
+.sync-tier li{padding:6px 0;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--text-1)}
+
 /* ===== CALENDAR VIEW ===== */
 .calendar-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:24px 32px}
 .calendar-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}
@@ -614,6 +727,12 @@ a{color:var(--accent);text-decoration:none}
   .pricing-cards{grid-template-columns:1fr}
   .main{padding-bottom:60px}
   .ai-panel,.version-panel{margin:16px 20px}
+  .ai-studio-body{flex-direction:column}
+  .ai-input-panel{width:100%;min-width:0}
+  .ai-history-grid{grid-template-columns:1fr;padding:0 20px 24px}
+  .sync-container{padding:24px 20px}
+  .sync-tier-compare{grid-template-columns:1fr}
+  .sync-feature-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -747,9 +866,11 @@ let navEditMode = false;
 const defaultNavItems = [
   { id:'home', icon:'🏠', label:'Home' },
   { id:'notes', icon:'📄', label:'All Notes', countId:'navNoteCount' },
+  { id:'aistudio', icon:'🤖', label:'AI Studio' },
   { id:'graph', icon:'🔮', label:'Graph View' },
   { id:'search', icon:'🔍', label:'Search' },
   { id:'calendar', icon:'📅', label:'Calendar' },
+  { id:'sync', icon:'🔄', label:'Sync' },
   { id:'analytics', icon:'📊', label:'Analytics', proLock:true, lockId:'analyticsLock' },
   { id:'pricing', icon:'⚡', label:'Plans & Pricing' },
 ];
@@ -857,6 +978,7 @@ async function init() {
   await Promise.all([fetchNotes(), fetchProfile()]);
   renderHome();
   bindKeyboard();
+  registerDevice();
 }
 
 function bindKeyboard() {
@@ -1048,6 +1170,8 @@ function switchView(view, navEl) {
     case 'graph': renderGraph(); break;
     case 'search': renderSearchView(); break;
     case 'calendar': renderCalendar(); break;
+    case 'aistudio': renderAIStudio(); break;
+    case 'sync': renderSync(); break;
     case 'pricing': renderPricing(); break;
     case 'analytics': renderAnalytics(); break;
     default: renderHome();
@@ -1633,6 +1757,445 @@ async function doSearch(q) {
     : `<div class="search-empty"><span class="icon">🔍</span><p>No results for "${esc(q)}"</p></div>`;
 }
 
+// ===== AI STUDIO =====
+let aiSourceTab = 'text', aiAnalyzing = false, aiCurrentResult = null, aiUploadedFile = null, aiUsage = { daily:0, limit:3 }, aiLimits = {};
+
+async function renderAIStudio() {
+  const m = document.getElementById('mainContent');
+  // Fetch usage & history
+  let history = [], usage = aiUsage, limits = aiLimits;
+  try {
+    const r = await fetch(API + '/ai/analyses');
+    const d = await r.json();
+    history = d.data || [];
+    usage = d.usage || { daily:0, limit:3 };
+    limits = d.limits || {};
+    aiUsage = usage; aiLimits = limits;
+  } catch(e) {}
+
+  const fileSizeMB = (limits.fileSizeLimit || 2097152) / (1024*1024);
+  const pillsHtml = Array.from({length: usage.limit}, (_, i) =>
+    `<div class="ai-usage-pill${i < usage.daily ? (usage.daily >= usage.limit ? ' full' : ' used') : ''}"></div>`
+  ).join('');
+
+  m.innerHTML = `
+    <div class="ai-studio">
+      <div class="ai-studio-header">
+        <h2>🤖 AI Studio</h2>
+        <p>Paste text, a URL, or upload a file — AI extracts summaries, key points & highlights</p>
+        <div class="ai-usage-bar">
+          <span>Today's usage:</span>
+          <div class="ai-usage-pills">${pillsHtml}</div>
+          <span>${usage.daily}/${usage.limit} analyses</span>
+          ${!limits.isPro ? '<span style="color:var(--accent);cursor:pointer" onclick="openUpgradeModal()">Upgrade for unlimited</span>' : '<span style="color:var(--green)">Pro — Unlimited</span>'}
+        </div>
+      </div>
+      <div class="ai-studio-body">
+        <div class="ai-input-panel">
+          <div class="ai-source-tabs">
+            <div class="ai-source-tab${aiSourceTab==='text'?' active':''}" onclick="aiSwitchTab('text')">📋 Paste Text</div>
+            <div class="ai-source-tab${aiSourceTab==='url'?' active':''}" onclick="aiSwitchTab('url')">🔗 URL</div>
+            <div class="ai-source-tab${aiSourceTab==='file'?' active':''}" onclick="aiSwitchTab('file')">📁 File</div>
+          </div>
+          <div id="aiInputArea"></div>
+          <button class="ai-analyze-btn" id="aiAnalyzeBtn" onclick="runAnalysis()">
+            🤖 Analyze Content
+          </button>
+        </div>
+        <div class="ai-result-panel" id="aiResultPanel">
+          ${aiCurrentResult ? renderAIResult(aiCurrentResult) : `
+          <div class="ai-result-empty">
+            <div class="big-icon">🧠</div>
+            <h3 style="margin-bottom:4px">Paste, link, or upload to analyze</h3>
+            <p style="font-size:13px">AI will extract summaries, key points, and highlight important content</p>
+          </div>`}
+        </div>
+      </div>
+      ${history.length ? `
+      <div style="padding:0 32px 8px"><h3 style="font-size:15px;font-weight:600">📚 Recent Analyses</h3></div>
+      <div class="ai-history-grid">
+        ${history.slice(0,6).map(h => `
+          <div class="ai-history-card" onclick="loadAnalysis('${h.id}')">
+            <div class="hist-source">${h.source_type==='url'?'🔗':h.source_type==='file'?'📁':'📋'} ${esc(h.source_filename||h.source_url||'Text input')}</div>
+            <div class="hist-summary">${esc(h.summary||'')}</div>
+            <div class="hist-meta"><span>${h.word_count} words</span><span>~${h.reading_time} min</span><span>${formatDate(h.created_at)}</span></div>
+          </div>
+        `).join('')}
+      </div>` : ''}
+    </div>
+  `;
+  renderAIInput();
+}
+
+function aiSwitchTab(tab) { aiSourceTab = tab; renderAIInput(); }
+
+function renderAIInput() {
+  const area = document.getElementById('aiInputArea');
+  if (!area) return;
+  const fileSizeMB = (aiLimits.fileSizeLimit || 2097152) / (1024*1024);
+
+  if (aiSourceTab === 'text') {
+    area.innerHTML = `<textarea class="ai-text-input" id="aiTextContent" placeholder="Paste article content, notes, meeting minutes, or any text you want analyzed...&#10;&#10;Supports Chinese & English content.&#10;Tip: Copy from WeChat articles, web pages, or documents."></textarea>`;
+  } else if (aiSourceTab === 'url') {
+    area.innerHTML = `
+      <input class="ai-url-input" id="aiUrlInput" placeholder="Paste a URL (WeChat article, blog post, news article...)">
+      <div style="font-size:12px;color:var(--text-3);padding:8px 4px">
+        Supports: WeChat Official Account articles, blog posts, news sites, etc.
+      </div>
+      <textarea class="ai-text-input" id="aiUrlContent" placeholder="Or paste the article content here if the URL cannot be fetched directly..." style="flex:1"></textarea>`;
+  } else {
+    area.innerHTML = `
+      <div class="ai-file-drop" id="aiFileDrop" onclick="document.getElementById('aiFileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="event.preventDefault();this.classList.remove('drag-over');handleFileDrop(event.dataTransfer.files)">
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Drop file here or click to browse</div>
+        <div class="drop-desc">.txt, .md, .json, .csv — Max ${fileSizeMB}MB</div>
+        <div class="drop-limit">${aiLimits.isPro?'Pro: 50MB per file':'Free: 2MB per file, 5 files total'}</div>
+      </div>
+      <input type="file" id="aiFileInput" style="display:none" accept=".txt,.md,.json,.csv,.html,.xml" onchange="handleFileDrop(this.files)">
+      <div id="aiFilePreview"></div>`;
+  }
+}
+
+function handleFileDrop(files) {
+  if (!files || !files.length) return;
+  const file = files[0];
+  const fileSizeLimit = aiLimits.fileSizeLimit || 2097152;
+  if (file.size > fileSizeLimit) {
+    toast(`File too large (${(file.size/1024/1024).toFixed(1)}MB). Max: ${(fileSizeLimit/1024/1024)}MB`, 'error');
+    if (!aiLimits.isPro) openUpgradeModal();
+    return;
+  }
+  aiUploadedFile = file;
+  const preview = document.getElementById('aiFilePreview');
+  if (preview) {
+    preview.innerHTML = `
+      <div class="ai-file-info">
+        <span class="file-icon">📄</span>
+        <span class="file-name">${esc(file.name)}</span>
+        <span class="file-size">${(file.size/1024).toFixed(1)} KB</span>
+        <span class="file-remove" onclick="aiUploadedFile=null;renderAIInput()">✕</span>
+      </div>`;
+  }
+  const drop = document.getElementById('aiFileDrop');
+  if (drop) drop.style.display = 'none';
+}
+
+async function runAnalysis() {
+  if (aiAnalyzing) return;
+  let content = '', sourceType = aiSourceTab, sourceUrl = '', sourceFilename = '', fileSize = 0;
+
+  if (aiSourceTab === 'text') {
+    content = document.getElementById('aiTextContent')?.value || '';
+  } else if (aiSourceTab === 'url') {
+    sourceUrl = document.getElementById('aiUrlInput')?.value || '';
+    content = document.getElementById('aiUrlContent')?.value || '';
+    if (!content && sourceUrl) content = 'URL: ' + sourceUrl;
+  } else if (aiSourceTab === 'file') {
+    if (!aiUploadedFile) { toast('Please select a file', 'info'); return; }
+    content = await aiUploadedFile.text();
+    sourceFilename = aiUploadedFile.name;
+    fileSize = aiUploadedFile.size;
+  }
+
+  if (!content.trim()) { toast('Please provide content to analyze', 'info'); return; }
+
+  aiAnalyzing = true;
+  const btn = document.getElementById('aiAnalyzeBtn');
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(API + '/ai/analyze', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content, sourceType, sourceUrl, sourceFilename, fileSize })
+    });
+    const d = await r.json();
+    if (d.error) {
+      toast(d.error, 'error');
+      if (d.upgrade) openUpgradeModal();
+    } else if (d.data) {
+      aiCurrentResult = d.data;
+      aiUsage = d.data.usage || aiUsage;
+      document.getElementById('aiResultPanel').innerHTML = renderAIResult(d.data);
+      toast('Analysis complete', 'success');
+    }
+  } catch(e) { toast('Analysis failed', 'error'); }
+
+  aiAnalyzing = false;
+  btn.innerHTML = '🤖 Analyze Content';
+  btn.disabled = false;
+}
+
+function renderAIResult(r) {
+  const highlightTypes = { entity:'🟣 Entity', quote:'🟢 Quote', emphasis:'🟡 Emphasis', important:'🩷 Important' };
+  return `
+    <div class="ai-result-card">
+      <div class="ai-result-card-header">
+        <span>📝</span><h3>Summary</h3>
+        <span class="card-badge" style="background:var(--accent-soft);color:var(--accent)">${r.sourceType||'text'}</span>
+      </div>
+      <div class="ai-result-card-body"><div class="ai-summary-text">${esc(r.summary)}</div></div>
+    </div>
+
+    <div class="ai-result-card">
+      <div class="ai-result-card-header"><span>📊</span><h3>Stats</h3></div>
+      <div class="ai-result-card-body">
+        <div class="ai-stats-grid">
+          <div class="ai-stat"><div class="stat-num">${r.wordCount}</div><div class="stat-label">Words</div></div>
+          <div class="ai-stat"><div class="stat-num">~${r.readingTime}m</div><div class="stat-label">Read Time</div></div>
+          <div class="ai-stat"><div class="stat-num">${(r.keyPoints||[]).length}</div><div class="stat-label">Key Points</div></div>
+        </div>
+      </div>
+    </div>
+
+    ${(r.keyPoints||[]).length ? `
+    <div class="ai-result-card">
+      <div class="ai-result-card-header"><span>💡</span><h3>Key Points</h3></div>
+      <div class="ai-result-card-body">
+        ${r.keyPoints.map((kp, i) => `
+          <div class="ai-key-point">
+            <div class="kp-num">${i+1}</div>
+            <div class="kp-text">
+              ${esc(kp.text)}
+              <div class="kp-bar"><div class="kp-bar-fill" style="width:${(kp.importance||0.5)*100}%"></div></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    ${(r.highlights||[]).length ? `
+    <div class="ai-result-card">
+      <div class="ai-result-card-header"><span>🖍️</span><h3>Highlights</h3></div>
+      <div class="ai-result-card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+        ${r.highlights.map(h => `<span class="ai-highlight ${h.type}">${esc(h.text)}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${(r.suggestedTags||[]).length ? `
+    <div class="ai-result-card">
+      <div class="ai-result-card-header"><span>🏷️</span><h3>Suggested Tags</h3></div>
+      <div class="ai-result-card-body">
+        <div class="ai-tags-row">${r.suggestedTags.map(t => `<span class="ai-tag-chip">${esc(t)}</span>`).join('')}</div>
+      </div>
+    </div>` : ''}
+
+    ${r.id ? `
+    <div class="ai-result-card">
+      <div class="ai-result-actions">
+        <button class="ai-action-btn primary" onclick="saveAnalysisAsNote('${r.id}')">💾 Save as Note</button>
+        <button class="ai-action-btn" onclick="copyAnalysis()">📋 Copy Summary</button>
+        <button class="ai-action-btn" onclick="deleteAnalysis('${r.id}')">🗑 Delete</button>
+      </div>
+    </div>` : ''}
+  `;
+}
+
+async function loadAnalysis(id) {
+  try {
+    const r = await fetch(API + '/ai/analyses/' + id);
+    const d = await r.json();
+    if (d.data) {
+      const a = d.data;
+      aiCurrentResult = {
+        id: a.id, summary: a.summary, keyPoints: a.key_points||[], highlights: a.highlights||[],
+        suggestedTags: a.suggested_tags||[], wordCount: a.word_count, readingTime: a.reading_time,
+        sourceType: a.source_type, sourceUrl: a.source_url, sourceFilename: a.source_filename,
+      };
+      document.getElementById('aiResultPanel').innerHTML = renderAIResult(aiCurrentResult);
+    }
+  } catch(e) { toast('Failed to load analysis', 'error'); }
+}
+
+async function saveAnalysisAsNote(id) {
+  try {
+    const r = await fetch(API + '/ai/analyses/' + id + '/save-as-note', { method: 'POST' });
+    const d = await r.json();
+    if (d.data) { await fetchNotes(); toast('Saved as note!', 'success'); openNote(d.data.id); }
+  } catch(e) { toast('Failed to save', 'error'); }
+}
+
+function copyAnalysis() {
+  if (!aiCurrentResult) return;
+  const text = `Summary: ${aiCurrentResult.summary}\n\nKey Points:\n${(aiCurrentResult.keyPoints||[]).map((p,i) => `${i+1}. ${p.text}`).join('\n')}`;
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard', 'success'));
+}
+
+async function deleteAnalysis(id) {
+  if (!confirm('Delete this analysis?')) return;
+  try {
+    await fetch(API + '/ai/analyses/' + id, { method: 'DELETE' });
+    aiCurrentResult = null;
+    renderAIStudio();
+    toast('Analysis deleted', 'info');
+  } catch(e) { toast('Failed to delete', 'error'); }
+}
+
+// ===== MULTI-DEVICE SYNC =====
+function getDeviceId() {
+  let id = localStorage.getItem('vault-device-id');
+  if (!id) { id = 'dev-' + Math.random().toString(36).substring(2, 10); localStorage.setItem('vault-device-id', id); }
+  return id;
+}
+
+function detectDeviceType() {
+  const ua = navigator.userAgent;
+  if (/iPad|tablet/i.test(ua)) return 'tablet';
+  if (/iPhone|Android.*Mobile/i.test(ua)) return 'phone';
+  return 'desktop';
+}
+
+function getDeviceIcon(type) {
+  if (type === 'phone') return '📱';
+  if (type === 'tablet') return '📱';
+  return '💻';
+}
+
+async function registerDevice() {
+  const deviceType = detectDeviceType();
+  const deviceName = `${deviceType === 'phone' ? 'Mobile' : deviceType === 'tablet' ? 'Tablet' : 'Desktop'} — ${navigator.platform || 'Unknown'}`;
+  try {
+    await fetch(API + '/sync/device', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceName, deviceType, deviceId: getDeviceId() })
+    });
+  } catch(e) {}
+}
+
+async function renderSync() {
+  const m = document.getElementById('mainContent');
+  let syncStatus = {}, devices = [];
+  try {
+    const [sr, dr] = await Promise.all([
+      fetch(API + '/sync/status').then(r => r.json()),
+      fetch(API + '/sync/devices').then(r => r.json())
+    ]);
+    syncStatus = sr.data || {};
+    devices = dr.data || [];
+  } catch(e) {}
+
+  const isPro = syncStatus.isPro;
+  const maxDev = syncStatus.maxDevices || 2;
+
+  m.innerHTML = `
+    <div class="sync-container">
+      <div class="sync-header">
+        <h2>🔄 Multi-Device Sync</h2>
+        <p>Keep your notes in sync across all your devices — seamlessly</p>
+      </div>
+
+      <div class="sync-status-card">
+        <div class="sync-status-icon ${syncStatus.deviceCount > 0 ? 'active' : 'inactive'}">
+          ${syncStatus.deviceCount > 0 ? '✅' : '⏸️'}
+        </div>
+        <div class="sync-status-info">
+          <h3>${syncStatus.deviceCount > 0 ? 'Sync Active' : 'Not Syncing'}</h3>
+          <p>${syncStatus.deviceCount} device${syncStatus.deviceCount !== 1 ? 's' : ''} connected · ${syncStatus.noteCount || 0} notes · Last sync: ${syncStatus.lastSyncAt ? formatDate(syncStatus.lastSyncAt) : 'Never'}</p>
+        </div>
+        <button class="sync-now-btn" onclick="doSync()">🔄 Sync Now</button>
+      </div>
+
+      <div class="sync-feature-grid">
+        <div class="sync-feature">
+          <div class="sf-icon">⚡</div>
+          <div class="sf-title">Real-time Sync</div>
+          <div class="sf-desc">Changes propagate instantly across all connected devices</div>
+        </div>
+        <div class="sync-feature">
+          <div class="sf-icon">🔒</div>
+          <div class="sf-title">End-to-End Encrypted</div>
+          <div class="sf-desc">Your notes are encrypted before leaving your device</div>
+        </div>
+        <div class="sync-feature">
+          <div class="sf-icon">📴</div>
+          <div class="sf-title">Offline Support</div>
+          <div class="sf-desc">Edit offline, auto-sync when you reconnect</div>
+        </div>
+        <div class="sync-feature">
+          <div class="sf-icon">🔀</div>
+          <div class="sf-title">Conflict Resolution</div>
+          <div class="sf-desc">Smart merge when the same note is edited on multiple devices</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">📱 Connected Devices <span style="font-size:12px;color:var(--text-3);font-weight:400">(${devices.length}/${maxDev})</span></h3>
+        ${devices.length ? devices.map(d => `
+          <div class="device-card${d.is_current ? ' current' : ''}">
+            <div class="device-icon">${getDeviceIcon(d.device_type)}</div>
+            <div class="device-info">
+              <div class="device-name">${esc(d.device_name)}</div>
+              <div class="device-meta">
+                <span>${d.device_type}</span>
+                <span>Last sync: ${formatDate(d.last_synced_at)}</span>
+              </div>
+            </div>
+            ${d.is_current ? '<span class="device-badge">This Device</span>' : `<button class="device-remove" onclick="removeDevice('${d.id}')">Remove</button>`}
+          </div>
+        `).join('') : `
+          <div style="text-align:center;padding:32px;color:var(--text-3)">
+            <div style="font-size:32px;margin-bottom:8px">📱</div>
+            <p>No devices connected yet. Click "Sync Now" to register this device.</p>
+          </div>
+        `}
+        ${!isPro && devices.length >= 2 ? `
+          <div style="text-align:center;padding:16px;color:var(--gold);font-size:13px">
+            ⚠️ Free plan supports up to 2 devices. <a href="#" onclick="openUpgradeModal();return false" style="color:var(--accent)">Upgrade to Pro</a> for up to 10 devices.
+          </div>` : ''}
+      </div>
+
+      <div>
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">Free vs Pro Sync</h3>
+        <div class="sync-tier-compare">
+          <div class="sync-tier">
+            <h4>🆓 Free</h4>
+            <ul>
+              <li><span style="color:var(--green)">✓</span> Up to 2 devices</li>
+              <li><span style="color:var(--green)">✓</span> Manual sync</li>
+              <li><span style="color:var(--green)">✓</span> Basic conflict resolution</li>
+              <li><span style="color:var(--text-3)">✗</span> <span style="color:var(--text-3)">Real-time sync</span></li>
+              <li><span style="color:var(--text-3)">✗</span> <span style="color:var(--text-3)">Offline mode</span></li>
+              <li><span style="color:var(--text-3)">✗</span> <span style="color:var(--text-3)">Sync history</span></li>
+            </ul>
+          </div>
+          <div class="sync-tier pro">
+            <h4>⚡ Pro</h4>
+            <ul>
+              <li><span style="color:var(--green)">✓</span> Up to <strong>10 devices</strong></li>
+              <li><span style="color:var(--green)">✓</span> <strong>Real-time</strong> auto-sync</li>
+              <li><span style="color:var(--green)">✓</span> Smart conflict resolution</li>
+              <li><span style="color:var(--green)">✓</span> Full offline support</li>
+              <li><span style="color:var(--green)">✓</span> 30-day sync history</li>
+              <li><span style="color:var(--green)">✓</span> End-to-end encryption</li>
+            </ul>
+            ${!isPro ? `<button class="plan-btn pro" style="margin-top:12px" onclick="openUpgradeModal()">Upgrade to Pro</button>` : '<div style="text-align:center;margin-top:12px;color:var(--green);font-weight:600">Current Plan ✓</div>'}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function doSync() {
+  await registerDevice();
+  toast('Syncing...', 'info');
+  await fetchNotes();
+  await fetchProfile();
+  setTimeout(() => { toast('Sync complete!', 'success'); renderSync(); }, 800);
+}
+
+async function removeDevice(id) {
+  if (!confirm('Remove this device from sync?')) return;
+  try {
+    await fetch(API + '/sync/devices/' + id, { method: 'DELETE' });
+    toast('Device removed', 'info');
+    renderSync();
+  } catch(e) { toast('Failed to remove device', 'error'); }
+}
+
 // ===== CALENDAR VIEW =====
 let calYear, calMonth, calViewMode = 'month', calPopoverEl = null;
 (function() { const d = new Date(); calYear = d.getFullYear(); calMonth = d.getMonth(); })();
@@ -1868,6 +2431,8 @@ const commands = [
   { icon:'🔮', label:'Knowledge Graph', shortcut:'', action:()=>{closeCmdPalette();switchView('graph')}},
   { icon:'🔍', label:'Search Notes', shortcut:'Ctrl+K', action:()=>{closeCmdPalette();switchView('search')}},
   { icon:'📅', label:'Calendar', shortcut:'', action:()=>{closeCmdPalette();switchView('calendar')}},
+  { icon:'🤖', label:'AI Studio', shortcut:'', action:()=>{closeCmdPalette();switchView('aistudio')}},
+  { icon:'🔄', label:'Sync Devices', shortcut:'', action:()=>{closeCmdPalette();switchView('sync')}},
   { icon:'📊', label:'Analytics', shortcut:'', action:()=>{closeCmdPalette();switchView('analytics')}},
   { icon:'⚡', label:'Plans & Pricing', shortcut:'', action:()=>{closeCmdPalette();switchView('pricing')}},
   { icon:'📤', label:'Export Notes', shortcut:'', action:()=>{closeCmdPalette();openExportModal()}},

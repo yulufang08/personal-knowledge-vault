@@ -14,7 +14,7 @@ const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Database connection pool
@@ -40,6 +40,12 @@ const pool = process.env.DATABASE_URL
 // ===== CONSTANTS =====
 const GUEST_USER_ID = '00000000-0000-0000-0000-000000000001';
 const FREE_NOTE_LIMIT = 50;
+const FREE_ANALYSIS_DAILY_LIMIT = 3;
+const PRO_ANALYSIS_DAILY_LIMIT = 999;
+const FREE_FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MB
+const PRO_FILE_SIZE_LIMIT = 50 * 1024 * 1024; // 50MB
+const FREE_FILE_COUNT_LIMIT = 5;
+const PRO_FILE_COUNT_LIMIT = 999;
 
 // ===== DATABASE INIT =====
 async function initializeDatabase() {
@@ -113,6 +119,35 @@ async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS ai_analyses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        source_type VARCHAR(20) NOT NULL,
+        source_url TEXT,
+        source_filename VARCHAR(255),
+        original_content TEXT NOT NULL,
+        summary TEXT,
+        key_points JSONB DEFAULT '[]',
+        highlights JSONB DEFAULT '[]',
+        suggested_tags JSONB DEFAULT '[]',
+        word_count INT DEFAULT 0,
+        reading_time INT DEFAULT 0,
+        file_size INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS sync_devices (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        device_name VARCHAR(255) NOT NULL,
+        device_type VARCHAR(50) NOT NULL,
+        device_id VARCHAR(255) NOT NULL,
+        last_synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_current BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, device_id)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_notes_user_id ON notes(user_id);
       CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_tags_user_id ON tags(user_id);
@@ -121,6 +156,8 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_note_links_source ON note_links(source_note_id);
       CREATE INDEX IF NOT EXISTS idx_note_links_target ON note_links(target_note_id);
       CREATE INDEX IF NOT EXISTS idx_note_versions_note ON note_versions(note_id, version_number DESC);
+      CREATE INDEX IF NOT EXISTS idx_ai_analyses_user ON ai_analyses(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_sync_devices_user ON sync_devices(user_id);
     `);
 
     // Add subscription column if it doesn't exist (migration for existing DBs)
@@ -701,6 +738,335 @@ app.get('/api/pro/graph/analytics', requirePro, async (req: Request, res: Respon
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
+// ===== AI ANALYSIS (Free: 3/day, 2MB, 5 files | Pro: unlimited, 50MB, unlimited) =====
+
+// Helper: get user tier limits
+async function getUserLimits(userId: string) {
+  const r = await pool.query(`SELECT subscription, subscription_expires_at FROM users WHERE id = $1`, [userId]);
+  const user = r.rows[0] || {};
+  const isPro = user.subscription === 'pro' &&
+    (!user.subscription_expires_at || new Date(user.subscription_expires_at) > new Date());
+  return {
+    isPro,
+    dailyLimit: isPro ? PRO_ANALYSIS_DAILY_LIMIT : FREE_ANALYSIS_DAILY_LIMIT,
+    fileSizeLimit: isPro ? PRO_FILE_SIZE_LIMIT : FREE_FILE_SIZE_LIMIT,
+    fileCountLimit: isPro ? PRO_FILE_COUNT_LIMIT : FREE_FILE_COUNT_LIMIT,
+  };
+}
+
+// Check daily analysis usage
+async function getDailyUsage(userId: string) {
+  const r = await pool.query(
+    `SELECT COUNT(*) as count FROM ai_analyses WHERE user_id = $1 AND created_at > NOW() - INTERVAL '1 day'`,
+    [userId]
+  );
+  return parseInt(r.rows[0].count);
+}
+
+// Simulated AI analysis — replace with real API later
+function analyzeContent(text: string) {
+  const sentences = text.replace(/[#*`>\-\[\]]/g, '').split(/[.!?。！？\n]+/).filter((s: string) => s.trim().length > 8);
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const charCount = text.length;
+
+  // Extract key points (top sentences by length & keyword density)
+  const keyPoints = sentences
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 20)
+    .slice(0, 6)
+    .map((s: string, i: number) => ({ id: i, text: s, importance: Math.max(0.5, 1 - i * 0.1) }));
+
+  // Extract highlight phrases (capitalized phrases, quoted text, bold patterns)
+  const highlights: { text: string; type: string }[] = [];
+  const capitalPhrases = text.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+/g) || [];
+  capitalPhrases.slice(0, 8).forEach(p => highlights.push({ text: p, type: 'entity' }));
+  const quotedText = text.match(/"([^"]+)"/g) || [];
+  quotedText.slice(0, 4).forEach(q => highlights.push({ text: q.replace(/"/g, ''), type: 'quote' }));
+  const boldText = text.match(/\*\*([^*]+)\*\*/g) || [];
+  boldText.slice(0, 4).forEach(b => highlights.push({ text: b.replace(/\*\*/g, ''), type: 'emphasis' }));
+  // Add some keyword-based highlights
+  const importantWords = text.match(/\b(?:important|key|critical|essential|significant|notable|crucial|主要|重要|关键|核心|总结)[^.。!！?？\n]*/gi) || [];
+  importantWords.slice(0, 3).forEach(w => highlights.push({ text: w.trim(), type: 'important' }));
+
+  // Summary
+  const summary = sentences.slice(0, 3).map((s: string) => s.trim()).join('. ') || 'Content is too brief for summarization.';
+
+  // Tag suggestions
+  const tagMap: Record<string, string[]> = {
+    'tech': ['api', 'code', 'javascript', 'python', 'react', 'server', 'database', 'algorithm'],
+    'design': ['ui', 'ux', 'color', 'layout', 'font', 'design', 'wireframe'],
+    'business': ['revenue', 'growth', 'market', 'strategy', 'roi', 'customer', 'kpi'],
+    'learning': ['learn', 'tutorial', 'course', 'study', 'concept', 'theory'],
+    'research': ['research', 'paper', 'study', 'data', 'finding', 'analysis'],
+    'news': ['announced', 'launch', 'update', 'release', 'report', 'news'],
+    'personal': ['journal', 'diary', 'goal', 'habit', 'reflection'],
+    'meeting': ['meeting', 'agenda', 'action items', 'discuss', 'sync'],
+  };
+  const lower = text.toLowerCase();
+  const suggestedTags: string[] = [];
+  for (const [tag, kws] of Object.entries(tagMap)) {
+    if (kws.some(kw => lower.includes(kw))) suggestedTags.push(tag);
+  }
+
+  return {
+    summary,
+    keyPoints,
+    highlights,
+    suggestedTags: suggestedTags.slice(0, 5),
+    wordCount,
+    charCount,
+    readingTime: Math.max(1, Math.ceil(wordCount / 200)),
+  };
+}
+
+// POST /api/ai/analyze — analyze text, URL, or file content
+app.post('/api/ai/analyze', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { content, sourceType, sourceUrl, sourceFilename, fileSize } = req.body;
+    // sourceType: 'text' | 'url' | 'file'
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const limits = await getUserLimits(userId);
+    const dailyUsage = await getDailyUsage(userId);
+
+    // Check daily limit
+    if (dailyUsage >= limits.dailyLimit) {
+      return res.json({
+        error: `Daily analysis limit reached (${limits.dailyLimit}/day). ${limits.isPro ? '' : 'Upgrade to Pro for unlimited analyses.'}`,
+        upgrade: !limits.isPro,
+        limit: { daily: limits.dailyLimit, used: dailyUsage }
+      });
+    }
+
+    // Check file size limit
+    if (fileSize && fileSize > limits.fileSizeLimit) {
+      const limitMB = limits.fileSizeLimit / (1024 * 1024);
+      return res.json({
+        error: `File exceeds ${limitMB}MB limit. ${limits.isPro ? '' : 'Upgrade to Pro for 50MB file support.'}`,
+        upgrade: !limits.isPro,
+      });
+    }
+
+    // Check file count limit for file type
+    if (sourceType === 'file') {
+      const fileCount = await pool.query(
+        `SELECT COUNT(*) as count FROM ai_analyses WHERE user_id = $1 AND source_type = 'file'`,
+        [userId]
+      );
+      if (parseInt(fileCount.rows[0].count) >= limits.fileCountLimit) {
+        return res.json({
+          error: `File analysis limit reached (${limits.fileCountLimit} files). ${limits.isPro ? '' : 'Upgrade to Pro for unlimited file analyses.'}`,
+          upgrade: !limits.isPro,
+        });
+      }
+    }
+
+    // Run analysis
+    const analysis = analyzeContent(content);
+
+    // Save to DB
+    const result = await pool.query(
+      `INSERT INTO ai_analyses (user_id, source_type, source_url, source_filename, original_content, summary, key_points, highlights, suggested_tags, word_count, reading_time, file_size)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, created_at`,
+      [userId, sourceType || 'text', sourceUrl || null, sourceFilename || null, content,
+       analysis.summary, JSON.stringify(analysis.keyPoints), JSON.stringify(analysis.highlights),
+       JSON.stringify(analysis.suggestedTags), analysis.wordCount, analysis.readingTime, fileSize || 0]
+    );
+
+    res.json({
+      data: {
+        id: result.rows[0].id,
+        ...analysis,
+        sourceType,
+        sourceUrl,
+        sourceFilename,
+        created_at: result.rows[0].created_at,
+        usage: { daily: dailyUsage + 1, limit: limits.dailyLimit },
+      }
+    });
+  } catch (error) {
+    console.error('AI analysis error:', error);
+    res.status(500).json({ error: 'Analysis failed' });
+  }
+});
+
+// GET /api/ai/analyses — list past analyses
+app.get('/api/ai/analyses', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const result = await pool.query(
+      `SELECT id, source_type, source_url, source_filename, summary, key_points, highlights, suggested_tags, word_count, reading_time, file_size, created_at
+       FROM ai_analyses WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+      [userId]
+    );
+    const limits = await getUserLimits(userId);
+    const dailyUsage = await getDailyUsage(userId);
+    res.json({
+      data: result.rows,
+      usage: { daily: dailyUsage, limit: limits.dailyLimit },
+      limits: {
+        isPro: limits.isPro,
+        fileSizeLimit: limits.fileSizeLimit,
+        fileCountLimit: limits.fileCountLimit,
+        dailyLimit: limits.dailyLimit,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch analyses' });
+  }
+});
+
+// GET /api/ai/analyses/:id — get single analysis detail
+app.get('/api/ai/analyses/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const result = await pool.query(
+      `SELECT * FROM ai_analyses WHERE id = $1 AND user_id = $2`, [id, userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Analysis not found' });
+    res.json({ data: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch analysis' });
+  }
+});
+
+// DELETE /api/ai/analyses/:id
+app.delete('/api/ai/analyses/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    await pool.query(`DELETE FROM ai_analyses WHERE id = $1 AND user_id = $2`, [id, userId]);
+    res.json({ message: 'Analysis deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete analysis' });
+  }
+});
+
+// Save analysis as note
+app.post('/api/ai/analyses/:id/save-as-note', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const analysis = await pool.query(
+      `SELECT * FROM ai_analyses WHERE id = $1 AND user_id = $2`, [id, userId]
+    );
+    if (analysis.rows.length === 0) return res.status(404).json({ error: 'Analysis not found' });
+
+    const a = analysis.rows[0];
+    const keyPoints = (a.key_points || []).map((p: any) => `- ${p.text}`).join('\n');
+    const tags = a.suggested_tags || [];
+    const title = a.source_filename || (a.source_url ? 'From: ' + a.source_url.substring(0, 60) : 'AI Analysis');
+    const markdown = `# ${title}\n\n## Summary\n${a.summary}\n\n## Key Points\n${keyPoints}\n\n---\n*Source: ${a.source_type}${a.source_url ? ' — ' + a.source_url : ''}*\n*Analyzed: ${new Date(a.created_at).toLocaleString()}*`;
+
+    const noteId = uuidv4();
+    const noteResult = await pool.query(
+      `INSERT INTO notes (id, user_id, title, content, markdown) VALUES ($1, $2, $3, $4, $5) RETURNING id, title, created_at`,
+      [noteId, userId, title, markdown, markdown]
+    );
+
+    // Add suggested tags
+    for (const tagName of tags) {
+      const tagResult = await pool.query(
+        `INSERT INTO tags (user_id, name) VALUES ($1, $2) ON CONFLICT (user_id, name) DO UPDATE SET name = name RETURNING id`,
+        [userId, tagName]
+      );
+      await pool.query(`INSERT INTO note_tags (note_id, tag_id) VALUES ($1, $2)`, [noteId, tagResult.rows[0].id]);
+    }
+
+    res.json({ data: noteResult.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save as note' });
+  }
+});
+
+// ===== MULTI-DEVICE SYNC =====
+
+// Register / update current device
+app.post('/api/sync/device', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { deviceName, deviceType, deviceId } = req.body;
+    if (!deviceName || !deviceId) return res.status(400).json({ error: 'Device name and ID required' });
+
+    // Unset current from all devices
+    await pool.query(`UPDATE sync_devices SET is_current = false WHERE user_id = $1`, [userId]);
+
+    // Upsert this device
+    const result = await pool.query(
+      `INSERT INTO sync_devices (user_id, device_name, device_type, device_id, is_current, last_synced_at)
+       VALUES ($1, $2, $3, $4, true, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id, device_id) DO UPDATE SET
+         device_name = $2, device_type = $3, is_current = true, last_synced_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [userId, deviceName, deviceType || 'desktop', deviceId]
+    );
+    res.json({ data: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to register device' });
+  }
+});
+
+// Get all synced devices
+app.get('/api/sync/devices', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const result = await pool.query(
+      `SELECT id, device_name, device_type, device_id, is_current, last_synced_at, created_at
+       FROM sync_devices WHERE user_id = $1 ORDER BY last_synced_at DESC`,
+      [userId]
+    );
+    res.json({ data: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch devices' });
+  }
+});
+
+// Remove a device
+app.delete('/api/sync/devices/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    await pool.query(`DELETE FROM sync_devices WHERE id = $1 AND user_id = $2`, [id, userId]);
+    res.json({ message: 'Device removed' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove device' });
+  }
+});
+
+// Sync status endpoint
+app.get('/api/sync/status', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const devices = await pool.query(
+      `SELECT COUNT(*) as count FROM sync_devices WHERE user_id = $1`, [userId]
+    );
+    const lastSync = await pool.query(
+      `SELECT MAX(last_synced_at) as last_sync FROM sync_devices WHERE user_id = $1`, [userId]
+    );
+    const noteCount = await pool.query(
+      `SELECT COUNT(*) as count FROM notes WHERE user_id = $1 AND deleted_at IS NULL`, [userId]
+    );
+    const limits = await getUserLimits(userId);
+    res.json({
+      data: {
+        deviceCount: parseInt(devices.rows[0].count),
+        lastSyncAt: lastSync.rows[0].last_sync,
+        noteCount: parseInt(noteCount.rows[0].count),
+        syncEnabled: limits.isPro || parseInt(devices.rows[0].count) <= 2,
+        isPro: limits.isPro,
+        maxDevices: limits.isPro ? 10 : 2,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get sync status' });
   }
 });
 
