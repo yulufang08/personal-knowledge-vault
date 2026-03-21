@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>yulufang@sjtu.edu.cn — Personal Knowledge Base</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -733,6 +734,54 @@ a{color:var(--accent);text-decoration:none}
 .friend-item .friend-name{font-size:13px;font-weight:600}
 .friend-item .friend-bio{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:768px){.msg-sidebar{width:100%;min-width:100%}.msg-layout.chat-open .msg-sidebar{display:none}.msg-layout:not(.chat-open) .msg-chat{display:none}}
+/* ===== DOCUMENTS / PDF READER ===== */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.doc-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:var(--transition);text-align:center}
+.doc-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.doc-card .doc-icon{font-size:36px;margin-bottom:8px}
+.doc-card .doc-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-card .doc-meta{font-size:10px;color:var(--text-3);margin-top:4px}
+.doc-upload-zone{border:2px dashed var(--border);border-radius:var(--radius-xl);padding:40px;text-align:center;cursor:pointer;transition:var(--transition);background:var(--bg-2)}
+.doc-upload-zone:hover,.doc-upload-zone.dragover{border-color:var(--accent);background:var(--accent-soft)}
+.pdf-reader{display:flex;height:100%;overflow:hidden}
+.pdf-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pdf-toolbar{padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg-1);flex-shrink:0}
+.pdf-toolbar button{padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-2);cursor:pointer;font-size:12px;transition:var(--transition)}
+.pdf-toolbar button:hover{border-color:var(--accent);color:var(--accent)}
+.pdf-toolbar button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pdf-viewer{flex:1;overflow:auto;background:#525659;display:flex;flex-direction:column;align-items:center;padding:16px;gap:8px}
+.pdf-page-wrapper{position:relative;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.pdf-page-wrapper canvas{display:block}
+.pdf-highlight{position:absolute;background:rgba(255,235,59,.35);cursor:pointer;border-radius:2px;transition:background .2s}
+.pdf-highlight:hover{background:rgba(255,235,59,.55)}
+.pdf-highlight.hl-red{background:rgba(239,68,68,.25)}.pdf-highlight.hl-red:hover{background:rgba(239,68,68,.4)}
+.pdf-highlight.hl-green{background:rgba(16,185,129,.25)}.pdf-highlight.hl-green:hover{background:rgba(16,185,129,.4)}
+.pdf-highlight.hl-blue{background:rgba(99,102,241,.25)}.pdf-highlight.hl-blue:hover{background:rgba(99,102,241,.4)}
+.pdf-sidebar{width:320px;min-width:320px;border-left:1px solid var(--border);background:var(--bg-1);display:flex;flex-direction:column;overflow:hidden}
+.pdf-sidebar-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.pdf-sidebar-tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-3);transition:var(--transition)}
+.pdf-sidebar-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.pdf-sidebar-content{flex:1;overflow-y:auto;padding:16px}
+.pdf-note-item{padding:10px;background:var(--bg-2);border-radius:var(--radius);margin-bottom:8px;font-size:12px}
+.pdf-note-item .note-page{font-size:10px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.pdf-ai-chat{display:flex;flex-direction:column;height:100%}
+.pdf-ai-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pdf-ai-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.pdf-ai-input input{flex:1;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-2);font-size:13px;outline:none}
+.pdf-ai-input input:focus{border-color:var(--accent)}
+.pdf-ai-input button{padding:8px 14px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;font-weight:600}
+/* ===== NOTE MULTI-SELECT ===== */
+.note-select-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--accent);color:#fff;border-radius:var(--radius);margin-bottom:12px;font-size:13px}
+.note-select-bar button{padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:12px;transition:var(--transition)}
+.note-select-bar button:hover{background:rgba(255,255,255,.25)}
+.note-select-bar button.danger{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.3)}
+.grid-card.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+.grid-card .select-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg-1);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:var(--transition);z-index:2}
+.grid-card .select-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ===== INLINE SEARCH ===== */
+.view-search{display:flex;gap:8px;margin-bottom:16px;align-items:center}
+.view-search input{flex:1;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-2);font-size:13px;outline:none;transition:var(--transition)}
+.view-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .post-comments-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .post-comment{display:flex;gap:8px;margin-bottom:8px;font-size:13px}
 .post-comment .comment-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
@@ -1189,6 +1238,7 @@ const defaultNavItems = [
   { id:'notes', icon:'📄', label:'All Notes', countId:'navNoteCount' },
   { id:'aistudio', icon:'🤖', label:'AI Studio' },
   { id:'agent', icon:'🧠', label:'AI Agent' },
+  { id:'documents', icon:'📁', label:'Documents' },
   { id:'graph', icon:'🔮', label:'Graph View' },
   { id:'search', icon:'🔍', label:'Search' },
   { id:'calendar', icon:'📅', label:'Calendar' },
@@ -1597,6 +1647,7 @@ function switchView(view, navEl) {
   switch(view) {
     case 'home': renderHome(); break;
     case 'notes': renderNotesGrid(); break;
+    case 'documents': renderDocuments(); break;
     case 'graph': renderGraph(); break;
     case 'search': renderSearchView(); break;
     case 'calendar': renderCalendar(); break;
@@ -1804,15 +1855,66 @@ function getItemIcon(n) {
   return '📄';
 }
 
+let noteSelectMode = false;
+let selectedNotes = new Set();
+let notesSearchQuery = '';
+
+function toggleNoteSelect() {
+  noteSelectMode = !noteSelectMode;
+  selectedNotes.clear();
+  renderNotesGrid();
+}
+
+function toggleNoteSelected(id, e) {
+  if (e) e.stopPropagation();
+  if (selectedNotes.has(id)) selectedNotes.delete(id); else selectedNotes.add(id);
+  renderNotesGrid();
+}
+
+function selectAllNotes() {
+  const children = getChildren(notesViewParent).filter(n => n.item_type !== 'folder');
+  if (selectedNotes.size === children.length) { selectedNotes.clear(); } else { children.forEach(n => selectedNotes.add(n.id)); }
+  renderNotesGrid();
+}
+
+async function bulkDeleteNotes() {
+  if (!selectedNotes.size) return;
+  if (!confirm(`Delete ${selectedNotes.size} notes?`)) return;
+  for (const id of selectedNotes) { await fetch(API+'/notes/'+id, { method:'DELETE' }); }
+  notes = notes.filter(n => !selectedNotes.has(n.id));
+  selectedNotes.clear();
+  noteSelectMode = false;
+  toast('Notes deleted', 'success');
+  renderNotesGrid();
+}
+
+async function bulkExportNotes() {
+  const exportData = notes.filter(n => selectedNotes.has(n.id)).map(n => ({ title: n.title, content: n.content, markdown: n.markdown, tags: n.tags }));
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `notes-export-${localDateStr(new Date())}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast(`Exported ${exportData.length} notes`, 'success');
+}
+
 function renderNotesGrid() {
   const m = document.getElementById('mainContent');
-  const children = getChildren(notesViewParent);
+  let children = getChildren(notesViewParent);
   const crumbs = getBreadcrumbs();
+
+  // Filter by search
+  if (notesSearchQuery) {
+    const q = notesSearchQuery.toLowerCase();
+    children = children.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q) || (n.markdown||'').toLowerCase().includes(q) || (n.tags||[]).some(t => t.toLowerCase().includes(q)));
+  }
+
   const folders = children.filter(n => n.item_type === 'folder');
   const items = children.filter(n => n.item_type !== 'folder');
 
   const breadcrumbHtml = `<span style="cursor:pointer;color:var(--accent)" onclick="notesViewParent=null;renderNotesGrid()">All Notes</span>`
     + crumbs.map(c => ` <span class="sep" style="color:var(--text-3);margin:0 4px">/</span> <span style="cursor:pointer;color:var(--accent)" onclick="notesViewParent='${c.id}';renderNotesGrid()">${esc(c.title)}</span>`).join('');
+
+  const selectBar = noteSelectMode ? `<div class="note-select-bar"><span>${selectedNotes.size} selected</span><button onclick="selectAllNotes()">${selectedNotes.size === items.length ? 'Deselect All' : 'Select All'}</button><button onclick="bulkExportNotes()">📥 Export</button><button class="danger" onclick="bulkDeleteNotes()">🗑️ Delete</button><button onclick="toggleNoteSelect()">✕ Cancel</button></div>` : '';
 
   m.innerHTML = `
     <div class="notes-grid-container">
@@ -1823,19 +1925,22 @@ function renderNotesGrid() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;color:var(--text-3)">${children.length} items</span>
+          <button class="topbar-btn" onclick="toggleNoteSelect()" title="Select">${noteSelectMode ? '✓ Done' : '☐ Select'}</button>
           <button class="topbar-btn" onclick="createFolder()" title="New folder">📁 Folder</button>
           <button class="topbar-btn" onclick="openAddMediaModal()" title="Add media">📎 Media</button>
           <button class="topbar-btn primary" onclick="createNoteInFolder()">+ Note</button>
         </div>
       </div>
+      <div class="view-search"><input placeholder="🔍 Search notes..." value="${esc(notesSearchQuery)}" oninput="notesSearchQuery=this.value;renderNotesGrid()"></div>
+      ${selectBar}
       ${folders.length ? `<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:8px">Folders</div><div class="notes-grid">${folders.map(n => renderGridCard(n)).join('')}</div></div>` : ''}
       ${items.length ? `<div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:8px">${folders.length ? 'Items' : ''}</div><div class="notes-grid">${items.map(n => renderGridCard(n)).join('')}</div></div>` : ''}
-      ${!children.length ? `<div class="empty-state"><div class="empty-icon">${notesViewParent ? '📂' : '📄'}</div><h2>${notesViewParent ? 'Empty folder' : 'No notes yet'}</h2><p>${notesViewParent ? 'Add notes, media, or sub-folders here' : 'Create your first note to get started'}</p>
-          <div style="display:flex;gap:8px;margin-top:12px">
+      ${!children.length ? `<div class="empty-state"><div class="empty-icon">${notesViewParent ? '📂' : '📄'}</div><h2>${notesViewParent ? 'Empty folder' : notesSearchQuery ? 'No results' : 'No notes yet'}</h2><p>${notesSearchQuery ? 'Try a different search term' : notesViewParent ? 'Add notes, media, or sub-folders here' : 'Create your first note to get started'}</p>
+          ${!notesSearchQuery ? `<div style="display:flex;gap:8px;margin-top:12px">
             <button class="new-note-btn" onclick="createNoteInFolder()">✦ New Note</button>
             <button class="topbar-btn" onclick="createFolder()">📁 New Folder</button>
             <button class="topbar-btn" onclick="openAddMediaModal()">📎 Add Media</button>
-          </div></div>` : ''}
+          </div>` : ''}</div>` : ''}
     </div>
   `;
 }
@@ -1853,8 +1958,12 @@ function renderGridCard(n) {
     ? `notesViewParent='${n.id}';renderNotesGrid()`
     : `openNote('${n.id}')`;
 
+  const isSelected = noteSelectMode && selectedNotes.has(n.id);
+  const selectCheck = noteSelectMode && !isFolder ? `<div class="select-check${isSelected?' checked':''}" onclick="toggleNoteSelected('${n.id}',event)">${isSelected?'✓':''}</div>` : '';
+
   return `
-    <div class="grid-card" onclick="${onclick}">
+    <div class="grid-card${isSelected?' selected':''}" style="position:relative" onclick="${noteSelectMode && !isFolder ? `toggleNoteSelected('${n.id}')` : onclick}">
+      ${selectCheck}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:18px">${icon}</span>
         <h3 style="flex:1;margin:0">${n.is_favorited ? '⭐ ' : ''}${esc(n.title || 'Untitled')}</h3>
@@ -4323,6 +4432,286 @@ async function updateUnreadBadge() {
     const badge = document.getElementById('navUnreadCount');
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? '' : 'none'; }
   } catch(e) {}
+}
+
+// ===== DOCUMENTS / PDF READER =====
+let docFiles = [];
+let docCurrent = null;
+let docSearchQuery = '';
+let pdfDoc = null;
+let pdfScale = 1.3;
+let pdfSidebarTab = 'notes';
+let pdfHighlights = [];
+let pdfNotes = '';
+let pdfAiMessages = [];
+let pdfHighlightColor = 'yellow';
+
+async function renderDocuments() {
+  const m = document.getElementById('mainContent');
+  m.innerHTML = '<div style="flex:1;overflow-y:auto;padding:32px 48px;max-width:1000px;margin:0 auto"><h2>📁 Documents</h2><p style="color:var(--text-3);font-size:13px;margin-bottom:20px">Upload PDFs, documents, and files. Read, annotate, and ask AI about your documents.</p><div class="view-search"><input placeholder="🔍 Search documents..." value="" oninput="docSearchQuery=this.value;renderDocGrid()"><button class="topbar-btn primary" onclick="document.getElementById(\\\'docFileInput\\\').click()">📤 Upload</button><input type="file" id="docFileInput" style="display:none" accept=".pdf,.doc,.docx,.txt,.md,.epub,.pptx,.xlsx,.csv,.jpg,.png,.gif,.webp" multiple onchange="uploadFiles(this.files)"></div><div class="doc-upload-zone" id="docDropZone" onclick="document.getElementById(\\\'docFileInput\\\').click()"><div style="font-size:40px;margin-bottom:8px">📂</div><p style="font-weight:600">Drop files here or click to upload</p><p style="font-size:12px;color:var(--text-3);margin-top:4px">PDF, DOC, TXT, images, and more · Max 15MB</p></div><div id="docGrid" style="margin-top:20px"></div></div>';
+  // Setup drag & drop
+  const zone = document.getElementById('docDropZone');
+  if (zone) {
+    zone.ondragover = e => { e.preventDefault(); zone.classList.add('dragover'); };
+    zone.ondragleave = () => zone.classList.remove('dragover');
+    zone.ondrop = e => { e.preventDefault(); zone.classList.remove('dragover'); uploadFiles(e.dataTransfer.files); };
+  }
+  await loadDocFiles();
+}
+
+async function loadDocFiles() {
+  try {
+    const r = await fetch(API+'/files'+(docSearchQuery ? '?q='+encodeURIComponent(docSearchQuery) : ''));
+    const d = await r.json();
+    docFiles = d.data || [];
+    renderDocGrid();
+  } catch(e) {}
+}
+
+function renderDocGrid() {
+  const el = document.getElementById('docGrid');
+  if (!el) return;
+  let files = docFiles;
+  if (docSearchQuery) files = files.filter(f => f.original_name.toLowerCase().includes(docSearchQuery.toLowerCase()));
+  if (!files.length) { el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-3)">No documents yet</div>'; return; }
+  el.innerHTML = '<div class="doc-grid">' + files.map(f => {
+    const icon = getFileIcon(f.file_type);
+    const size = formatFileSize(f.file_size);
+    return `<div class="doc-card" onclick="openDocument('${f.id}')"><div class="doc-icon">${icon}</div><div class="doc-name" title="${esc(f.original_name)}">${esc(f.original_name)}</div><div class="doc-meta">${size} · ${formatDate(f.created_at)}</div><div style="margin-top:6px;display:flex;justify-content:center;gap:4px"><button onclick="event.stopPropagation();deleteDocument('${f.id}')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--red);background:none;color:var(--red);cursor:pointer;font-size:10px">Delete</button></div></div>`;
+  }).join('') + '</div>';
+}
+
+function getFileIcon(type) {
+  if (type?.includes('pdf')) return '📕';
+  if (type?.includes('word') || type?.includes('doc')) return '📘';
+  if (type?.includes('sheet') || type?.includes('excel') || type?.includes('csv')) return '📗';
+  if (type?.includes('presentation') || type?.includes('ppt')) return '📙';
+  if (type?.includes('image')) return '🖼️';
+  if (type?.includes('text') || type?.includes('markdown')) return '📝';
+  return '📄';
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+async function uploadFiles(fileList) {
+  for (const file of fileList) {
+    if (file.size > 15 * 1024 * 1024) { toast(`${file.name} is too large (max 15MB)`, 'error'); continue; }
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      toast(`Uploading ${file.name}...`, 'info');
+      const r = await fetch(API+'/files', { method:'POST', body: fd });
+      const d = await r.json();
+      if (d.error) { toast(d.error, 'error'); continue; }
+      toast(`${file.name} uploaded!`, 'success');
+    } catch(e) { toast(`Failed to upload ${file.name}`, 'error'); }
+  }
+  await loadDocFiles();
+}
+
+async function deleteDocument(id) {
+  if (!confirm('Delete this document?')) return;
+  try {
+    await fetch(API+'/files/'+id, { method:'DELETE' });
+    docFiles = docFiles.filter(f => f.id !== id);
+    renderDocGrid();
+    toast('Document deleted', 'info');
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function openDocument(id) {
+  const file = docFiles.find(f => f.id === id);
+  if (!file) return;
+  docCurrent = file;
+  pdfHighlights = file.highlights || [];
+  pdfNotes = file.file_notes || '';
+  pdfAiMessages = [];
+  pdfSidebarTab = 'notes';
+
+  const m = document.getElementById('mainContent');
+  const isPdf = file.file_type?.includes('pdf');
+  const isImage = file.file_type?.includes('image');
+
+  m.innerHTML = `
+    <div class="pdf-reader">
+      <div class="pdf-main">
+        <div class="pdf-toolbar">
+          <button onclick="switchView('documents')" title="Back">← Back</button>
+          <span style="font-weight:600;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(file.original_name)}</span>
+          ${isPdf ? `<button onclick="pdfZoom(-0.2)">➖</button><span id="pdfZoomLevel" style="font-size:12px;min-width:40px;text-align:center">${Math.round(pdfScale*100)}%</span><button onclick="pdfZoom(0.2)">➕</button>` : ''}
+          ${isPdf ? `<div style="display:flex;gap:2px;margin-left:8px;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+            <button class="${pdfHighlightColor==='yellow'?'active':''}" onclick="pdfHighlightColor='yellow'" style="background:#fef08a;width:22px;height:22px;border:none;cursor:pointer" title="Yellow"></button>
+            <button class="${pdfHighlightColor==='red'?'active':''}" onclick="pdfHighlightColor='red'" style="background:#fca5a5;width:22px;height:22px;border:none;cursor:pointer" title="Red"></button>
+            <button class="${pdfHighlightColor==='green'?'active':''}" onclick="pdfHighlightColor='green'" style="background:#6ee7b7;width:22px;height:22px;border:none;cursor:pointer" title="Green"></button>
+            <button class="${pdfHighlightColor==='blue'?'active':''}" onclick="pdfHighlightColor='blue'" style="background:#a5b4fc;width:22px;height:22px;border:none;cursor:pointer" title="Blue"></button>
+          </div>` : ''}
+          <button onclick="downloadDocument()" title="Download">📥</button>
+        </div>
+        <div class="pdf-viewer" id="pdfViewerArea">
+          <div style="color:#ccc;padding:40px;text-align:center">Loading...</div>
+        </div>
+      </div>
+      <div class="pdf-sidebar">
+        <div class="pdf-sidebar-tabs">
+          <div class="pdf-sidebar-tab${pdfSidebarTab==='notes'?' active':''}" onclick="pdfSidebarTab='notes';renderPdfSidebar()">📝 Notes</div>
+          <div class="pdf-sidebar-tab${pdfSidebarTab==='highlights'?' active':''}" onclick="pdfSidebarTab='highlights';renderPdfSidebar()">🖍️ Highlights</div>
+          <div class="pdf-sidebar-tab${pdfSidebarTab==='ai'?' active':''}" onclick="pdfSidebarTab='ai';renderPdfSidebar()">🤖 AI Q&A</div>
+        </div>
+        <div class="pdf-sidebar-content" id="pdfSidebarContent"></div>
+      </div>
+    </div>
+  `;
+
+  if (isPdf) { await loadPdf(id); }
+  else if (isImage) {
+    document.getElementById('pdfViewerArea').innerHTML = `<img src="${API}/files/${id}/content" style="max-width:100%;border-radius:8px" alt="${esc(file.original_name)}">`;
+  } else {
+    // Text-based files
+    try {
+      const r = await fetch(API+'/files/'+id+'/content');
+      const text = await r.text();
+      document.getElementById('pdfViewerArea').innerHTML = `<div style="background:#fff;padding:32px;max-width:800px;width:100%;border-radius:8px;white-space:pre-wrap;font-family:var(--mono);font-size:13px;line-height:1.6;color:#333">${esc(text)}</div>`;
+    } catch(e) { document.getElementById('pdfViewerArea').innerHTML = '<div style="color:#ccc;padding:40px">Failed to load file</div>'; }
+  }
+  renderPdfSidebar();
+}
+
+async function loadPdf(fileId) {
+  try {
+    if (typeof pdfjsLib === 'undefined') { document.getElementById('pdfViewerArea').innerHTML = '<div style="color:#ccc;padding:40px">PDF.js not loaded</div>'; return; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const url = API+'/files/'+fileId+'/content';
+    pdfDoc = await pdfjsLib.getDocument(url).promise;
+    // Save page count
+    if (docCurrent && !docCurrent.page_count) {
+      fetch(API+'/files/'+fileId, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ page_count: pdfDoc.numPages }) });
+    }
+    renderPdfPages();
+  } catch(e) { document.getElementById('pdfViewerArea').innerHTML = '<div style="color:#ccc;padding:40px">Failed to load PDF: '+e.message+'</div>'; }
+}
+
+async function renderPdfPages() {
+  const viewer = document.getElementById('pdfViewerArea');
+  if (!viewer || !pdfDoc) return;
+  viewer.innerHTML = '';
+  for (let i = 1; i <= pdfDoc.numPages; i++) {
+    const page = await pdfDoc.getPage(i);
+    const viewport = page.getViewport({ scale: pdfScale });
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pdf-page-wrapper';
+    wrapper.dataset.page = i;
+    wrapper.style.width = viewport.width + 'px';
+    wrapper.style.height = viewport.height + 'px';
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    wrapper.appendChild(canvas);
+    // Add highlight overlays for this page
+    const pageHighlights = pdfHighlights.filter(h => h.page === i);
+    pageHighlights.forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'pdf-highlight hl-' + (h.color || 'yellow');
+      div.style.cssText = `left:${h.x}%;top:${h.y}%;width:${h.w}%;height:${h.h}%`;
+      div.title = h.text || '';
+      div.onclick = () => { if(confirm('Remove this highlight?')) { pdfHighlights = pdfHighlights.filter(x => x !== h); savePdfAnnotations(); renderPdfPages(); } };
+      wrapper.appendChild(div);
+    });
+    // Mouse selection for highlighting
+    wrapper.addEventListener('mouseup', (e) => {
+      const sel = window.getSelection();
+      const text = sel?.toString()?.trim();
+      if (text && text.length > 1) {
+        const rect = wrapper.getBoundingClientRect();
+        const x = ((e.clientX - rect.left - 20) / rect.width * 100);
+        const y = ((e.clientY - rect.top - 8) / rect.height * 100);
+        pdfHighlights.push({ page: i, x: Math.max(0,x-2), y: Math.max(0,y-1), w: Math.min(30, text.length*0.8), h: 2, text, color: pdfHighlightColor });
+        savePdfAnnotations();
+        renderPdfSidebar();
+        renderPdfPages();
+      }
+    });
+    // Page number label
+    const pageLabel = document.createElement('div');
+    pageLabel.style.cssText = 'text-align:center;font-size:11px;color:#999;padding:4px;background:rgba(0,0,0,.05)';
+    pageLabel.textContent = `Page ${i} / ${pdfDoc.numPages}`;
+    wrapper.appendChild(pageLabel);
+    viewer.appendChild(wrapper);
+  }
+}
+
+function pdfZoom(delta) {
+  pdfScale = Math.max(0.5, Math.min(3, pdfScale + delta));
+  document.getElementById('pdfZoomLevel').textContent = Math.round(pdfScale*100)+'%';
+  renderPdfPages();
+}
+
+function renderPdfSidebar() {
+  const el = document.getElementById('pdfSidebarContent');
+  if (!el) return;
+  // Update tab active states
+  document.querySelectorAll('.pdf-sidebar-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pdf-sidebar-tab')[pdfSidebarTab==='notes'?0:pdfSidebarTab==='highlights'?1:2]?.classList.add('active');
+
+  if (pdfSidebarTab === 'notes') {
+    el.innerHTML = `<h4 style="font-size:13px;margin-bottom:8px">📝 Document Notes</h4><textarea id="pdfNotesArea" style="width:100%;min-height:200px;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-2);font-size:13px;font-family:var(--font);resize:vertical;outline:none;line-height:1.6" placeholder="Write your notes about this document..." oninput="pdfNotes=this.value;debounceSavePdfNotes()">${esc(pdfNotes)}</textarea>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-3)">📊 ${docCurrent?.page_count||'?'} pages · ${formatFileSize(docCurrent?.file_size||0)}</div>`;
+  } else if (pdfSidebarTab === 'highlights') {
+    if (!pdfHighlights.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3)"><div style="font-size:32px;margin-bottom:8px">🖍️</div><p style="font-size:13px">No highlights yet</p><p style="font-size:12px;margin-top:4px">Select text in the PDF to highlight it</p></div>';
+    } else {
+      el.innerHTML = `<h4 style="font-size:13px;margin-bottom:8px">🖍️ Highlights (${pdfHighlights.length})</h4>` + pdfHighlights.map((h,i) => `<div class="pdf-note-item"><div class="note-page">Page ${h.page} · <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${h.color==='red'?'#fca5a5':h.color==='green'?'#6ee7b7':h.color==='blue'?'#a5b4fc':'#fef08a'};vertical-align:middle"></span></div><div>"${esc(h.text)}"</div><button onclick="pdfHighlights.splice(${i},1);savePdfAnnotations();renderPdfSidebar();renderPdfPages()" style="margin-top:4px;padding:2px 6px;border:1px solid var(--red);border-radius:4px;background:none;color:var(--red);cursor:pointer;font-size:10px">Remove</button></div>`).join('');
+    }
+  } else if (pdfSidebarTab === 'ai') {
+    el.innerHTML = `<div class="pdf-ai-chat"><div class="pdf-ai-messages" id="pdfAiMessages">${pdfAiMessages.length ? pdfAiMessages.map(m => `<div class="msg-bubble ${m.role==='user'?'sent':'received'}">${esc(m.content).replace(/\\n/g,'<br>')}</div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--text-3)"><div style="font-size:32px;margin-bottom:8px">🤖</div><p style="font-size:13px">Ask AI about this document</p><p style="font-size:12px;margin-top:4px">Based on your notes and highlights</p></div>'}</div><div class="pdf-ai-input"><input id="pdfAiInput" placeholder="Ask about this document..." onkeydown="if(event.key==='Enter')askDocAi()"><button onclick="askDocAi()">Ask</button></div></div>`;
+    const msgs = document.getElementById('pdfAiMessages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+}
+
+let pdfNotesDebounce;
+function debounceSavePdfNotes() {
+  clearTimeout(pdfNotesDebounce);
+  pdfNotesDebounce = setTimeout(() => savePdfAnnotations(), 1000);
+}
+
+async function savePdfAnnotations() {
+  if (!docCurrent) return;
+  try {
+    await fetch(API+'/files/'+docCurrent.id, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ highlights: pdfHighlights, file_notes: pdfNotes })
+    });
+  } catch(e) {}
+}
+
+async function askDocAi() {
+  const input = document.getElementById('pdfAiInput');
+  const q = input?.value?.trim();
+  if (!q || !docCurrent) return;
+  pdfAiMessages.push({ role:'user', content: q });
+  input.value = '';
+  renderPdfSidebar();
+  try {
+    const r = await fetch(API+'/files/'+docCurrent.id+'/ask', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ question: q }) });
+    const d = await r.json();
+    if (d.error) { pdfAiMessages.push({ role:'assistant', content: 'Error: ' + d.error }); }
+    else { pdfAiMessages.push({ role:'assistant', content: d.data.answer }); }
+  } catch(e) { pdfAiMessages.push({ role:'assistant', content: 'Failed to get AI response' }); }
+  renderPdfSidebar();
+}
+
+function downloadDocument() {
+  if (!docCurrent) return;
+  const a = document.createElement('a');
+  a.href = API+'/files/'+docCurrent.id+'/content';
+  a.download = docCurrent.original_name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
 // ===== MULTI-DEVICE SYNC =====

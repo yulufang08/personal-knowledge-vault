@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import multer from 'multer';
 
 dotenv.config();
 
@@ -338,6 +339,24 @@ async function initializeDatabase() {
         feedback_id UUID NOT NULL REFERENCES user_feedback(id) ON DELETE CASCADE,
         PRIMARY KEY (user_id, feedback_id)
       );
+
+      -- ===== FILES / DOCUMENTS =====
+      CREATE TABLE IF NOT EXISTS user_files (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        filename VARCHAR(500) NOT NULL,
+        original_name VARCHAR(500) NOT NULL,
+        file_type VARCHAR(100) NOT NULL,
+        file_size INT NOT NULL,
+        file_data TEXT,
+        annotations JSONB DEFAULT '[]'::jsonb,
+        file_notes TEXT DEFAULT '',
+        highlights JSONB DEFAULT '[]'::jsonb,
+        page_count INT DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_files_user ON user_files(user_id, created_at DESC);
 
       -- ===== FRIENDS =====
       CREATE TABLE IF NOT EXISTS friendships (
@@ -2546,6 +2565,141 @@ app.get('/api/messages/unread/count', async (req: Request, res: Response) => {
     );
     res.json({ data: { count: r.rows[0].count } });
   } catch(e) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// ===== FILE UPLOAD & DOCUMENT MANAGEMENT =====
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } }); // 15MB limit
+
+// Upload file
+app.post('/api/files', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const file = (req as any).file;
+    if (!file) return res.status(400).json({ error: 'No file provided' });
+    const base64 = file.buffer.toString('base64');
+    const r = await pool.query(
+      `INSERT INTO user_files (user_id, filename, original_name, file_type, file_size, file_data)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, filename, original_name, file_type, file_size, page_count, created_at`,
+      [userId, file.originalname, file.originalname, file.mimetype, file.size, base64]
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) { console.error(e); res.status(500).json({ error: 'Upload failed' }); }
+});
+
+// List files
+app.get('/api/files', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const search = (req.query.q as string || '').trim();
+    let q = `SELECT id, filename, original_name, file_type, file_size, page_count, annotations, file_notes, highlights, created_at, updated_at FROM user_files WHERE user_id=$1`;
+    const params: any[] = [userId];
+    if (search) { q += ` AND LOWER(original_name) LIKE $2`; params.push(`%${search.toLowerCase()}%`); }
+    q += ` ORDER BY created_at DESC`;
+    const r = await pool.query(q, params);
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to list files' }); }
+});
+
+// Get file content (base64)
+app.get('/api/files/:id/content', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `SELECT file_data, file_type, original_name FROM user_files WHERE id=$1 AND user_id=$2`,
+      [req.params.id, userId]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'File not found' });
+    const file = r.rows[0];
+    const buffer = Buffer.from(file.file_data, 'base64');
+    res.setHeader('Content-Type', file.file_type);
+    res.setHeader('Content-Disposition', `inline; filename="${file.original_name}"`);
+    res.send(buffer);
+  } catch(e) { res.status(500).json({ error: 'Failed to get file' }); }
+});
+
+// Update annotations/highlights/notes for a file
+app.put('/api/files/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { annotations, highlights, file_notes, page_count } = req.body;
+    const sets: string[] = ['updated_at=CURRENT_TIMESTAMP'];
+    const params: any[] = [req.params.id, userId];
+    let idx = 3;
+    if (annotations !== undefined) { sets.push(`annotations=$${idx}::jsonb`); params.push(JSON.stringify(annotations)); idx++; }
+    if (highlights !== undefined) { sets.push(`highlights=$${idx}::jsonb`); params.push(JSON.stringify(highlights)); idx++; }
+    if (file_notes !== undefined) { sets.push(`file_notes=$${idx}`); params.push(file_notes); idx++; }
+    if (page_count !== undefined) { sets.push(`page_count=$${idx}`); params.push(page_count); idx++; }
+    const r = await pool.query(
+      `UPDATE user_files SET ${sets.join(',')} WHERE id=$1 AND user_id=$2
+       RETURNING id, annotations, highlights, file_notes, page_count, updated_at`,
+      params
+    );
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to update' }); }
+});
+
+// Delete file
+app.delete('/api/files/:id', async (req: Request, res: Response) => {
+  try {
+    await pool.query('DELETE FROM user_files WHERE id=$1 AND user_id=$2', [req.params.id, req.user?.id]);
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to delete' }); }
+});
+
+// AI Q&A about a document
+app.post('/api/files/:id/ask', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { question } = req.body;
+    // Get file info and notes
+    const fileR = await pool.query(
+      `SELECT original_name, file_type, file_notes, annotations, highlights FROM user_files WHERE id=$1 AND user_id=$2`,
+      [req.params.id, userId]
+    );
+    if (!fileR.rows.length) return res.status(404).json({ error: 'File not found' });
+    const file = fileR.rows[0];
+    // Get AI config
+    const configResult = await pool.query(`SELECT ai_provider, ai_api_key, ai_model, ai_base_url FROM users WHERE id = $1`, [userId]);
+    const config = configResult.rows[0];
+    if (!config?.ai_api_key) return res.status(400).json({ error: 'Please configure your AI provider first' });
+
+    const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-dev-key-change-in-prod!!';
+    let apiKey = config.ai_api_key;
+    try {
+      const [ivHex, encrypted] = apiKey.split(':');
+      const decipher = crypto.createDecipheriv('aes-256-gcm', crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32),
+        Buffer.from(ivHex.substring(0, 24), 'hex'));
+      decipher.setAuthTag(Buffer.from(ivHex.substring(24), 'hex'));
+      apiKey = decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
+    } catch(e) {}
+
+    const annotations = file.annotations || [];
+    const highlights = file.highlights || [];
+    const docContext = `Document: "${file.original_name}" (${file.file_type})
+User's notes on this document: ${file.file_notes || 'None'}
+Highlights (${highlights.length}): ${highlights.map((h: any) => `[Page ${h.page}] "${h.text}"`).join('; ') || 'None'}
+Annotations (${annotations.length}): ${annotations.map((a: any) => `[Page ${a.page}] ${a.text}`).join('; ') || 'None'}`;
+
+    const systemPrompt = `You are a document assistant. The user is reading a document and asking questions about it. Use the document context provided to answer. If the information isn't in the context, say so clearly. Be concise and helpful.\n\n${docContext}`;
+
+    const provider = config.ai_provider || 'openai';
+    const baseUrl = config.ai_base_url || (provider === 'anthropic' ? 'https://api.anthropic.com' : provider === 'deepseek' ? 'https://api.deepseek.com' : 'https://api.openai.com');
+    const model = config.ai_model || (provider === 'anthropic' ? 'claude-sonnet-4-20250514' : provider === 'deepseek' ? 'deepseek-chat' : 'gpt-4o-mini');
+
+    if (provider === 'anthropic') {
+      const resp = await axios.post(`${baseUrl}/v1/messages`, {
+        model, max_tokens: 1024, system: systemPrompt,
+        messages: [{ role: 'user', content: question }]
+      }, { headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' } });
+      res.json({ data: { answer: resp.data.content[0].text } });
+    } else {
+      const resp = await axios.post(`${baseUrl}/v1/chat/completions`, {
+        model, max_tokens: 1024,
+        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: question }]
+      }, { headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' } });
+      res.json({ data: { answer: resp.data.choices[0].message.content } });
+    }
+  } catch(e: any) { res.status(500).json({ error: e.response?.data?.error?.message || 'AI query failed' }); }
 });
 
 // ===== ERROR HANDLING =====
