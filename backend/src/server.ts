@@ -339,11 +339,46 @@ async function initializeDatabase() {
         PRIMARY KEY (user_id, feedback_id)
       );
 
+      -- ===== FRIENDS =====
+      CREATE TABLE IF NOT EXISTS friendships (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        requester_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        addressee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(requester_id, addressee_id)
+      );
+
+      -- ===== DIRECT MESSAGES =====
+      CREATE TABLE IF NOT EXISTS conversations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_a UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_b UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        last_message_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_a, user_b)
+      );
+
+      CREATE TABLE IF NOT EXISTS direct_messages (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        content TEXT,
+        message_type VARCHAR(20) DEFAULT 'text',
+        shared_note_id UUID REFERENCES notes(id) ON DELETE SET NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE INDEX IF NOT EXISTS idx_community_posts_user ON community_posts(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_community_posts_created ON community_posts(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_community_comments_post ON community_comments(post_id, created_at);
       CREATE INDEX IF NOT EXISTS idx_checkins_user ON user_checkins(user_id, checkin_date DESC);
       CREATE INDEX IF NOT EXISTS idx_feedback_votes ON user_feedback(votes DESC, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_friendships_users ON friendships(requester_id, addressee_id);
+      CREATE INDEX IF NOT EXISTS idx_dm_conversation ON direct_messages(conversation_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_conversations_users ON conversations(user_a, user_b);
     `);
 
     // Add subscription column if it doesn't exist (migration for existing DBs)
@@ -1686,7 +1721,7 @@ app.post('/api/agent/chat', async (req: Request, res: Response) => {
       const prof = profR.rows[0] || {};
       const agentName = prof.ai_agent_name || "Fang's AI";
       const callsMe = prof.ai_calls_me || prof.display_name || '';
-      const systemPrompt = `You are "${agentName}", a helpful knowledge assistant for a personal knowledge base called "Fang's Vault" (by yulufang@sjtu.edu.cn).${callsMe ? ` Address the user as "${callsMe}".` : ''} The user has ${userNotes.length} notes.
+      const systemPrompt = `You are "${agentName}", a helpful knowledge assistant for a personal knowledge base called "yulufang@sjtu.edu.cn" (by yulufang@sjtu.edu.cn).${callsMe ? ` Address the user as "${callsMe}".` : ''} The user has ${userNotes.length} notes.
 ${relevantNotes.length > 0 ? `\nRelevant notes found:\n${relevantNotes.map(n => `--- ${n.title} ---\n${n.content}`).join('\n\n')}` : ''}
 \nHelp the user explore, understand, and build on their knowledge. Reference specific notes when relevant. Be concise and insightful. Support both Chinese and English. Stay in character as ${agentName}.`;
 
@@ -2282,6 +2317,235 @@ app.delete('/api/feedback/:id', async (req: Request, res: Response) => {
     await pool.query('DELETE FROM user_feedback WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
     res.json({ data: { success: true } });
   } catch(e) { res.status(500).json({ error: 'Failed to delete' }); }
+});
+
+// ===== FRIENDS SYSTEM =====
+// Search users to add as friend
+app.get('/api/friends/search', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const q = (req.query.q as string || '').trim();
+    if (q.length < 2) return res.json({ data: [] });
+    const r = await pool.query(
+      `SELECT id, username, display_name, avatar_emoji, avatar_color, bio FROM users
+       WHERE id != $1 AND (LOWER(username) LIKE $2 OR LOWER(display_name) LIKE $2 OR LOWER(email) LIKE $2)
+       LIMIT 20`,
+      [userId, `%${q.toLowerCase()}%`]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Search failed' }); }
+});
+
+// Send friend request
+app.post('/api/friends/request', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { addressee_id } = req.body;
+    if (userId === addressee_id) return res.status(400).json({ error: 'Cannot add yourself' });
+    // Check existing
+    const existing = await pool.query(
+      `SELECT * FROM friendships WHERE
+        (requester_id=$1 AND addressee_id=$2) OR (requester_id=$2 AND addressee_id=$1)`,
+      [userId, addressee_id]
+    );
+    if (existing.rows.length) {
+      const f = existing.rows[0];
+      if (f.status === 'accepted') return res.status(400).json({ error: 'Already friends' });
+      if (f.status === 'pending') return res.status(400).json({ error: 'Request already pending' });
+    }
+    await pool.query(
+      `INSERT INTO friendships (requester_id, addressee_id, status) VALUES ($1, $2, 'pending')
+       ON CONFLICT (requester_id, addressee_id) DO UPDATE SET status='pending', updated_at=CURRENT_TIMESTAMP`,
+      [userId, addressee_id]
+    );
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to send request' }); }
+});
+
+// Accept/reject friend request
+app.put('/api/friends/respond', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { friendship_id, action } = req.body; // action: 'accept' | 'reject'
+    if (action === 'accept') {
+      await pool.query(
+        `UPDATE friendships SET status='accepted', updated_at=CURRENT_TIMESTAMP
+         WHERE id=$1 AND addressee_id=$2 AND status='pending'`,
+        [friendship_id, userId]
+      );
+    } else {
+      await pool.query(
+        `DELETE FROM friendships WHERE id=$1 AND addressee_id=$2 AND status='pending'`,
+        [friendship_id, userId]
+      );
+    }
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to respond' }); }
+});
+
+// Get friends list + pending requests
+app.get('/api/friends', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    // Accepted friends
+    const friends = await pool.query(
+      `SELECT f.id as friendship_id, f.created_at,
+        CASE WHEN f.requester_id=$1 THEN u2.id ELSE u1.id END as friend_id,
+        CASE WHEN f.requester_id=$1 THEN u2.username ELSE u1.username END as username,
+        CASE WHEN f.requester_id=$1 THEN u2.display_name ELSE u1.display_name END as display_name,
+        CASE WHEN f.requester_id=$1 THEN u2.avatar_emoji ELSE u1.avatar_emoji END as avatar_emoji,
+        CASE WHEN f.requester_id=$1 THEN u2.avatar_color ELSE u1.avatar_color END as avatar_color,
+        CASE WHEN f.requester_id=$1 THEN u2.bio ELSE u1.bio END as bio
+       FROM friendships f
+       JOIN users u1 ON f.requester_id=u1.id
+       JOIN users u2 ON f.addressee_id=u2.id
+       WHERE (f.requester_id=$1 OR f.addressee_id=$1) AND f.status='accepted'
+       ORDER BY f.updated_at DESC`,
+      [userId]
+    );
+    // Pending incoming
+    const pending = await pool.query(
+      `SELECT f.id as friendship_id, f.created_at, u.id as friend_id,
+        u.username, u.display_name, u.avatar_emoji, u.avatar_color, u.bio
+       FROM friendships f JOIN users u ON f.requester_id=u.id
+       WHERE f.addressee_id=$1 AND f.status='pending'
+       ORDER BY f.created_at DESC`,
+      [userId]
+    );
+    res.json({ data: { friends: friends.rows, pending: pending.rows } });
+  } catch(e) { res.status(500).json({ error: 'Failed to get friends' }); }
+});
+
+// Remove friend
+app.delete('/api/friends/:friendshipId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    await pool.query(
+      `DELETE FROM friendships WHERE id=$1 AND (requester_id=$2 OR addressee_id=$2)`,
+      [req.params.friendshipId, userId]
+    );
+    res.json({ data: { success: true } });
+  } catch(e) { res.status(500).json({ error: 'Failed to remove friend' }); }
+});
+
+// ===== DIRECT MESSAGING =====
+// Get or create conversation
+app.post('/api/messages/conversation', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { friend_id } = req.body;
+    const [a, b] = [userId, friend_id].sort();
+    // Check friendship
+    const friendship = await pool.query(
+      `SELECT 1 FROM friendships WHERE
+        ((requester_id=$1 AND addressee_id=$2) OR (requester_id=$2 AND addressee_id=$1))
+        AND status='accepted'`,
+      [userId, friend_id]
+    );
+    if (!friendship.rows.length) return res.status(403).json({ error: 'Not friends' });
+    // Get or create
+    let conv = await pool.query(
+      `SELECT id FROM conversations WHERE user_a=$1 AND user_b=$2`, [a, b]
+    );
+    if (!conv.rows.length) {
+      conv = await pool.query(
+        `INSERT INTO conversations (user_a, user_b) VALUES ($1, $2) RETURNING id`, [a, b]
+      );
+    }
+    res.json({ data: { conversation_id: conv.rows[0].id } });
+  } catch(e) { res.status(500).json({ error: 'Failed to get conversation' }); }
+});
+
+// Get conversations list
+app.get('/api/messages/conversations', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `SELECT c.id, c.last_message_at,
+        CASE WHEN c.user_a=$1 THEN u2.id ELSE u1.id END as friend_id,
+        CASE WHEN c.user_a=$1 THEN u2.username ELSE u1.username END as username,
+        CASE WHEN c.user_a=$1 THEN u2.display_name ELSE u1.display_name END as display_name,
+        CASE WHEN c.user_a=$1 THEN u2.avatar_emoji ELSE u1.avatar_emoji END as avatar_emoji,
+        CASE WHEN c.user_a=$1 THEN u2.avatar_color ELSE u1.avatar_color END as avatar_color,
+        (SELECT content FROM direct_messages dm WHERE dm.conversation_id=c.id ORDER BY dm.created_at DESC LIMIT 1) as last_message,
+        (SELECT message_type FROM direct_messages dm WHERE dm.conversation_id=c.id ORDER BY dm.created_at DESC LIMIT 1) as last_message_type,
+        (SELECT COUNT(*) FROM direct_messages dm WHERE dm.conversation_id=c.id AND dm.sender_id!=$1 AND dm.is_read=false)::int as unread_count
+       FROM conversations c
+       JOIN users u1 ON c.user_a=u1.id
+       JOIN users u2 ON c.user_b=u2.id
+       WHERE c.user_a=$1 OR c.user_b=$1
+       ORDER BY c.last_message_at DESC`,
+      [userId]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to get conversations' }); }
+});
+
+// Get messages in a conversation
+app.get('/api/messages/:conversationId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const convId = req.params.conversationId;
+    // Verify user is part of conversation
+    const conv = await pool.query(
+      `SELECT 1 FROM conversations WHERE id=$1 AND (user_a=$2 OR user_b=$2)`, [convId, userId]
+    );
+    if (!conv.rows.length) return res.status(403).json({ error: 'Access denied' });
+    // Mark as read
+    await pool.query(
+      `UPDATE direct_messages SET is_read=true WHERE conversation_id=$1 AND sender_id!=$2 AND is_read=false`,
+      [convId, userId]
+    );
+    // Get messages
+    const r = await pool.query(
+      `SELECT dm.*, u.username, u.display_name, u.avatar_emoji, u.avatar_color,
+        n.title as shared_note_title, n.markdown as shared_note_preview
+       FROM direct_messages dm
+       JOIN users u ON dm.sender_id=u.id
+       LEFT JOIN notes n ON dm.shared_note_id=n.id
+       WHERE dm.conversation_id=$1
+       ORDER BY dm.created_at ASC
+       LIMIT 200`,
+      [convId]
+    );
+    res.json({ data: r.rows });
+  } catch(e) { res.status(500).json({ error: 'Failed to get messages' }); }
+});
+
+// Send message
+app.post('/api/messages/:conversationId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const convId = req.params.conversationId;
+    const { content, message_type, shared_note_id } = req.body;
+    // Verify access
+    const conv = await pool.query(
+      `SELECT 1 FROM conversations WHERE id=$1 AND (user_a=$2 OR user_b=$2)`, [convId, userId]
+    );
+    if (!conv.rows.length) return res.status(403).json({ error: 'Access denied' });
+    const r = await pool.query(
+      `INSERT INTO direct_messages (conversation_id, sender_id, content, message_type, shared_note_id)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [convId, userId, content || '', message_type || 'text', shared_note_id || null]
+    );
+    // Update conversation timestamp
+    await pool.query(`UPDATE conversations SET last_message_at=CURRENT_TIMESTAMP WHERE id=$1`, [convId]);
+    res.json({ data: r.rows[0] });
+  } catch(e) { res.status(500).json({ error: 'Failed to send message' }); }
+});
+
+// Get total unread count
+app.get('/api/messages/unread/count', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const r = await pool.query(
+      `SELECT COUNT(*)::int as count FROM direct_messages dm
+       JOIN conversations c ON dm.conversation_id=c.id
+       WHERE (c.user_a=$1 OR c.user_b=$1) AND dm.sender_id!=$1 AND dm.is_read=false`,
+      [userId]
+    );
+    res.json({ data: { count: r.rows[0].count } });
+  } catch(e) { res.status(500).json({ error: 'Failed' }); }
 });
 
 // ===== ERROR HANDLING =====

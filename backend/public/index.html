@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fang's Vault — Personal Knowledge Base · yulufang@sjtu.edu.cn</title>
+<title>yulufang@sjtu.edu.cn — Personal Knowledge Base</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -72,7 +72,7 @@ a{color:var(--accent);text-decoration:none}
   display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;
   box-shadow:var(--shadow);
 }
-.sidebar-brand h1{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.sidebar-brand h1{font-size:12px;font-weight:600;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sidebar-brand .badge{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--accent-soft);color:var(--accent);font-weight:600;margin-left:auto}
 .badge-pro{background:linear-gradient(135deg,#f59e0b,#f97316)!important;color:#fff!important;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.5px;box-shadow:0 1px 4px rgba(245,158,11,.3)}
 
@@ -679,6 +679,60 @@ a{color:var(--accent);text-decoration:none}
 .community-post .post-action{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-3);cursor:pointer;padding:4px 8px;border-radius:6px;transition:var(--transition);border:none;background:none}
 .community-post .post-action:hover{background:var(--bg-3);color:var(--text-1)}
 .community-post .post-action.liked{color:var(--red)}
+/* ===== MESSAGES / CHAT ===== */
+.msg-layout{display:flex;height:100%;overflow:hidden}
+.msg-sidebar{width:300px;min-width:300px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-1)}
+.msg-sidebar-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.msg-sidebar-header h3{font-size:15px;font-weight:600}
+.msg-search{padding:8px 16px}
+.msg-search input{width:100%;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-2);font-size:13px;outline:none;transition:var(--transition)}
+.msg-search input:focus{border-color:var(--accent)}
+.msg-conv-list{flex:1;overflow-y:auto}
+.msg-conv-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:var(--transition);border-bottom:1px solid var(--border)}
+.msg-conv-item:hover{background:var(--bg-2)}
+.msg-conv-item.active{background:var(--accent-soft);border-right:3px solid var(--accent)}
+.msg-conv-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.msg-conv-info{flex:1;overflow:hidden}
+.msg-conv-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.msg-conv-preview{font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-conv-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.msg-conv-time{font-size:10px;color:var(--text-3)}
+.msg-conv-badge{min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.msg-chat{flex:1;display:flex;flex-direction:column;background:var(--bg-0)}
+.msg-chat-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg-1)}
+.msg-chat-header .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.msg-chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{max-width:70%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word;position:relative}
+.msg-bubble.sent{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.msg-bubble.received{align-self:flex-start;background:var(--bg-1);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg-bubble .msg-time{font-size:9px;opacity:.6;margin-top:4px;display:block}
+.msg-bubble.sent .msg-time{text-align:right}
+.msg-bubble .shared-note-card{padding:10px;background:rgba(255,255,255,.15);border-radius:8px;margin-top:6px;cursor:pointer}
+.msg-bubble.received .shared-note-card{background:var(--bg-2);border:1px solid var(--border)}
+.msg-bubble .shared-note-card .sn-title{font-weight:600;font-size:12px;margin-bottom:2px}
+.msg-bubble .shared-note-card .sn-preview{font-size:11px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-input-area{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--bg-1)}
+.msg-input-area textarea{flex:1;padding:10px 14px;border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--bg-2);font-size:13px;resize:none;outline:none;max-height:120px;min-height:40px;line-height:1.4;font-family:var(--font);transition:var(--transition)}
+.msg-input-area textarea:focus{border-color:var(--accent)}
+.msg-input-area button{width:40px;height:40px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:var(--transition);flex-shrink:0}
+.msg-input-area button:hover{opacity:.9;transform:scale(1.05)}
+.msg-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--text-3)}
+.msg-empty .icon{font-size:48px;margin-bottom:12px}
+.msg-date-sep{text-align:center;font-size:11px;color:var(--text-3);padding:8px 0;position:relative}
+.msg-date-sep::before,.msg-date-sep::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:var(--border)}
+.msg-date-sep::before{left:10%}
+.msg-date-sep::after{right:10%}
+.friends-modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
+.friends-modal-content{background:var(--bg-1);border-radius:var(--radius-xl);width:90%;max-width:480px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.friends-modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.friends-modal-body{flex:1;overflow-y:auto;padding:16px 20px}
+.friend-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.friend-item:last-child{border-bottom:none}
+.friend-item .friend-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
+.friend-item .friend-info{flex:1}
+.friend-item .friend-name{font-size:13px;font-weight:600}
+.friend-item .friend-bio{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:768px){.msg-sidebar{width:100%;min-width:100%}.msg-layout.chat-open .msg-sidebar{display:none}.msg-layout:not(.chat-open) .msg-chat{display:none}}
 .post-comments-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .post-comment{display:flex;gap:8px;margin-bottom:8px;font-size:13px}
 .post-comment .comment-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
@@ -1058,7 +1112,7 @@ a{color:var(--accent);text-decoration:none}
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="logo">F</div>
-      <h1>Fang's Vault</h1>
+      <h1>yulufang@sjtu.edu.cn</h1>
       <span class="badge" id="planBadge">FREE</span>
     </div>
 
@@ -1139,6 +1193,7 @@ const defaultNavItems = [
   { id:'search', icon:'🔍', label:'Search' },
   { id:'calendar', icon:'📅', label:'Calendar' },
   { id:'community', icon:'🌐', label:'Community' },
+  { id:'messages', icon:'💬', label:'Messages', countId:'navUnreadCount' },
   { id:'sync', icon:'🔄', label:'Sync' },
   { id:'settings', icon:'⚙️', label:'Settings' },
   { id:'analytics', icon:'📊', label:'Analytics', proLock:true, lockId:'analyticsLock' },
@@ -1249,6 +1304,7 @@ async function init() {
   renderHome();
   bindKeyboard();
   registerDevice();
+  updateUnreadBadge();
 }
 
 function bindKeyboard() {
@@ -1547,6 +1603,7 @@ function switchView(view, navEl) {
     case 'aistudio': renderAIStudio(); break;
     case 'agent': renderAgent(); break;
     case 'community': renderCommunity(); break;
+    case 'messages': renderMessages(); break;
     case 'sync': renderSync(); break;
     case 'settings': renderSettings(); break;
     case 'pricing': renderPricing(); break;
@@ -1654,7 +1711,7 @@ function renderHome() {
       <div style="margin-top:16px;padding:20px;background:linear-gradient(135deg,var(--accent-soft),rgba(236,72,153,.04));border:1px solid rgba(124,92,252,.1);border-radius:var(--radius-lg);display:flex;align-items:center;gap:16px">
         <div style="font-size:32px">⚡</div>
         <div style="flex:1">
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of Fang's Vault</h3>
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:4px">Unlock the full power of yulufang@sjtu.edu.cn</h3>
           <p style="font-size:13px;color:var(--text-3)">AI assistant, version history, analytics & unlimited notes</p>
         </div>
         <button onclick="switchView('pricing')" style="padding:8px 20px;border-radius:8px;border:none;background:var(--gradient-fun);color:#fff;cursor:pointer;font-size:13px;font-weight:600;box-shadow:var(--shadow)">See Plans</button>
@@ -1888,7 +1945,7 @@ function renderEditor() {
   m.innerHTML = `
     <div class="topbar">
       <div class="breadcrumb">
-        <span onclick="switchView('home')">Fang's Vault</span><span class="sep">›</span>
+        <span onclick="switchView('home')">yulufang@sjtu.edu.cn</span><span class="sep">›</span>
         <span onclick="notesViewParent=null;switchView('notes')">Notes</span>${currentNote.parent_id ? `<span class="sep">›</span><span onclick="notesViewParent='${currentNote.parent_id}';switchView('notes')">${esc((notes.find(n=>n.id===currentNote.parent_id)||{}).title||'Folder')}</span>` : ''}<span class="sep">›</span>
         <span style="color:var(--text-1)">${getItemIcon(currentNote)} ${esc(currentNote.title || 'Untitled')}</span>
       </div>
@@ -3334,7 +3391,7 @@ async function renderSettings() {
     tc.innerHTML = `
       <div class="settings-card">
         <h3>💬 Feature Requests & Feedback</h3>
-        <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">Tell us what you'd like to see in Fang's Vault! Pro users' suggestions have priority. Popular requests may be implemented.</p>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">Tell us what you'd like to see in yulufang@sjtu.edu.cn! Pro users' suggestions have priority. Popular requests may be implemented.</p>
 
         <div class="settings-field"><label>Title</label><input class="settings-input" id="fbTitle" placeholder="Short summary of your idea"></div>
         <div class="settings-field"><label>Category</label>
@@ -3529,9 +3586,9 @@ function copyRefCode() {
 
 function shareRefCode() {
   const code = document.getElementById('myRefCode')?.textContent;
-  const text = `Join me on Fang's Vault - Personal Knowledge Base! Use my code ${code} to get 7 free days of Pro. By yulufang@sjtu.edu.cn`;
+  const text = `Join me on yulufang@sjtu.edu.cn - Personal Knowledge Base! Use my code ${code} to get 7 free days of Pro. By yulufang@sjtu.edu.cn`;
   if (navigator.share) {
-    navigator.share({ title: "Join Fang's Vault", text });
+    navigator.share({ title: "Join yulufang@sjtu.edu.cn", text });
   } else {
     navigator.clipboard.writeText(text);
     toast('Share text copied!', 'success');
@@ -3873,9 +3930,9 @@ async function loadMorePosts() {
 }
 
 function sharePost(postId, text) {
-  const shareText = text + "\n\nShared from Fang's Vault · yulufang@sjtu.edu.cn";
+  const shareText = text + "\n\nShared from yulufang@sjtu.edu.cn · yulufang@sjtu.edu.cn";
   if (navigator.share) {
-    navigator.share({ title: "From Fang's Vault Community", text: shareText });
+    navigator.share({ title: "From yulufang@sjtu.edu.cn Community", text: shareText });
   } else {
     navigator.clipboard.writeText(shareText);
     toast('Copied to clipboard!', 'success');
@@ -3885,7 +3942,7 @@ function sharePost(postId, text) {
 // ===== SHARE NOTE =====
 function openShareModal(noteId, noteTitle) {
   const up = userProfile;
-  const shareText = `${noteTitle}\n\nShared from Fang's Vault · yulufang@sjtu.edu.cn`;
+  const shareText = `${noteTitle}\n\nShared from yulufang@sjtu.edu.cn · yulufang@sjtu.edu.cn`;
   const overlay = document.createElement('div');
   overlay.className = 'share-modal-overlay';
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
@@ -3910,7 +3967,7 @@ function openShareModal(noteId, noteTitle) {
 }
 
 function shareVia(platform, title) {
-  const text = `${title} - Shared from Fang's Vault · yulufang@sjtu.edu.cn`;
+  const text = `${title} - Shared from yulufang@sjtu.edu.cn · yulufang@sjtu.edu.cn`;
   const url = window.location.href;
   switch(platform) {
     case 'twitter': window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)); break;
@@ -3935,6 +3992,337 @@ function shareNoteToCommunity(noteId, noteTitle) {
       el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-soft);border-radius:var(--radius);font-size:13px">📄 ${noteTitle} <button onclick="postAttachedNoteId=null;document.getElementById('postAttachment').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text-3)">✕</button></div>`;
     }
   }, 300);
+}
+
+// ===== FRIENDS & MESSAGING =====
+let msgConversations = [];
+let msgCurrentConv = null;
+let msgCurrentMessages = [];
+let msgFriends = { friends: [], pending: [] };
+let msgChatOpen = false;
+let msgPollTimer = null;
+
+async function renderMessages() {
+  const m = document.getElementById('mainContent');
+  m.innerHTML = '<div class="msg-layout" id="msgLayout"><div class="msg-sidebar"><div class="msg-sidebar-header"><h3>💬 Messages</h3><div style="display:flex;gap:6px"><button onclick="openFriendsModal()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);cursor:pointer;font-size:12px" title="Friends">👥 Friends</button><button onclick="openAddFriendModal()" style="padding:6px 10px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px" title="Add Friend">+ Add</button></div></div><div class="msg-search"><input id="msgSearchInput" placeholder="Search conversations..." oninput="filterConversations(this.value)"></div><div class="msg-conv-list" id="msgConvList"></div></div><div class="msg-chat" id="msgChatArea"><div class="msg-empty"><div class="icon">💬</div><h3>Select a conversation</h3><p style="font-size:13px;margin-top:4px">Choose a friend to start chatting</p></div></div></div>';
+  await loadConversations();
+  await loadFriends();
+  startMsgPoll();
+}
+
+async function loadConversations() {
+  try {
+    const r = await fetch(API+'/messages/conversations');
+    const d = await r.json();
+    msgConversations = d.data || [];
+    renderConvList();
+  } catch(e) {}
+}
+
+function renderConvList(filter) {
+  const el = document.getElementById('msgConvList');
+  if (!el) return;
+  let convs = msgConversations;
+  if (filter) convs = convs.filter(c => (c.display_name||c.username||'').toLowerCase().includes(filter.toLowerCase()));
+  if (!convs.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-3)"><div style="font-size:32px;margin-bottom:8px">👥</div><p style="font-size:13px">No conversations yet</p><p style="font-size:12px;margin-top:4px">Add friends to start chatting!</p></div>';
+    return;
+  }
+  el.innerHTML = convs.map(c => {
+    const preview = c.last_message_type === 'note' ? '📄 Shared a note' : (c.last_message || 'Start chatting...');
+    const timeStr = c.last_message_at ? formatTimeAgo(c.last_message_at) : '';
+    return `<div class="msg-conv-item${msgCurrentConv?.id===c.id?' active':''}" onclick="openChat('${c.id}','${c.friend_id}')">
+      <div class="msg-conv-avatar" style="background:${c.avatar_color||'#7c5cfc'}20;color:${c.avatar_color||'#7c5cfc'}">${c.avatar_emoji||'👤'}</div>
+      <div class="msg-conv-info"><div class="msg-conv-name">${esc(c.display_name||c.username)}</div><div class="msg-conv-preview">${esc(preview)}</div></div>
+      <div class="msg-conv-meta"><div class="msg-conv-time">${timeStr}</div>${c.unread_count>0?`<div class="msg-conv-badge">${c.unread_count}</div>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterConversations(q) { renderConvList(q); }
+
+function formatTimeAgo(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return 'now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  if (diff < 604800) return Math.floor(diff/86400) + 'd';
+  return d.toLocaleDateString();
+}
+
+async function openChat(convId, friendId) {
+  msgChatOpen = true;
+  document.getElementById('msgLayout')?.classList.add('chat-open');
+  // Find conv info
+  const conv = msgConversations.find(c => c.id === convId);
+  msgCurrentConv = conv || { id: convId, friend_id: friendId };
+  renderConvList(); // highlight active
+  // Load messages
+  try {
+    const r = await fetch(API+'/messages/'+convId);
+    const d = await r.json();
+    msgCurrentMessages = d.data || [];
+  } catch(e) { msgCurrentMessages = []; }
+  renderChatArea();
+  // Update unread
+  if (conv) conv.unread_count = 0;
+  renderConvList();
+  updateUnreadBadge();
+}
+
+function renderChatArea() {
+  const area = document.getElementById('msgChatArea');
+  if (!area || !msgCurrentConv) return;
+  const c = msgCurrentConv;
+  const name = esc(c.display_name || c.username || 'Friend');
+  const emoji = c.avatar_emoji || '👤';
+  const color = c.avatar_color || '#7c5cfc';
+  const userId = userProfile.id;
+
+  area.innerHTML = `
+    <div class="msg-chat-header">
+      <button onclick="closeChatMobile()" style="display:none;background:none;border:none;font-size:18px;cursor:pointer;padding:4px 8px;color:var(--text-2)" class="msg-back-btn">←</button>
+      <div class="avatar" style="background:${color}20;color:${color}">${emoji}</div>
+      <div><div style="font-weight:600;font-size:14px">${name}</div><div style="font-size:11px;color:var(--text-3)">Friend</div></div>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button onclick="openShareNoteToChat()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);cursor:pointer;font-size:12px" title="Share Note">📄 Share Note</button>
+      </div>
+    </div>
+    <div class="msg-chat-messages" id="msgChatMessages"></div>
+    <div class="msg-input-area">
+      <textarea id="msgInput" placeholder="Type a message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button onclick="sendMessage()" title="Send">➤</button>
+    </div>
+  `;
+  // Mobile back button
+  if (window.innerWidth <= 768) {
+    area.querySelector('.msg-back-btn').style.display = 'block';
+  }
+  renderMessages_chat();
+  // Auto-grow textarea
+  const ta = document.getElementById('msgInput');
+  ta?.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
+}
+
+function renderMessages_chat() {
+  const el = document.getElementById('msgChatMessages');
+  if (!el) return;
+  const userId = userProfile.id;
+  if (!msgCurrentMessages.length) {
+    el.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--text-3);padding:40px"><div style="font-size:40px;margin-bottom:8px">👋</div><p>Say hello!</p></div>';
+    return;
+  }
+  let html = '';
+  let lastDate = '';
+  msgCurrentMessages.forEach(msg => {
+    const d = new Date(msg.created_at);
+    const dateStr = localDateStr(d);
+    if (dateStr !== lastDate) {
+      lastDate = dateStr;
+      html += `<div class="msg-date-sep">${d.toLocaleDateString(undefined, { month:'short', day:'numeric' })}</div>`;
+    }
+    const isSent = msg.sender_id === userId;
+    const timeStr = d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+    let content = '';
+    if (msg.message_type === 'note' && msg.shared_note_id) {
+      content = `<div class="shared-note-card" onclick="openNoteById('${msg.shared_note_id}')"><div class="sn-title">📄 ${esc(msg.shared_note_title||'Shared Note')}</div><div class="sn-preview">${esc((msg.shared_note_preview||'').substring(0,80))}</div></div>`;
+      if (msg.content) content = `<div>${esc(msg.content)}</div>` + content;
+    } else {
+      content = esc(msg.content || '').replace(/\n/g, '<br>');
+    }
+    html += `<div class="msg-bubble ${isSent?'sent':'received'}">${content}<span class="msg-time">${timeStr}</span></div>`;
+  });
+  el.innerHTML = html;
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendMessage(noteId, noteTitle) {
+  const input = document.getElementById('msgInput');
+  const text = input?.value?.trim() || '';
+  if (!text && !noteId) return;
+  if (!msgCurrentConv?.id) return;
+  try {
+    const body = { content: text, message_type: noteId ? 'note' : 'text', shared_note_id: noteId || null };
+    const r = await fetch(API+'/messages/'+msgCurrentConv.id, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const d = await r.json();
+    if (d.data) {
+      d.data.shared_note_title = noteTitle;
+      msgCurrentMessages.push(d.data);
+      renderMessages_chat();
+      if (input) { input.value = ''; input.style.height = 'auto'; }
+      // Update conv list
+      const conv = msgConversations.find(c => c.id === msgCurrentConv.id);
+      if (conv) { conv.last_message = text || 'Shared a note'; conv.last_message_at = new Date().toISOString(); conv.last_message_type = body.message_type; }
+      renderConvList();
+    }
+  } catch(e) { toast('Failed to send', 'error'); }
+}
+
+function closeChatMobile() {
+  msgChatOpen = false;
+  document.getElementById('msgLayout')?.classList.remove('chat-open');
+}
+
+async function openShareNoteToChat() {
+  // Show note picker modal
+  const overlay = document.createElement('div');
+  overlay.className = 'friends-modal';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  let noteList = notes.filter(n => n.item_type !== 'folder' && !n.deleted_at);
+  overlay.innerHTML = `<div class="friends-modal-content"><div class="friends-modal-header"><h3 style="font-size:15px">📄 Share a Note</h3><button onclick="this.closest('.friends-modal').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-3)">✕</button></div><div style="padding:8px 20px"><input id="notePickerSearch" class="settings-input" placeholder="Search notes..." oninput="filterNotePicker(this.value)" style="width:100%"></div><div class="friends-modal-body" id="notePickerList">${noteList.map(n => `<div class="friend-item" style="cursor:pointer" onclick="pickNoteToShare('${n.id}','${esc(n.title||'Untitled').replace(/'/g,"\\'")}')"><span style="font-size:18px">📄</span><div class="friend-info"><div class="friend-name">${esc(n.title||'Untitled')}</div><div class="friend-bio">${esc((n.markdown||n.content||'').substring(0,60))}</div></div></div>`).join('')}</div></div>`;
+  document.body.appendChild(overlay);
+}
+
+function filterNotePicker(q) {
+  const el = document.getElementById('notePickerList');
+  if (!el) return;
+  const filtered = notes.filter(n => n.item_type !== 'folder' && !n.deleted_at && (n.title||'').toLowerCase().includes(q.toLowerCase()));
+  el.innerHTML = filtered.map(n => `<div class="friend-item" style="cursor:pointer" onclick="pickNoteToShare('${n.id}','${esc(n.title||'Untitled').replace(/'/g,"\\'")}')"><span style="font-size:18px">📄</span><div class="friend-info"><div class="friend-name">${esc(n.title||'Untitled')}</div><div class="friend-bio">${esc((n.markdown||n.content||'').substring(0,60))}</div></div></div>`).join('');
+}
+
+function pickNoteToShare(noteId, noteTitle) {
+  document.querySelector('.friends-modal')?.remove();
+  sendMessage(noteId, noteTitle);
+}
+
+async function openNoteById(noteId) {
+  const note = notes.find(n => n.id === noteId);
+  if (note) { currentNote = note; switchView('editor'); }
+  else { toast('Note not found', 'error'); }
+}
+
+// Friends modal
+async function loadFriends() {
+  try {
+    const r = await fetch(API+'/friends');
+    const d = await r.json();
+    msgFriends = d.data || { friends: [], pending: [] };
+  } catch(e) {}
+}
+
+function openFriendsModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'friends-modal';
+  overlay.id = 'friendsModalOverlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const { friends, pending } = msgFriends;
+  overlay.innerHTML = `<div class="friends-modal-content"><div class="friends-modal-header"><h3 style="font-size:15px">👥 Friends (${friends.length})</h3><button onclick="this.closest('.friends-modal').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-3)">✕</button></div><div class="friends-modal-body">
+    ${pending.length ? `<div style="margin-bottom:16px"><h4 style="font-size:13px;color:var(--accent);margin-bottom:8px">📩 Pending Requests (${pending.length})</h4>${pending.map(p => `<div class="friend-item"><div class="friend-avatar" style="background:${p.avatar_color||'#7c5cfc'}20;color:${p.avatar_color||'#7c5cfc'}">${p.avatar_emoji||'👤'}</div><div class="friend-info"><div class="friend-name">${esc(p.display_name||p.username)}</div><div class="friend-bio">${esc(p.bio||'')}</div></div><div style="display:flex;gap:4px"><button onclick="respondFriend('${p.friendship_id}','accept')" style="padding:4px 10px;border-radius:6px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:11px">Accept</button><button onclick="respondFriend('${p.friendship_id}','reject')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-2);cursor:pointer;font-size:11px;color:var(--text-2)">Decline</button></div></div>`).join('')}</div><hr style="border:none;border-top:1px solid var(--border);margin:12px 0">` : ''}
+    <h4 style="font-size:13px;margin-bottom:8px">All Friends</h4>
+    ${friends.length ? friends.map(f => `<div class="friend-item"><div class="friend-avatar" style="background:${f.avatar_color||'#7c5cfc'}20;color:${f.avatar_color||'#7c5cfc'}">${f.avatar_emoji||'👤'}</div><div class="friend-info"><div class="friend-name">${esc(f.display_name||f.username)}</div><div class="friend-bio">${esc(f.bio||'')}</div></div><div style="display:flex;gap:4px"><button onclick="startChatWith('${f.friend_id}')" style="padding:4px 10px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:11px">💬 Chat</button><button onclick="removeFriend('${f.friendship_id}')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--red);background:none;color:var(--red);cursor:pointer;font-size:11px">Remove</button></div></div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--text-3)">No friends yet. Add someone!</div>'}
+  </div></div>`;
+  document.body.appendChild(overlay);
+}
+
+function openAddFriendModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'friends-modal';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="friends-modal-content"><div class="friends-modal-header"><h3 style="font-size:15px">➕ Add Friend</h3><button onclick="this.closest('.friends-modal').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-3)">✕</button></div><div style="padding:12px 20px"><input id="friendSearchInput" class="settings-input" placeholder="Search by username or email..." style="width:100%" oninput="searchFriends(this.value)"></div><div class="friends-modal-body" id="friendSearchResults"><div style="text-align:center;padding:20px;color:var(--text-3)">Type a name or email to search</div></div></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('friendSearchInput')?.focus(), 100);
+}
+
+let friendSearchTimeout;
+async function searchFriends(q) {
+  clearTimeout(friendSearchTimeout);
+  if (q.length < 2) { document.getElementById('friendSearchResults').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3)">Type at least 2 characters</div>'; return; }
+  friendSearchTimeout = setTimeout(async () => {
+    try {
+      const r = await fetch(API+'/friends/search?q='+encodeURIComponent(q));
+      const d = await r.json();
+      const results = d.data || [];
+      const el = document.getElementById('friendSearchResults');
+      if (!results.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-3)">No users found</div>'; return; }
+      // Check existing friendships
+      const friendIds = new Set(msgFriends.friends.map(f => f.friend_id));
+      el.innerHTML = results.map(u => {
+        const isFriend = friendIds.has(u.id);
+        return `<div class="friend-item"><div class="friend-avatar" style="background:${u.avatar_color||'#7c5cfc'}20;color:${u.avatar_color||'#7c5cfc'}">${u.avatar_emoji||'👤'}</div><div class="friend-info"><div class="friend-name">${esc(u.display_name||u.username)}</div><div class="friend-bio">${esc(u.bio||'')}</div></div>${isFriend ? '<span style="font-size:12px;color:var(--green)">✓ Friends</span>' : `<button onclick="sendFriendRequest('${u.id}',this)" style="padding:4px 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:11px">+ Add</button>`}</div>`;
+      }).join('');
+    } catch(e) {}
+  }, 300);
+}
+
+async function sendFriendRequest(userId, btn) {
+  try {
+    const r = await fetch(API+'/friends/request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ addressee_id: userId }) });
+    const d = await r.json();
+    if (d.error) { toast(d.error, 'error'); return; }
+    btn.textContent = '✓ Sent';
+    btn.disabled = true;
+    btn.style.background = 'var(--green)';
+    toast('Friend request sent!', 'success');
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function respondFriend(friendshipId, action) {
+  try {
+    await fetch(API+'/friends/respond', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ friendship_id: friendshipId, action }) });
+    await loadFriends();
+    if (action === 'accept') { toast('Friend added!', 'success'); await loadConversations(); }
+    else { toast('Request declined', 'info'); }
+    document.getElementById('friendsModalOverlay')?.remove();
+    openFriendsModal();
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function removeFriend(friendshipId) {
+  if (!confirm('Remove this friend?')) return;
+  try {
+    await fetch(API+'/friends/'+friendshipId, { method:'DELETE' });
+    await loadFriends();
+    toast('Friend removed', 'info');
+    document.getElementById('friendsModalOverlay')?.remove();
+    openFriendsModal();
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+async function startChatWith(friendId) {
+  document.querySelector('.friends-modal')?.remove();
+  try {
+    const r = await fetch(API+'/messages/conversation', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ friend_id: friendId }) });
+    const d = await r.json();
+    if (d.data) {
+      await loadConversations();
+      openChat(d.data.conversation_id, friendId);
+    }
+  } catch(e) { toast('Failed', 'error'); }
+}
+
+// Polling for new messages
+function startMsgPoll() {
+  stopMsgPoll();
+  msgPollTimer = setInterval(async () => {
+    if (currentView !== 'messages') { stopMsgPoll(); return; }
+    await loadConversations();
+    if (msgCurrentConv?.id) {
+      try {
+        const r = await fetch(API+'/messages/'+msgCurrentConv.id);
+        const d = await r.json();
+        const newMsgs = d.data || [];
+        if (newMsgs.length !== msgCurrentMessages.length) {
+          msgCurrentMessages = newMsgs;
+          renderMessages_chat();
+        }
+      } catch(e) {}
+    }
+  }, 5000);
+}
+
+function stopMsgPoll() { if (msgPollTimer) { clearInterval(msgPollTimer); msgPollTimer = null; } }
+
+// Unread badge in nav
+async function updateUnreadBadge() {
+  try {
+    const r = await fetch(API+'/messages/unread/count');
+    const d = await r.json();
+    const count = d.data?.count || 0;
+    const badge = document.getElementById('navUnreadCount');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? '' : 'none'; }
+  } catch(e) {}
 }
 
 // ===== MULTI-DEVICE SYNC =====
@@ -4734,7 +5122,7 @@ function exportNotes(format) {
   let content, filename, type;
   if (format==='json') { content=JSON.stringify(notes,null,2); filename='vault-export.json'; type='application/json'; }
   else if (format==='markdown') { content=notes.map(n=>`# ${n.title||'Untitled'}\n\n${n.markdown||n.content||''}\n\n---\n`).join('\n'); filename='vault-export.md'; type='text/markdown'; }
-  else { content=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Fang's Vault Export</title><style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>${notes.map(n=>`<h1>${esc(n.title||'Untitled')}</h1>${renderMarkdown(n.markdown||n.content||'')}<hr>`).join('')}</body></html>`; filename='vault-export.html'; type='text/html'; }
+  else { content=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>yulufang@sjtu.edu.cn Export</title><style>body{max-width:800px;margin:40px auto;padding:0 20px;font-family:Inter,sans-serif;color:#333}h1{border-bottom:2px solid #7c5cfc;padding-bottom:8px}hr{margin:40px 0}</style></head><body>${notes.map(n=>`<h1>${esc(n.title||'Untitled')}</h1>${renderMarkdown(n.markdown||n.content||'')}<hr>`).join('')}</body></html>`; filename='vault-export.html'; type='text/html'; }
   const blob = new Blob([content], { type });
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
   toast(`Exported as ${format.toUpperCase()}`, 'success');
